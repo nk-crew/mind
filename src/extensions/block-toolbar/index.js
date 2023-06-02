@@ -1,8 +1,16 @@
 /**
+ * Styles
+ */
+import './style.scss';
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
+import { BlockControls } from '@wordpress/block-editor';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	ToolbarGroup,
 	DropdownMenu,
@@ -14,7 +22,7 @@ import {
 /**
  * Internal dependencies
  */
-import TOOLBAR_ICON from './icon';
+import TOOLBAR_ICON from '../../utils/icon';
 
 const ALLOWED_BLOCKS = ['core/paragraph', 'core/heading'];
 
@@ -24,11 +32,11 @@ const ALLOWED_BLOCKS = ['core/paragraph', 'core/heading'];
  * @param {Object} data - block data.
  * @return {boolean} allowed.
  */
-export function isToolbarAllowed(data) {
+function isToolbarAllowed(data) {
 	return ALLOWED_BLOCKS.includes(data.name);
 }
 
-export function Toolbar() {
+function Toolbar() {
 	const { selectedBlocks, selectedClientIds, canRemove } = useSelect(
 		(select) => {
 			const {
@@ -46,6 +54,8 @@ export function Toolbar() {
 		},
 		[]
 	);
+
+	const { open } = useDispatch('mind/popup');
 
 	console.log(selectedClientIds);
 
@@ -71,11 +81,21 @@ export function Toolbar() {
 					return (
 						<>
 							<MenuGroup>
-								<MenuItem>{__('Improve', 'mind')}</MenuItem>
-								<MenuItem>{__('Paraphrase', 'mind')}</MenuItem>
-								<MenuItem>{__('Simplify', 'mind')}</MenuItem>
-								<MenuItem>{__('Expand', 'mind')}</MenuItem>
-								<MenuItem>{__('Shorten', 'mind')}</MenuItem>
+								<MenuItem onClick={open}>
+									{__('Improve', 'mind')}
+								</MenuItem>
+								<MenuItem onClick={open}>
+									{__('Paraphrase', 'mind')}
+								</MenuItem>
+								<MenuItem onClick={open}>
+									{__('Simplify', 'mind')}
+								</MenuItem>
+								<MenuItem onClick={open}>
+									{__('Expand', 'mind')}
+								</MenuItem>
+								<MenuItem onClick={open}>
+									{__('Shorten', 'mind')}
+								</MenuItem>
 							</MenuGroup>
 							<MenuGroup>
 								<DropdownMenu
@@ -95,13 +115,13 @@ export function Toolbar() {
 										return (
 											<>
 												<MenuGroup>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__('Casual', 'mind')}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__('Neutral', 'mind')}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__('Formal', 'mind')}
 													</MenuItem>
 												</MenuGroup>
@@ -126,25 +146,25 @@ export function Toolbar() {
 										return (
 											<>
 												<MenuGroup>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__('Friendly', 'mind')}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__(
 															'Professional',
 															'mind'
 														)}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__('Witty', 'mind')}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__(
 															'Heartfelt',
 															'mind'
 														)}
 													</MenuItem>
-													<MenuItem>
+													<MenuItem onClick={open}>
 														{__(
 															'Educational',
 															'mind'
@@ -163,3 +183,34 @@ export function Toolbar() {
 		</ToolbarGroup>
 	);
 }
+
+/**
+ * Override the default edit UI to include a new block inspector control for
+ * assigning the custom attribute if needed.
+ *
+ * @param {Function} BlockEdit Original component.
+ *
+ * @return {string} Wrapped component.
+ */
+const withToolbarControl = createHigherOrderComponent((OriginalComponent) => {
+	function MindToolbarToggle(props) {
+		const allow = isToolbarAllowed(props);
+
+		if (!allow) {
+			return <OriginalComponent {...props} />;
+		}
+
+		return (
+			<>
+				<OriginalComponent {...props} />
+				<BlockControls group="other">
+					<Toolbar />
+				</BlockControls>
+			</>
+		);
+	}
+
+	return MindToolbarToggle;
+}, 'withToolbarControl');
+
+addFilter('editor.BlockEdit', 'mind/block-toolbar-toggle', withToolbarControl);

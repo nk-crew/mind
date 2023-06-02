@@ -1,0 +1,37 @@
+.mind-post-toolbar-toggle {
+	flex: 100%;
+	white-space: nowrap;
+
+	button {
+		--wp-components-color-accent: var(--mind-brand-color);
+
+		position: relative;
+		color: var(--mind-brand-color);
+		font-weight: 500;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			opacity: 0.05;
+		}
+
+		&:hover,
+		&:focus {
+			color: var(--mind-brand-color);
+
+			&::after {
+				background-color: var(--mind-brand-color);
+			}
+		}
+	}
+
+	svg {
+		margin-top: -2px;
+		margin-right: 6px;
+		margin-bottom: -2px;
+	}
+}

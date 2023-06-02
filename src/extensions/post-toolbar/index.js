@@ -1,9 +1,11 @@
+import './style.scss';
+
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { createRoot, useState } from '@wordpress/element';
-import { subscribe } from '@wordpress/data';
+import { createRoot } from '@wordpress/element';
+import { subscribe, useDispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { throttle } from 'lodash';
@@ -11,13 +13,12 @@ import { throttle } from 'lodash';
 /**
  * Internal dependencies
  */
-import TOOLBAR_ICON from './icon';
-import Popup from './popup';
+import TOOLBAR_ICON from '../../utils/icon';
 
-const TOOLBAR_TOGGLE_CONTAINER_CLASS = 'mind-editor-toolbar-toggle';
+const TOOLBAR_TOGGLE_CONTAINER_CLASS = 'mind-post-toolbar-toggle';
 
 function Toggle() {
-	const [isOpened, setIsOpened] = useState(false);
+	const { toggle } = useDispatch('mind/popup');
 
 	return (
 		<>
@@ -27,19 +28,12 @@ function Toggle() {
 				onClick={(e) => {
 					e.preventDefault();
 
-					setIsOpened(!isOpened);
+					toggle();
 				}}
 			>
 				{TOOLBAR_ICON}
 				{__('Open Mind', '@@text_domain')}
 			</button>
-			{isOpened ? (
-				<Popup
-					onClose={() => {
-						setIsOpened(!isOpened);
-					}}
-				/>
-			) : null}
 		</>
 	);
 }

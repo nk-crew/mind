@@ -1,3 +1,8 @@
+/**
+ * Styles
+ */
+import './style.scss';
+
 export default (
 	<svg
 		width="20"
@@ -5,7 +10,7 @@ export default (
 		viewBox="0 0 66 66"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
-		className="mind-toolbar-icon"
+		className="mind-icon"
 	>
 		<path
 			fillRule="evenodd"

@@ -1,0 +1,66 @@
+// Popup.
+.mind-popup {
+	position: relative;
+	top: 15%;
+	margin-top: 0;
+	width: 750px;
+	max-height: 380px;
+	color: #000;
+
+	.components-modal__content {
+		padding: 0;
+
+		> div {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+	}
+}
+.mind-popup-overlay {
+	// Upper then dropdown.
+	z-index: 1000001;
+}
+
+.mind-popup-content {
+	overflow: auto;
+	flex: 1;
+	padding: 10px;
+}
+.mind-popup-footer {
+	padding: 10px;
+	background-color: #f6f6f6;
+	border-top: 1px solid #e8e7e7;
+}
+.mind-popup-footer-logo {
+	display: flex;
+	gap: 6px;
+	font-weight: 500;
+	color: var(--mind-brand-color);
+}
+
+.mind-popup-prompts {
+	display: flex;
+	flex-direction: column;
+
+	.mind-popup-prompts-category {
+		font-weight: 500;
+		padding: 10px;
+		padding-top: 20px;
+		color: #b5b1b1;
+	}
+
+	.mind-popup-prompts-button {
+		background-color: transparent;
+		color: #000;
+		border: none;
+		text-align: left;
+		padding: 10px;
+		border-radius: 5px;
+
+		&:hover,
+		&:focus {
+			background-color: rgba(#000, 5%);
+		}
+	}
+}
