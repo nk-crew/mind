@@ -8,10 +8,12 @@ import * as actions from './actions';
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
-registerStore('mind/popup', {
+const store = createReduxStore('mind/popup', {
 	reducer,
 	selectors,
 	actions,
 });
+
+register(store);
