@@ -1,0 +1,57 @@
+/*!***************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/style.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************/
+.mind-toolbar-icon {
+  color: #e455df;
+  width: 20px;
+  height: 20px;
+}
+
+.mind-toolbar-dropdown-wrapper {
+  width: 100%;
+}
+.mind-toolbar-dropdown-wrapper button {
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.mind-toolbar-dropdown-wrapper button .dashicon {
+  margin-left: auto;
+}
+
+.mind-editor-toolbar-toggle {
+  flex: 100%;
+  white-space: nowrap;
+}
+.mind-editor-toolbar-toggle button {
+  color: #e455df;
+}
+.mind-editor-toolbar-toggle button:hover, .mind-editor-toolbar-toggle button:focus {
+  color: #e455df;
+  background: rgba(228, 85, 223, 0.05);
+}
+.mind-editor-toolbar-toggle svg {
+  margin-top: -2px;
+  margin-right: 6px;
+  margin-bottom: -2px;
+}
+
+.mind-popup {
+  width: 800px;
+  margin-top: 100px;
+  background-color: rgb(243, 243, 243);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.2), 0 25px 70px 10px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.mind-popup .components-modal__header {
+  padding: 24px 20px 12px;
+}
+.mind-popup .components-modal__content {
+  padding: 0 20px 20px;
+}
+
+.mind-popup-overlay {
+  background-color: rgba(143, 135, 143, 0.25);
+}
+
+/*# sourceMappingURL=style-index.css.map*/
