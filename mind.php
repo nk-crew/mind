@@ -5,7 +5,7 @@
  * Requires at least: 6.0
  * Requires PHP:      7.2
  * Version:           0.1.0
- * Author:            WPMind Team
+ * Author:            Mind Team
  * Author URI:        https://wp-mind.com/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=byline
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,7 @@ class Mind {
 		require_once $this->plugin_path . 'classes/class-settings.php';
 		require_once $this->plugin_path . 'classes/class-admin.php';
 		require_once $this->plugin_path . 'classes/class-assets.php';
+		require_once $this->plugin_path . 'classes/class-rest.php';
 	}
 }
 
@@ -130,5 +131,5 @@ function mind() {
 }
 add_action( 'plugins_loaded', 'mind' );
 
-register_activation_hook( __FILE__, array( mind(), 'activation_hook' ) );
-register_deactivation_hook( __FILE__, array( mind(), 'deactivation_hook' ) );
+register_activation_hook( __FILE__, [ mind(), 'activation_hook' ] );
+register_deactivation_hook( __FILE__, [ mind(), 'deactivation_hook' ] );

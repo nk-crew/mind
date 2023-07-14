@@ -17,7 +17,7 @@ class Mind_Admin {
 	 * Mind_Admin constructor.
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_admin_menu' ), 20 );
+		add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 20 );
 	}
 
 	/**
@@ -35,7 +35,7 @@ class Mind_Admin {
 			esc_html__( 'Mind', 'mind' ),
 			'manage_options',
 			'mind',
-			array( 'Mind_Settings', 'print_settings_page' ),
+			[ 'Mind_Settings', 'print_settings_page' ],
 			// phpcs:ignore
 			'data:image/svg+xml;base64,' . base64_encode( file_get_contents( mind()->plugin_path . 'assets/images/admin-icon.svg' ) ),
 			'58.7'

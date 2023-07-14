@@ -38,3 +38,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# system files
+.DS_Store

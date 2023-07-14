@@ -22,20 +22,20 @@ class Mind_Settings_API {
      *
      * @var array
      */
-    protected $settings_sections = array();
+    protected $settings_sections = [];
 
     /**
      * Settings fields array
      *
      * @var array
      */
-    protected $settings_fields = array();
+    protected $settings_fields = [];
 
     /**
      * Mind_Settings_API constructor.
      */
     public function __construct() {
-        // add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+        // add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
     }
 
     /**
@@ -47,10 +47,10 @@ class Mind_Settings_API {
         wp_enqueue_media();
         wp_enqueue_script( 'wp-color-picker' );
         wp_enqueue_script( 'jquery' );
-        wp_enqueue_script( 'conditionize', mind()->plugin_url . 'vendors/assets/conditionize/conditionize.min.js', array( 'jquery' ), '1.0.5' );
+        wp_enqueue_script( 'conditionize', mind()->plugin_url . 'vendors/assets/conditionize/conditionize.min.js', [ 'jquery' ], '1.0.5' );
 
-        wp_enqueue_style( 'select2', mind()->plugin_url . 'vendors/assets/select2/select2.min.css', array(), '4.0.13' );
-        wp_enqueue_script( 'select2', mind()->plugin_url . 'vendors/assets/select2/select2.min.js', array( 'jquery' ), '4.0.13' );
+        wp_enqueue_style( 'select2', mind()->plugin_url . 'vendors/assets/select2/select2.min.css', [], '4.0.13' );
+        wp_enqueue_script( 'select2', mind()->plugin_url . 'vendors/assets/select2/select2.min.js', [ 'jquery' ], '4.0.13' );
     }
 
     /**
@@ -87,13 +87,13 @@ class Mind_Settings_API {
     }
 
     public function add_field( $section, $field ) {
-        $defaults = array(
-            'name'   => '',
+        $defaults = [
+			'name'   => '',
             'label'  => '',
             'desc'   => '',
             'type'   => 'text',
             'is_pro' => false,
-        );
+		];
 
         $arg = wp_parse_args( $field, $defaults );
         $this->settings_fields[ $section ][] = $arg;
@@ -135,23 +135,23 @@ class Mind_Settings_API {
                 $name = $option['name'];
                 $type = isset( $option['type'] ) ? $option['type'] : 'text';
                 $label = isset( $option['label'] ) ? $option['label'] : '';
-                $callback = isset( $option['callback'] ) ? $option['callback'] : array( $this, 'callback_' . $type );
+                $callback = isset( $option['callback'] ) ? $option['callback'] : [ $this, 'callback_' . $type ];
                 $class_name = isset( $option['class'] ) ? $option['class'] : $name;
                 $is_pro = isset( $option['is_pro'] ) ? $option['is_pro'] : false;
 
                 if ( $is_pro ) {
                     $class_name .= ' mind-settings-control-pro';
                     $go_pro_url = Visual_Portfolio_Admin::get_plugin_site_url(
-                        array(
-                            'utm_medium'   => 'settings_page',
+                        [
+							'utm_medium'   => 'settings_page',
                             'utm_campaign' => esc_attr( $name ),
-                        )
+						]
                     );
                     $label .= '<a class="mind-settings-control-pro-label" target="_blank" rel="noopener noreferrer" href="' . esc_url( $go_pro_url ) . '">?<span>' . esc_html__( 'This feature is available in the Pro plugin only.', '@@text_domain' ) . '</span></a>';
                 }
 
-                $args = array(
-                    'id'                => $name,
+                $args = [
+					'id'                => $name,
                     'class'             => $class_name,
                     'label_for'         => "{$section}[{$name}]",
                     'desc'              => isset( $option['desc'] ) ? $option['desc'] : '',
@@ -169,7 +169,7 @@ class Mind_Settings_API {
                     'is_pro'            => isset( $option['is_pro'] ) ? $option['is_pro'] : false,
                     'condition'         => isset( $option['condition'] ) ? $option['condition'] : null,
                     'conditionize'      => isset( $option['condition'] ) ? $this->convert_arguments_to_conditionize_string( $option['condition'] ) : '',
-                );
+				];
 
                 add_settings_field( "{$section}[{$name}]", $label, $callback, $section, $section, $args );
             }
@@ -177,7 +177,7 @@ class Mind_Settings_API {
 
         // creates our settings in the options table
         foreach ( $this->settings_sections as $section ) {
-            register_setting( $section['id'], $section['id'], array( $this, 'sanitize_options' ) );
+            register_setting( $section['id'], $section['id'], [ $this, 'sanitize_options' ] );
         }
     }
 
@@ -377,11 +377,11 @@ class Mind_Settings_API {
 
         echo '<div style="max-width: ' . $size . ';">';
 
-        $editor_settings = array(
-            'teeny'         => true,
+        $editor_settings = [
+			'teeny'         => true,
             'textarea_name' => $args['section'] . '[' . $args['id'] . ']',
             'textarea_rows' => 10,
-        );
+		];
 
         if ( isset( $args['options'] ) && is_array( $args['options'] ) ) {
             $editor_settings = array_merge( $editor_settings, $args['options'] );
@@ -476,12 +476,12 @@ class Mind_Settings_API {
      */
     public function callback_pages( $args ) {
 
-        $dropdown_args = array(
-            'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
+        $dropdown_args = [
+			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
             'name'     => $args['section'] . '[' . $args['id'] . ']',
             'id'       => $args['section'] . '[' . $args['id'] . ']',
             'echo'     => 0,
-        );
+		];
         $html = wp_dropdown_pages( $dropdown_args );
         echo $html;
     }

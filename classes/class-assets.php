@@ -17,7 +17,7 @@ class Mind_Assets {
 	 * Mind_Assets constructor.
 	 */
 	public function __construct() {
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
 	}
 
 	/**
@@ -35,10 +35,10 @@ class Mind_Assets {
 			return include $asset_path;
 		}
 
-		return array(
-			'dependencies' => array(),
+		return [
+			'dependencies' => [],
 			'version'      => MIND_VERSION,
-		);
+		];
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Mind_Assets {
 		wp_enqueue_style(
 			'mind-editor',
 			mind()->plugin_url . 'build/style-index.css',
-			array(),
+			[],
 			$asset_data['version']
 		);
 	}

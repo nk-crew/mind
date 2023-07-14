@@ -42,11 +42,10 @@ class Mind_Settings {
 	 *
 	 * @param string $option - option name.
 	 * @param string $section - section name.
-	 * @param string $deprecated_default - default option value.
 	 *
 	 * @return bool|string
 	 */
-	public static function get_option( $option, $section, $deprecated_default = '' ) {
+	public static function get_option( $option, $section ) {
 		$options = get_option( $section );
 		$result  = '';
 
@@ -79,7 +78,7 @@ class Mind_Settings {
 		$options = get_option( $section );
 
 		if ( ! is_array( $options ) ) {
-			$options = array();
+			$options = [];
 		}
 
 		$options[ $option ] = $value;
@@ -93,7 +92,7 @@ class Mind_Settings {
 	public static function init_actions() {
 		self::$settings_api = new Mind_Settings_API();
 
-		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_init', [ __CLASS__, 'admin_init' ] );
 	}
 
 	/**
@@ -116,13 +115,13 @@ class Mind_Settings {
 	 * @return array
 	 */
 	public static function get_settings_sections() {
-		$sections = array(
-			array(
+		$sections = [
+			[
 				'id'    => 'mind_general',
 				'title' => esc_html__( 'General', 'mind' ),
 				'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>',
-			),
-		);
+			],
+		];
 
 		return apply_filters( 'mind_settings_sections', $sections );
 	}
@@ -145,17 +144,17 @@ class Mind_Settings {
 			$openai_key = $general_settings['openai_key'];
 		}
 
-		$settings_fields = array(
-			'mind_general' => array(
-				array(
+		$settings_fields = [
+			'mind_general' => [
+				[
 					'name'    => 'openai_key',
 					'label'   => esc_html__( 'OpenAI API Key', 'mind' ),
 					'desc'    => esc_html__( 'This setting is required, since our plugin works with OpenAI.', 'mind' ) . ' <a href="https://platform.openai.com/account/api-keys" target="_blank">Create API key</a>',
 					'type'    => $openai_key ? 'password' : 'text',
 					'default' => '',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		self::$cached_settings_fields = apply_filters( 'mind_settings_fields', $settings_fields );
 
