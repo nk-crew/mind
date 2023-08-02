@@ -170,12 +170,23 @@ export default function Popup(props) {
 		}
 	}
 
+	function onInsert() {
+		insertResponse();
+
+		reset();
+		close();
+
+		if (onClose) {
+			onClose();
+		}
+	}
+
 	// Set focus on Input.
 	useEffect(() => {
-		if (isOpen && ref?.current) {
+		if (isOpen && !loading && ref?.current) {
 			focusInput();
 		}
-	}, [isOpen, ref]);
+	}, [isOpen, loading, ref]);
 
 	// Open request page if something is in input.
 	useEffect(() => {
@@ -183,6 +194,25 @@ export default function Popup(props) {
 			setScreen('request');
 		}
 	}, [screen, input, setScreen]);
+
+	function onKeyDown(e) {
+		// Go back to starter screen.
+		if (screen !== '' && e.key === 'Backspace' && !e.target.value) {
+			reset();
+			return;
+		}
+
+		// Insert request to post.
+		if (response && e.key === 'Enter') {
+			onInsert();
+			return;
+		}
+
+		// Send request to AI.
+		if (screen === 'request' && e.key === 'Enter') {
+			requestAI();
+		}
+	}
 
 	if (!isOpen) {
 		return null;
@@ -214,22 +244,7 @@ export default function Popup(props) {
 					onChange={(val) => {
 						setInput(val);
 					}}
-					onKeyDown={(e) => {
-						// Go back to starter screen.
-						if (
-							screen !== '' &&
-							e.key === 'Backspace' &&
-							!e.target.value
-						) {
-							reset();
-							return;
-						}
-
-						// Send request to AI.
-						if (screen === 'request' && e.key === 'Enter') {
-							requestAI();
-						}
-					}}
+					onKeyDown={onKeyDown}
 					disabled={loading}
 				/>
 				{contextLabel ? (
@@ -263,7 +278,6 @@ export default function Popup(props) {
 									onClick={() => {
 										setInput(data.request);
 										setScreen('request');
-										focusInput();
 									}}
 								>
 									{data.icon || ''}
@@ -304,17 +318,11 @@ export default function Popup(props) {
 							<>
 								<Button
 									onClick={() => {
-										insertResponse();
-
-										reset();
-										close();
-
-										if (onClose) {
-											onClose();
-										}
+										setError('');
+										requestAI();
 									}}
 								>
-									{__('Insert', 'mind')} <kbd>⏎</kbd>
+									{__('Regenerate', 'mind')} <kbd>↻</kbd>
 								</Button>
 								<Button
 									onClick={() => {
@@ -330,13 +338,8 @@ export default function Popup(props) {
 								>
 									{__('Copy', 'mind')}
 								</Button>
-								<Button
-									onClick={() => {
-										setError('');
-										requestAI();
-									}}
-								>
-									{__('Regenerate', 'mind')} <kbd>↻</kbd>
+								<Button onClick={onInsert}>
+									{__('Insert', 'mind')} <kbd>⏎</kbd>
 								</Button>
 							</>
 						)}
