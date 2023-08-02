@@ -4,8 +4,8 @@ function reducer(
 	state = {
 		isOpen: false,
 		input: '',
-		replaceBlocks: [],
 		context: '',
+		insertionPlace: '',
 		screen: '',
 		loading: false,
 		response: false,
@@ -51,11 +51,11 @@ function reducer(
 				};
 			}
 			break;
-		case 'SET_REPLACE_BLOCKS':
-			if (state.replaceBlocks !== action.replaceBlocks) {
+		case 'SET_INSERTION_PLACE':
+			if (state.insertionPlace !== action.insertionPlace) {
 				return {
 					...state,
-					replaceBlocks: action.replaceBlocks,
+					insertionPlace: action.insertionPlace,
 				};
 			}
 			break;
@@ -115,8 +115,8 @@ function reducer(
 			return {
 				...state,
 				input: '',
-				replaceBlocks: [],
 				context: '',
+				insertionPlace: '',
 				screen: '',
 				response: false,
 				error: false,

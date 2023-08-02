@@ -11,7 +11,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import {
 	ToolbarGroup,
 	DropdownMenu,
@@ -74,28 +74,15 @@ function isToolbarAllowed(data) {
 }
 
 function Toolbar() {
-	const { selectedClientIds } = useSelect((select) => {
-		const { getSelectedBlockClientIds } = select('core/block-editor');
-
-		const ids = getSelectedBlockClientIds();
-
-		return {
-			selectedClientIds: ids,
-		};
-	}, []);
-
-	const { open, setInput, setContext, setReplaceBlocks, requestAI } =
+	const { open, setInput, setContext, setInsertionPlace, requestAI } =
 		useDispatch('mind/popup');
 
 	function openModal(prompt) {
 		open();
 		setInput(prompt);
-
-		if (selectedClientIds && selectedClientIds.length) {
-			setContext('selected-blocks');
-			setReplaceBlocks(selectedClientIds);
-			requestAI();
-		}
+		setContext('selected-blocks');
+		setInsertionPlace('selected-blocks');
+		requestAI();
 	}
 
 	return (

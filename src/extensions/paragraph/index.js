@@ -35,7 +35,7 @@ const withMindAI = createHigherOrderComponent((OriginalComponent) => {
 		const { content } = attributes;
 
 		const previousContent = usePrevious(content);
-		const { open } = useDispatch('mind/popup');
+		const { open, setInsertionPlace } = useDispatch('mind/popup');
 
 		useEffect(() => {
 			if (
@@ -44,8 +44,9 @@ const withMindAI = createHigherOrderComponent((OriginalComponent) => {
 				content === ' '
 			) {
 				open();
+				setInsertionPlace('selected-blocks');
 			}
-		}, [name, previousContent, content, open]);
+		}, [name, previousContent, content, open, setInsertionPlace]);
 
 		return <OriginalComponent {...props} />;
 	}

@@ -10,8 +10,8 @@ export function getContext(state) {
 	return state?.context || '';
 }
 
-export function getReplaceBlocks(state) {
-	return state?.replaceBlocks || [];
+export function getInsertionPlace(state) {
+	return state?.insertionPlace || '';
 }
 
 export function getScreen(state) {

@@ -92,7 +92,7 @@ export default function Popup(props) {
 		isOpen,
 		input,
 		context,
-		replaceBlocks,
+		insertionPlace,
 		screen,
 		loading,
 		response,
@@ -102,7 +102,7 @@ export default function Popup(props) {
 			isOpen: checkIsOpen,
 			getInput,
 			getContext,
-			getReplaceBlocks,
+			getInsertionPlace,
 			getScreen,
 			getLoading,
 			getResponse,
@@ -113,13 +113,23 @@ export default function Popup(props) {
 			isOpen: checkIsOpen(),
 			input: getInput(),
 			context: getContext(),
-			replaceBlocks: getReplaceBlocks(),
+			insertionPlace: getInsertionPlace(),
 			screen: getScreen(),
 			loading: getLoading(),
 			response: getResponse(),
 			error: getError(),
 		};
 	});
+
+	const { selectedClientIds } = useSelect((select) => {
+		const { getSelectedBlockClientIds } = select('core/block-editor');
+
+		const ids = getSelectedBlockClientIds();
+
+		return {
+			selectedClientIds: ids,
+		};
+	}, []);
 
 	let contextLabel = context;
 
@@ -133,8 +143,7 @@ export default function Popup(props) {
 		// no default
 	}
 
-	const { insertBlocks: wpInsertBlocks, replaceBlocks: wpReplaceBlocks } =
-		useDispatch('core/block-editor');
+	const { insertBlocks, replaceBlocks } = useDispatch('core/block-editor');
 
 	function focusInput() {
 		if (ref?.current) {
@@ -156,10 +165,10 @@ export default function Popup(props) {
 		const parsedBlocks = rawHandler({ HTML: response });
 
 		if (parsedBlocks.length) {
-			if (replaceBlocks && replaceBlocks.length) {
-				wpReplaceBlocks(replaceBlocks, parsedBlocks);
+			if (insertionPlace === 'selected-blocks') {
+				replaceBlocks(selectedClientIds, parsedBlocks);
 			} else {
-				wpInsertBlocks(parsedBlocks);
+				insertBlocks(parsedBlocks);
 			}
 
 			setHighlightBlocks(

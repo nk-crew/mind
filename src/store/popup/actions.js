@@ -41,10 +41,10 @@ export function setContext(context) {
 	};
 }
 
-export function setReplaceBlocks(replaceBlocks) {
+export function setInsertionPlace(insertionPlace) {
 	return {
-		type: 'SET_REPLACE_BLOCKS',
-		replaceBlocks,
+		type: 'SET_INSERTION_PLACE',
+		insertionPlace,
 	};
 }
 
