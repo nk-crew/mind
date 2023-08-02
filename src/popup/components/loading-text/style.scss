@@ -1,0 +1,20 @@
+.mind-popup-loading-text::after {
+	content: "...";
+	animation: mind-popup-loading-text 2s infinite;
+}
+
+@keyframes mind-popup-loading-text {
+	0%,
+	100% {
+		content: "...";
+	}
+	25% {
+		content: "";
+	}
+	50% {
+		content: ".";
+	}
+	75% {
+		content: "..";
+	}
+}

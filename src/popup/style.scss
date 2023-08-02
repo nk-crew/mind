@@ -1,14 +1,18 @@
+$padding: 10px;
+
 // Popup.
 .mind-popup {
 	position: relative;
 	top: 15%;
 	margin-top: 0;
 	width: 750px;
-	max-height: 380px;
+	max-height: clamp(0px, 440px, 75vh);
+	border-radius: 10px;
 	color: #000;
 
 	.components-modal__content {
 		padding: 0;
+		overflow: hidden;
 
 		> div {
 			display: flex;
@@ -25,42 +29,164 @@
 .mind-popup-content {
 	overflow: auto;
 	flex: 1;
-	padding: 10px;
-}
-.mind-popup-footer {
-	padding: 10px;
-	background-color: #f6f6f6;
-	border-top: 1px solid #e8e7e7;
-}
-.mind-popup-footer-logo {
-	display: flex;
-	gap: 6px;
-	font-weight: 500;
-	color: var(--mind-brand-color);
-}
+	padding: $padding $padding * 2;
 
-.mind-popup-prompts {
-	display: flex;
-	flex-direction: column;
-
-	.mind-popup-prompts-category {
-		font-weight: 500;
-		padding: 10px;
-		padding-top: 20px;
-		color: #b5b1b1;
+	&:empty,
+	&:has(.mind-popup-request:empty) {
+		padding: 0;
+		margin-bottom: -1px;
 	}
 
-	.mind-popup-prompts-button {
+	.mind-popup-request {
+		ol,
+		ul {
+			list-style: auto;
+			padding-left: 15px;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+
+			td,
+			th {
+				border: 1px solid;
+				padding: 0.5em;
+				white-space: pre-wrap;
+				min-width: 1px;
+			}
+		}
+	}
+}
+.mind-popup-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: $padding $padding * 2;
+	background-color: #f9f9f9;
+	border-top: 1px solid #e8e7e7;
+}
+.mind-popup-footer-actions {
+	display: flex;
+	margin: -5px -15px;
+	margin-left: auto;
+	gap: 5px;
+
+	button {
+		display: flex;
+		gap: 8px;
+		height: 28px;
+		border-radius: 5px;
+		font-weight: 500;
+
+		&:hover,
+		&:focus {
+			background-color: rgba(0, 0, 0, 5%);
+			color: #121212;
+		}
+
+		kbd {
+			font: inherit;
+			font-weight: 400;
+			border-radius: 3px;
+			padding: 3px 4px;
+			margin-right: -8px;
+			color: rgba(0, 0, 0, 50%);
+			background-color: rgba(0, 0, 0, 8%);
+		}
+	}
+}
+
+// Input.
+.mind-popup-input {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0;
+	border-bottom: 1px solid #e8e7e7;
+
+	> svg {
+		position: absolute;
+		left: $padding * 2;
+		pointer-events: none;
+	}
+
+	> .components-base-control {
+		flex: 1;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+	.components-base-control__field input {
+		border: none !important;
+		box-shadow: none !important;
+		padding: $padding * 2;
+		padding-left: $padding * 5;
+		font-size: 1.15em;
+		color: #151515;
+
+		&::placeholder {
+			color: #a3a3a3;
+		}
+	}
+
+	.mind-popup-input-context {
+		font-weight: 400;
+		border-radius: 3px;
+		padding: 3px 10px;
+		margin-right: 10px;
+		color: rgb(0, 0, 0, 60%);
+		background-color: rgba(0, 0, 0, 8%);
+	}
+}
+
+// Prompts.
+.mind-popup-commands {
+	display: flex;
+	flex-direction: column;
+	margin-left: -$padding;
+	margin-right: -$padding;
+
+	.mind-popup-commands-category {
+		position: relative;
+		padding: $padding;
+		padding-top: 28px;
+		color: #7f7f7f;
+
+		&:first-child {
+			padding-top: $padding;
+		}
+
+		&:not(:first-child)::before {
+			content: "";
+			display: block;
+			position: absolute;
+			top: 8px;
+			left: -10px;
+			right: -10px;
+			border-top: 1px solid #e8e7e7;
+		}
+	}
+
+	.mind-popup-commands-button {
+		display: flex;
+		align-items: center;
 		background-color: transparent;
 		color: #000;
 		border: none;
 		text-align: left;
-		padding: 10px;
+		padding: $padding;
 		border-radius: 5px;
+		height: auto;
+		min-height: 40px;
 
 		&:hover,
 		&:focus {
 			background-color: rgba(#000, 5%);
+		}
+
+		> svg {
+			margin-right: 10px;
 		}
 	}
 }

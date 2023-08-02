@@ -3,7 +3,7 @@
 	name="Mind"
 	xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
-	<description>Mind rules for PHP_CodeSniffer</description>
+	<description>Apply WordPress Coding Standards to all files</description>
 
 	<!--
 	#############################################################################
@@ -13,7 +13,7 @@
 	-->
 
 	<!-- Check the /src/ directory and the directories below it. -->
-	<file>./src/</file>
+	<file>.</file>
 	<exclude-pattern>./build/*</exclude-pattern>
 	<exclude-pattern>./vendor/*</exclude-pattern>
 	<exclude-pattern>./vendors/*</exclude-pattern>
@@ -26,8 +26,17 @@
 	<!-- Show progress, show the error codes for each message (source). -->
 	<arg value="ps" />
 
-	<!-- Check up to 8 files simultaneously. -->
-	<arg name="parallel" value="8" />
+	<!-- Check up to 20 files simultaneously. -->
+	<arg name="parallel" value="20" />
+
+	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
+	<arg name="cache" />
+
+	<!-- Set the memory limit to 256M.
+		For most standard PHP configurations, this means the memory limit will temporarily be raised.
+		Ref: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage#specifying-phpini-settings
+	-->
+	<ini name="memory_limit" value="256M" />
 
 
 	<!--
@@ -71,6 +80,11 @@
 		<properties>
 			<property name="strict_class_file_names" value="false" />
 		</properties>
+	</rule>
+
+	<!-- Allow arrays short syntax -->
+	<rule ref="WordPress-Extra">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 	</rule>
 
 	<!-- Verify that everything in the global namespace is prefixed with a theme specific prefix.

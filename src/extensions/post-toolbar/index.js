@@ -21,20 +21,18 @@ function Toggle() {
 	const { toggle } = useDispatch('mind/popup');
 
 	return (
-		<>
-			<button
-				type="button"
-				className="components-button components-icon-button"
-				onClick={(e) => {
-					e.preventDefault();
+		<button
+			type="button"
+			className="components-button components-icon-button"
+			onClick={(e) => {
+				e.preventDefault();
 
-					toggle();
-				}}
-			>
-				{TOOLBAR_ICON}
-				{__('Open Mind', '@@text_domain')}
-			</button>
-		</>
+				toggle();
+			}}
+		>
+			{TOOLBAR_ICON}
+			{__('Open Mind', '@@text_domain')}
+		</button>
 	);
 }
 
