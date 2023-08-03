@@ -1,5 +1,12 @@
 import { marked } from 'marked';
 
 export default function mdToHtml(string) {
-	return marked.parse(string);
+	let result = marked.parse(string);
+
+	// Remove <code> tag from <pre> elements.
+	result = result
+		.replace(/<pre><code/g, '<pre')
+		.replace(/<\/code><\/pre>/g, '</pre>');
+
+	return result;
 }
