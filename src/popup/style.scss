@@ -171,6 +171,7 @@ $padding: 10px;
 	.mind-popup-commands-button {
 		display: flex;
 		align-items: center;
+		gap: 10px;
 		background-color: transparent;
 		color: #000;
 		border: none;
@@ -183,10 +184,6 @@ $padding: 10px;
 		&:hover,
 		&:focus {
 			background-color: rgba(#000, 5%);
-		}
-
-		> svg {
-			margin-right: 10px;
 		}
 	}
 }
