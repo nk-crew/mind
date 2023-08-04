@@ -1,0 +1,49 @@
+.mind-popup-not-connected {
+	width: 440px;
+}
+
+.mind-popup-connected-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 30px;
+	text-align: center;
+
+	h2 {
+		font-size: 16px;
+		font-weight: 500;
+		margin: 0;
+	}
+
+	p {
+		font-size: 14px;
+		font-weight: 300;
+		margin: 0;
+	}
+}
+
+.mind-popup-connected-screen-button {
+	position: relative;
+	display: inline-block;
+	text-decoration: none;
+	padding: 10px 15px;
+	margin-top: -10px;
+	margin-bottom: -10px;
+	color: var(--mind-brand-color);
+	font-weight: 500;
+
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		opacity: 0.05;
+	}
+
+	&:hover::after,
+	&:focus::after {
+		background-color: var(--mind-brand-color);
+	}
+}

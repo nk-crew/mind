@@ -6,7 +6,8 @@
 // Gradients for logos.
 @supports (-webkit-background-clip: text) {
 	.mind-post-toolbar-toggle button,
-	.mind-popup-footer-logo {
+	.mind-popup-footer-logo,
+	.mind-popup-connected-screen-button {
 		background: linear-gradient(to right, #e455df, #4376ec);
 		background-clip: text;
 		-webkit-text-fill-color: transparent;

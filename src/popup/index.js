@@ -11,6 +11,7 @@ import { Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { rawHandler } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
+import clsx from 'clsx';
 
 /**
  * Internal dependencies
@@ -19,6 +20,9 @@ import Input from './components/input';
 import LoadingLine from './components/loading-line';
 import Content from './components/content';
 import Footer from './components/footer';
+import NotConnectedScreen from './components/not-connected-screen';
+
+const { connected } = window.mindData;
 
 const POPUP_CONTAINER_CLASS = 'mind-popup-container';
 
@@ -89,7 +93,10 @@ export default function Popup() {
 	return (
 		<Modal
 			title={false}
-			className="mind-popup"
+			className={clsx(
+				'mind-popup',
+				!connected && 'mind-popup-not-connected'
+			)}
 			overlayClassName="mind-popup-overlay"
 			onRequestClose={() => {
 				reset();
@@ -97,10 +104,16 @@ export default function Popup() {
 			}}
 			__experimentalHideHeader
 		>
-			<Input onInsert={onInsert} />
-			{loading && <LoadingLine />}
-			<Content />
-			<Footer onInsert={onInsert} />
+			{connected ? (
+				<>
+					<Input onInsert={onInsert} />
+					{loading && <LoadingLine />}
+					<Content />
+					<Footer onInsert={onInsert} />
+				</>
+			) : (
+				<NotConnectedScreen />
+			)}
 		</Modal>
 	);
 }

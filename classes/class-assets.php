@@ -45,6 +45,7 @@ class Mind_Assets {
 	 * Enqueue editor assets
 	 */
 	public function enqueue_block_editor_assets() {
+		$openai_key = Mind_Settings::get_option( 'openai_key', 'mind_general' );
 		$asset_data = $this->get_asset_file( 'build/index' );
 
 		wp_enqueue_script(
@@ -53,6 +54,15 @@ class Mind_Assets {
 			$asset_data['dependencies'],
 			$asset_data['version'],
 			true
+		);
+
+		wp_localize_script(
+			'mind-editor',
+			'mindData',
+			array(
+				'connected'   => ! ! $openai_key,
+				'settingsURL' => admin_url( 'admin.php?page=mind' ),
+			)
 		);
 
 		wp_enqueue_style(
