@@ -22,17 +22,15 @@ import Content from './components/content';
 import Footer from './components/footer';
 import NotConnectedScreen from './components/not-connected-screen';
 
-const { connected } = window.mindData;
-
 const POPUP_CONTAINER_CLASS = 'mind-popup-container';
 
 export default function Popup() {
 	const { setHighlightBlocks } = useDispatch('mind/blocks');
-
 	const { close, reset } = useDispatch('mind/popup');
 
-	const { isOpen, insertionPlace, loading, response } = useSelect(
+	const { connected, isOpen, insertionPlace, loading, response } = useSelect(
 		(select) => {
+			const { isConnected } = select('mind');
 			const {
 				isOpen: checkIsOpen,
 				getInsertionPlace,
@@ -41,6 +39,7 @@ export default function Popup() {
 			} = select('mind/popup');
 
 			return {
+				connected: isConnected(),
 				isOpen: checkIsOpen(),
 				insertionPlace: getInsertionPlace(),
 				loading: getLoading(),

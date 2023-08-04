@@ -7,10 +7,17 @@ import './style.scss';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-
-const { settingsURL } = window.mindData;
+import { useSelect } from '@wordpress/data';
 
 export default function NotConnectedScreen() {
+	const { settingsPageURL } = useSelect((select) => {
+		const { getSettingsPageURL } = select('mind');
+
+		return {
+			settingsPageURL: getSettingsPageURL(),
+		};
+	});
+
 	return (
 		<div className="mind-popup-connected-screen">
 			<h2>{__('OpenAI Key', 'mind')}</h2>
@@ -25,7 +32,7 @@ export default function NotConnectedScreen() {
 			<div>
 				<a
 					className="mind-popup-connected-screen-button"
-					href={settingsURL}
+					href={settingsPageURL}
 				>
 					{__('Go to Settings', 'mind')}
 				</a>

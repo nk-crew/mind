@@ -6,6 +6,7 @@ import './style.scss';
 /**
  * Internal dependencies
  */
+import './store/core';
 import './store/blocks';
 import './store/popup';
 import './popup';

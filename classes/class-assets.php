@@ -60,8 +60,8 @@ class Mind_Assets {
 			'mind-editor',
 			'mindData',
 			array(
-				'connected'   => ! ! $openai_key,
-				'settingsURL' => admin_url( 'admin.php?page=mind' ),
+				'connected'       => ! ! $openai_key,
+				'settingsPageURL' => admin_url( 'admin.php?page=mind' ),
 			)
 		);
 

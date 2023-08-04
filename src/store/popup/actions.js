@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 import getSelectedBlocksContent from '../../utils/get-selected-blocks-content';
+import { isConnected } from '../core/selectors';
 
 export function open() {
 	return {
@@ -78,6 +79,10 @@ export function setError(error) {
 
 export function requestAI() {
 	return ({ dispatch, select }) => {
+		if (!isConnected) {
+			return;
+		}
+
 		const loading = select.getLoading();
 
 		if (loading) {
