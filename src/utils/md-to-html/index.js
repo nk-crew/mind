@@ -1,5 +1,7 @@
 import { marked } from 'marked';
 
+marked.use({ headerIds: false });
+
 export default function mdToHtml(string) {
 	let result = marked.parse(string);
 
