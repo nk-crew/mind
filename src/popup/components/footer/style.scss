@@ -1,0 +1,40 @@
+$padding: 10px;
+
+.mind-popup-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: $padding $padding * 2;
+	background-color: #f9f9f9;
+	border-top: 1px solid #e8e7e7;
+}
+.mind-popup-footer-actions {
+	display: flex;
+	margin: -5px -15px;
+	margin-left: auto;
+	gap: 5px;
+
+	button {
+		display: flex;
+		gap: 8px;
+		height: 28px;
+		border-radius: 5px;
+		font-weight: 500;
+
+		&:hover,
+		&:focus {
+			background-color: rgba(0, 0, 0, 5%);
+			color: #121212;
+		}
+
+		kbd {
+			font: inherit;
+			font-weight: 400;
+			border-radius: 3px;
+			padding: 3px 4px;
+			margin-right: -8px;
+			color: rgba(0, 0, 0, 50%);
+			background-color: rgba(0, 0, 0, 8%);
+		}
+	}
+}
