@@ -10,6 +10,10 @@
 	text-align: center;
 
 	h2 {
+		display: flex;
+		gap: 7px;
+		align-items: center;
+		justify-content: center;
 		font-size: 16px;
 		font-weight: 500;
 		margin: 0;

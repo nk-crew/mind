@@ -9,6 +9,11 @@ import './style.scss';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import { ReactComponent as KeyIcon } from '../../../icons/key.svg';
+
 export default function NotConnectedScreen() {
 	const { settingsPageURL } = useSelect((select) => {
 		const { getSettingsPageURL } = select('mind');
@@ -20,7 +25,10 @@ export default function NotConnectedScreen() {
 
 	return (
 		<div className="mind-popup-connected-screen">
-			<h2>{__('OpenAI Key', 'mind')}</h2>
+			<h2>
+				<KeyIcon />
+				{__('OpenAI Key', 'mind')}
+			</h2>
 			<div>
 				<p>
 					{__(
