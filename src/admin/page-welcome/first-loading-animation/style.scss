@@ -19,7 +19,8 @@
 	.mind-admin-head {
 		opacity: 0;
 		transform: translateY(20px) scale(0.95);
-		transition: 1s opacity 2s, 2s transform 3s;
+		filter: blur(20px);
+		transition: 1s opacity 2s, 2s transform 3s, 2s filter 3s;
 	}
 	#wpcontent {
 		opacity: 0;
@@ -28,7 +29,8 @@
 	.mind-admin-content > * {
 		opacity: 0;
 		transform: translateY(10px);
-		transition: 1s opacity, 1s transform;
+		filter: blur(20px);
+		transition: 1s opacity, 1s transform, 1s filter;
 
 		&:nth-child(1) {
 			transition-delay: 0.2s;
@@ -43,7 +45,8 @@
 	#wpfooter {
 		opacity: 0;
 		transform: translateY(-20px) scale(0.95);
-		transition: 1s opacity 3s, 2s transform 3s, 2s margin-left 2.5s;
+		filter: blur(20px);
+		transition: 1s opacity 3s, 2s transform 3s, 2s filter 3s, 2s margin-left 2.5s;
 	}
 }
 
@@ -63,14 +66,17 @@
 	.mind-admin-content > * {
 		opacity: 1;
 		transform: translateY(0);
+		filter: blur(0);
 	}
 
 	.mind-admin-head {
 		opacity: 1;
 		transform: translateY(0) scale(1);
+		filter: blur(0);
 	}
 	#wpfooter {
 		opacity: 1;
 		transform: translateY(0) scale(1);
+		filter: blur(0);
 	}
 }
