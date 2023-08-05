@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name:       Mind – Content Assistant Plugin based on OpenAI
- * Description:       Write, improve, rewrite, rephrase, change a tone of your blog posts with WPMind.
+ * Plugin Name:       Mind
+ * Description:       Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more.
  * Requires at least: 6.0
  * Requires PHP:      7.2
  * Version:           0.1.0
@@ -100,7 +100,8 @@ class Mind {
 	 * Activation Hook
 	 */
 	public function activation_hook() {
-		// Nothing here yet.
+		// Welcome Page Flag.
+		set_transient( '_mind_welcome_screen_activation_redirect', true, 30 );
 	}
 
 	/**

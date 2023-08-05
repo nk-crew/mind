@@ -35,6 +35,7 @@ function PageWrapper() {
 		};
 	});
 
+	// Highlight active links and change browser history.
 	useEffect(() => {
 		// disable active links.
 		document

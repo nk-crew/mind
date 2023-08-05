@@ -17,9 +17,32 @@ class Mind_Admin {
 	 * Mind_Admin constructor.
 	 */
 	public function __construct() {
+		add_action( 'admin_init', [ $this, 'redirect_to_welcome_screen' ] );
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 20 );
 
 		add_filter( 'admin_body_class', [ $this, 'admin_body_class' ] );
+	}
+
+	/**
+	 * Redirect to Welcome page after activation.
+	 */
+	public function redirect_to_welcome_screen() {
+		// Bail if no activation redirect.
+		if ( ! get_transient( '_mind_welcome_screen_activation_redirect' ) ) {
+			return;
+		}
+
+		// Delete the redirect transient.
+		delete_transient( '_mind_welcome_screen_activation_redirect' );
+
+		// Bail if activating from network, or bulk.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
+			return;
+		}
+
+		// Redirect to welcome page.
+		wp_safe_redirect( admin_url( 'admin.php?page=mind&is_first_loading=1' ) );
 	}
 
 	/**
@@ -80,6 +103,9 @@ class Mind_Admin {
 			return $classes;
 		}
 
+		$classes .= ' mind-admin-page';
+
+		// Sub page.
 		$page_name = 'welcome';
 
         // phpcs:ignore
@@ -88,7 +114,13 @@ class Mind_Admin {
 			$page_name = $_GET['sub_page'];
 		}
 
-		$classes .= ' mind-admin-page mind-admin-page-' . esc_attr( $page_name );
+		$classes .= ' mind-admin-page-' . esc_attr( $page_name );
+
+		// Is first loading after plugin activation redirect.
+        // phpcs:ignore
+		if ( isset( $_GET['is_first_loading'] ) ) {
+			$classes .= ' mind-admin-first-loading';
+		}
 
 		return $classes;
 	}

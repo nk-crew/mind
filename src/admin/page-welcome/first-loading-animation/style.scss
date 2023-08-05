@@ -1,0 +1,76 @@
+// First loading animation.
+.mind-admin-first-loading {
+	#wpadminbar {
+		opacity: 0;
+		transition: 1.5s opacity 5s;
+	}
+	#adminmenumain {
+		opacity: 0;
+		transition: 1.5s opacity 5s;
+	}
+	&:not(.mind-admin-first-loading-start) #wpcontent,
+	&:not(.mind-admin-first-loading-start) #wpfooter {
+		margin-left: var(--mind-admin-page-offset);
+	}
+	#wpbody-content {
+		float: none;
+	}
+
+	.mind-admin-head {
+		opacity: 0;
+		transform: translateY(20px) scale(0.95);
+		transition: 1s opacity 2s, 2s transform 3s;
+	}
+	#wpcontent {
+		opacity: 0;
+		transition: 1s opacity 0.2s, 2s margin-left 2.5s;
+	}
+	.mind-admin-content > * {
+		opacity: 0;
+		transform: translateY(10px);
+		transition: 1s opacity, 1s transform;
+
+		&:nth-child(1) {
+			transition-delay: 0.2s;
+		}
+		&:nth-child(2) {
+			transition-delay: 1.5s;
+		}
+		&:nth-child(3) {
+			transition-delay: 3.5s;
+		}
+	}
+	#wpfooter {
+		opacity: 0;
+		transform: translateY(-20px) scale(0.95);
+		transition: 1s opacity 3s, 2s transform 3s, 2s margin-left 2.5s;
+	}
+}
+
+// Start animation.
+.mind-admin-first-loading-start {
+	#wpcontent {
+		opacity: 1;
+	}
+
+	#wpadminbar {
+		opacity: 1;
+	}
+	#adminmenumain {
+		opacity: 1;
+	}
+
+	.mind-admin-content > * {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.mind-admin-head {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	#wpfooter {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
