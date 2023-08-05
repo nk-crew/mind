@@ -80,6 +80,13 @@ class Mind_Admin {
 			'manage_options',
 			'admin.php?page=mind&sub_page=settings'
 		);
+		add_submenu_page(
+			'mind',
+			'',
+			esc_html__( 'Discussions', 'mind' ),
+			'manage_options',
+			'https://github.com/nk-crew/mind/discussions'
+		);
 	}
 
 	/**

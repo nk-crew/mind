@@ -89,7 +89,7 @@
 		margin: 0;
 	}
 
-	button {
+	a {
 		position: relative;
 		padding: 10px;
 		margin: 0 2px;
@@ -98,6 +98,8 @@
 		background: none;
 		border: none;
 		outline: none;
+		text-decoration: none;
+		color: inherit;
 
 		&:hover,
 		&:focus {

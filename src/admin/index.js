@@ -85,18 +85,23 @@ function PageWrapper() {
 	Object.keys(pages).forEach((k) => {
 		resultTabs.push(
 			<li key={k}>
-				{/* eslint-disable-next-line react/button-has-type */}
-				<button
+				<a
+					href={(pages[k] && pages[k].href) || '#'}
+					target={pages[k] && pages[k].href ? '_blank' : null}
+					rel="noreferrer"
 					className={clsx(
 						'mind-admin-tabs-button',
 						activePage === k && 'mind-admin-tabs-button-active'
 					)}
-					onClick={() => {
-						setActivePage(k);
+					onClick={(e) => {
+						if (pages[k] && !pages[k].href) {
+							e.preventDefault();
+							setActivePage(k);
+						}
 					}}
 				>
 					{pages[k].label}
-				</button>
+				</a>
 			</li>
 		);
 	});

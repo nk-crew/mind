@@ -18,4 +18,8 @@ export default {
 		label: __('Settings', 'mind'),
 		block: PageSettings,
 	},
+	discussions: {
+		label: __('Discussions', 'mind'),
+		href: 'https://github.com/nk-crew/mind/discussions',
+	},
 };
