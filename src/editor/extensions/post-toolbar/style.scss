@@ -1,3 +1,5 @@
+@import "../../../mixins/text-gradient";
+
 .mind-post-toolbar-toggle {
 	flex: 100%;
 	white-space: nowrap;
@@ -8,6 +10,8 @@
 		position: relative;
 		color: var(--mind-brand-color);
 		font-weight: 500;
+
+		@include text-gradient(var(--mind-brand-color), var(--mind-brand-color-2));
 
 		&::after {
 			content: "";

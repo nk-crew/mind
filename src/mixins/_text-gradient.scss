@@ -1,0 +1,9 @@
+@mixin text-gradient($color1, $color2) {
+	color: $color1;
+
+	@supports (-webkit-background-clip: text) {
+		background: linear-gradient(to right, $color1, $color2);
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+}

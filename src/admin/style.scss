@@ -1,4 +1,5 @@
 @import "../variables";
+@import "../mixins/text-gradient";
 
 :root {
 	--mind-admin-page-offset: 15px;
@@ -50,6 +51,8 @@
 	align-items: center;
 	margin-right: auto;
 
+	@include text-gradient(var(--mind-brand-color), var(--mind-brand-color-2));
+
 	h1 {
 		margin: 6px 10px;
 		font-size: 14px;
@@ -61,13 +64,6 @@
 		width: 20px;
 		height: auto;
 		color: var(--mind-brand-color);
-	}
-
-	// Gradient.
-	@supports (-webkit-background-clip: text) {
-		background: linear-gradient(to right, var(--mind-brand-color), var(--mind-brand-color-2));
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
 	}
 }
 

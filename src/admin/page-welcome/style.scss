@@ -1,19 +1,10 @@
+@import "../../mixins/text-gradient";
+
 .mind-admin-page-welcome {
 	.mind-inline-logo {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 12px;
-		vertical-align: bottom;
 		letter-spacing: 0;
-		font-size: 0.95em;
 
-		// Gradient.
-		@supports (-webkit-background-clip: text) {
-			background: linear-gradient(to right, var(--mind-brand-color), var(--mind-brand-color-2));
-			background-clip: text;
-			-webkit-text-fill-color: transparent;
-		}
+		@include text-gradient(var(--mind-brand-color), var(--mind-brand-color-2));
 	}
 
 	.mind-admin-content {
@@ -38,12 +29,7 @@
 			cursor: pointer;
 			margin-left: 8px;
 
-			// Gradient.
-			@supports (-webkit-background-clip: text) {
-				background: linear-gradient(to right, var(--mind-brand-color), var(--mind-brand-color-2));
-				background-clip: text;
-				-webkit-text-fill-color: transparent;
-			}
+			@include text-gradient(var(--mind-brand-color), var(--mind-brand-color-2));
 		}
 	}
 }
