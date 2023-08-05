@@ -7,12 +7,13 @@ import './style.scss';
  * External dependencies
  */
 import clsx from 'clsx';
+import { SwitchTransition, CSSTransition } from 'react-transition-group';
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { render, useEffect } from '@wordpress/element';
+import { render, useEffect, useRef } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -25,6 +26,7 @@ import pages from './pages';
 import { ReactComponent as MindLogoIcon } from '../icons/mind-logo.svg';
 
 function PageWrapper() {
+	const transitionRef = useRef();
 	const { setActivePage } = useDispatch('mind/admin');
 
 	const { activePage } = useSelect((select) => {
@@ -116,7 +118,30 @@ function PageWrapper() {
 					<ul className="mind-admin-tabs">{resultTabs}</ul>
 				</div>
 			</div>
-			<div className="mind-admin-content">{resultContent}</div>
+			<SwitchTransition mode="out-in">
+				<CSSTransition
+					key={activePage}
+					nodeRef={transitionRef}
+					addEndListener={(done) => {
+						transitionRef.current.addEventListener(
+							'transitionend',
+							done,
+							false
+						);
+					}}
+					classNames="mind-admin-content-transition"
+				>
+					<div
+						ref={transitionRef}
+						className={clsx(
+							'mind-admin-content',
+							`mind-admin-content-${activePage}`
+						)}
+					>
+						{resultContent}
+					</div>
+				</CSSTransition>
+			</SwitchTransition>
 		</>
 	);
 }

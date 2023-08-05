@@ -116,3 +116,27 @@
 		}
 	}
 }
+
+// Page content transition.
+.mind-admin-content-transition {
+	&-enter {
+		opacity: 0;
+		transform: translateY(-5px);
+	}
+	&-enter-active {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	&-exit {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	&-exit-active {
+		opacity: 0;
+		transform: translateY(5px);
+	}
+	&-enter-active,
+	&-exit-active {
+		transition: opacity 0.2s, transform 0.2s;
+	}
+}

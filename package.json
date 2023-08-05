@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"clsx": "^2.0.0",
-		"marked": "^5.0.4"
+		"marked": "^5.0.4",
+		"react-transition-group": "^4.4.5"
 	}
 }
