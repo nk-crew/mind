@@ -1,0 +1,12 @@
+@import "../variables";
+
+// Gradients for logos.
+@supports (-webkit-background-clip: text) {
+	.mind-post-toolbar-toggle button,
+	.mind-popup-footer-logo,
+	.mind-popup-connected-screen-button {
+		background: linear-gradient(to right, var(--mind-brand-color), var(--mind-brand-color-2));
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+}

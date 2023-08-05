@@ -18,6 +18,7 @@ class Mind_Assets {
 	 */
 	public function __construct() {
 		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 	}
 
 	/**
@@ -45,12 +46,14 @@ class Mind_Assets {
 	 * Enqueue editor assets
 	 */
 	public function enqueue_block_editor_assets() {
-		$openai_key = Mind_Settings::get_option( 'openai_key', 'mind_general' );
-		$asset_data = $this->get_asset_file( 'build/index' );
+		$settings = get_option( 'mind_settings', array() );
+
+		$openai_key = $settings['openai_api_key'] ?? '';
+		$asset_data = $this->get_asset_file( 'build/editor' );
 
 		wp_enqueue_script(
 			'mind-editor',
-			mind()->plugin_url . 'build/index.js',
+			mind()->plugin_url . 'build/editor.js',
 			$asset_data['dependencies'],
 			$asset_data['version'],
 			true
@@ -59,15 +62,52 @@ class Mind_Assets {
 		wp_localize_script(
 			'mind-editor',
 			'mindData',
-			array(
+			[
 				'connected'       => ! ! $openai_key,
-				'settingsPageURL' => admin_url( 'admin.php?page=mind' ),
-			)
+				'settingsPageURL' => admin_url( 'admin.php?page=mind&sub_page=settings' ),
+			]
 		);
 
 		wp_enqueue_style(
 			'mind-editor',
-			mind()->plugin_url . 'build/style-index.css',
+			mind()->plugin_url . 'build/style-editor.css',
+			[],
+			$asset_data['version']
+		);
+	}
+
+
+	/**
+	 * Enqueue admin pages assets.
+	 */
+	public function admin_enqueue_scripts() {
+		$screen = get_current_screen();
+
+		if ( 'toplevel_page_mind' !== $screen->id ) {
+			return;
+		}
+
+		$asset_data = $this->get_asset_file( 'build/admin' );
+
+		wp_enqueue_script(
+			'mind-admin',
+			mind()->plugin_url . 'build/admin.js',
+			$asset_data['dependencies'],
+			$asset_data['version'],
+			true
+		);
+
+		wp_localize_script(
+			'mind-admin',
+			'mindAdminData',
+			[
+				'settings' => get_option( 'mind_settings', array() ),
+			]
+		);
+
+		wp_enqueue_style(
+			'mind-admin',
+			mind()->plugin_url . 'build/style-admin.css',
 			[],
 			$asset_data['version']
 		);

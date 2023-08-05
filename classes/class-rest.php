@@ -40,7 +40,18 @@ class Mind_Rest extends WP_REST_Controller {
 	public function register_routes() {
 		$namespace = $this->namespace . $this->version;
 
-		// Get layouts list.
+		// Update Settings.
+		register_rest_route(
+			$namespace,
+			'/update_settings/',
+			[
+				'methods'             => [ 'POST' ],
+				'callback'            => [ $this, 'update_settings' ],
+				'permission_callback' => [ $this, 'update_settings_permission' ],
+			]
+		);
+
+		// Request OpenAI API.
 		register_rest_route(
 			$namespace,
 			'/request_ai/',
@@ -50,6 +61,19 @@ class Mind_Rest extends WP_REST_Controller {
 				'permission_callback' => [ $this, 'request_ai_permission' ],
 			]
 		);
+	}
+
+	/**
+	 * Get edit options permissions.
+	 *
+	 * @return bool
+	 */
+	public function update_settings_permission() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( 'user_dont_have_permission', __( 'User don\'t have permissions to change options.', 'mind' ), true );
+		}
+
+		return true;
 	}
 
 	/**
@@ -66,6 +90,24 @@ class Mind_Rest extends WP_REST_Controller {
 	}
 
 	/**
+	 * Update Settings.
+	 *
+	 * @param WP_REST_Request $req  request object.
+	 *
+	 * @return mixed
+	 */
+	public function update_settings( WP_REST_Request $req ) {
+		$new_settings = $req->get_param( 'settings' );
+
+		if ( is_array( $new_settings ) ) {
+			$current_settings = get_option( 'mind_settings', [] );
+			update_option( 'mind_settings', array_merge( $current_settings, $new_settings ) );
+		}
+
+		return $this->success( true );
+	}
+
+	/**
 	 * Send request to OpenAI.
 	 *
 	 * @param WP_REST_Request $req  request object.
@@ -73,9 +115,11 @@ class Mind_Rest extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function request_ai( WP_REST_Request $req ) {
-		$openai_key = Mind_Settings::get_option( 'openai_key', 'mind_general' );
-		$request    = $req->get_param( 'request' ) ?? '';
-		$context    = $req->get_param( 'context' ) ?? '';
+		$settings   = get_option( 'mind_settings', array() );
+		$openai_key = $settings['openai_api_key'] ?? '';
+
+		$request = $req->get_param( 'request' ) ?? '';
+		$context = $req->get_param( 'context' ) ?? '';
 
 		if ( ! $openai_key ) {
 			return $this->error( 'no_openai_key_found', __( 'Provide OpenAI key in the plugin settings.', 'mind' ) );

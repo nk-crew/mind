@@ -1,0 +1,151 @@
+@import "../variables";
+
+$offset: 15px;
+
+.mind-admin-page {
+	background-color: #1d2327;
+
+	#wpcontent {
+		min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0) - $offset);
+		border-radius: 10px;
+		margin-right: $offset;
+		margin-bottom: $offset;
+		background-color: #fff;
+	}
+	#wpfooter {
+		bottom: $offset;
+		right: $offset;
+	}
+	ul#adminmenu a.wp-has-current-submenu::after,
+	ul#adminmenu > li.current > a.current::after {
+		border-right-color: #fff;
+	}
+}
+
+.mind-admin-root {
+	color: #000;
+}
+
+.mind-admin-head {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 0);
+	padding: 5px 20px;
+	margin-left: -20px;
+	margin-bottom: 100px;
+}
+
+.mind-admin-head-container {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	// max-width: 1200px;
+	margin: 0 auto;
+}
+
+.mind-admin-head-logo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-right: auto;
+
+	h1 {
+		margin: 6px 10px;
+		font-size: 14px;
+		font-weight: 500;
+	}
+
+	svg {
+		display: block;
+		width: 20px;
+		height: auto;
+		color: var(--mind-brand-color);
+	}
+
+	// Gradient.
+	@supports (-webkit-background-clip: text) {
+		background: linear-gradient(to right, var(--mind-brand-color), var(--mind-brand-color-2));
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+}
+
+.mind-admin-content {
+	max-width: 1000px;
+	margin: 0 auto;
+
+	> h2 {
+		margin-bottom: 35px;
+		font-size: 1.8em;
+		font-weight: 400;
+	}
+}
+
+.mind-admin-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0;
+	margin-left: 15px;
+	list-style: none;
+
+	> li {
+		margin: 0;
+	}
+
+	button {
+		position: relative;
+		padding: 10px;
+		margin: 0 2px;
+		font-size: 1.1em;
+		cursor: pointer;
+		background: none;
+		border: none;
+		outline: none;
+
+		&:hover,
+		&:focus {
+			color: var(--mind-brand-darken-color);
+		}
+
+		&.mind-admin-tabs-button-active::after {
+			content: "";
+			position: absolute;
+			right: 4px;
+			bottom: 2px;
+			left: 4px;
+			display: block;
+			height: 1.5px;
+			background: currentColor;
+		}
+	}
+}
+
+
+// .visible .sc-6c118e8c-6 {
+// 	animation-range-start: normal;
+// 	animation-range-end: normal;
+// 	animation: 4.1s ease-out 1 normal forwards running fbvaXF auto normal normal;
+
+// 	///
+// 	///
+// 	animation-duration: 4.1s;
+// 	animation-timing-function: ease-out;
+// 	animation-iteration-count: 1;
+// 	animation-direction: normal;
+// 	animation-fill-mode: forwards;
+// 	animation-play-state: running;
+// 	animation-name: fbvaXF;
+// 	animation-timeline: auto;
+// 	animation-range: normal;
+// 	animation-delay: calc(var(--base-delay) + 600ms);
+// }
+
+// .NXHGL > * {
+// 	grid-row: 1 / 1;
+// 	grid-column: 1 / 1;
+// }
+// .kGaiuY {
+// 	opacity: 0;
+// 	filter: blur(160px);
+// 	transform: translateZ(0);
+// 	background: conic-gradient(from 230.29deg at 51.63% 52.16%, rgb(36, 0, 255) 0deg, rgb(0, 135, 255) 67.5deg, rgb(108, 39, 157) 198.75deg, rgb(24, 38, 163) 251.25deg, rgb(54, 103, 196) 301.88deg, rgb(105, 30, 255) 360deg);
+// }
