@@ -4,6 +4,11 @@
 import './style.scss';
 
 /**
+ * External dependencies
+ */
+import clsx from 'clsx';
+
+/**
  * WordPress dependencies
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -15,11 +20,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import isValidOpenAIApiKey from '../../utils/is-valid-openai-api-key';
 import { ReactComponent as LoadingIcon } from '../../icons/loading.svg';
 
 export default function PageSettings() {
 	const [pendingSettings, setPendingSettings] = useState({});
 	const [settingsChanged, setSettingsChanged] = useState(false);
+	const [isInvalidAPIKey, setIsInvalidAPIKey] = useState(false);
 
 	const { updateSettings } = useDispatch('mind/settings');
 
@@ -64,7 +71,13 @@ export default function PageSettings() {
 						</a>
 					</div>
 				</div>
-				<div className="mind-admin-settings-card-input">
+				<div
+					className={clsx(
+						'mind-admin-settings-card-input',
+						isInvalidAPIKey &&
+							'mind-admin-settings-card-input-error'
+					)}
+				>
 					<input
 						id="mind-settings-openai-api-key"
 						type="text"
@@ -78,6 +91,11 @@ export default function PageSettings() {
 							});
 						}}
 					/>
+					{isInvalidAPIKey && (
+						<div className="mind-admin-setting-error">
+							{__('Please enter a valid API key', 'mind')}
+						</div>
+					)}
 				</div>
 			</div>
 			{error && <div className="mind-admin-settings-error">{error}</div>}
@@ -87,7 +105,14 @@ export default function PageSettings() {
 					onClick={(e) => {
 						e.preventDefault();
 
-						updateSettings(pendingSettings);
+						if (
+							isValidOpenAIApiKey(pendingSettings.openai_api_key)
+						) {
+							setIsInvalidAPIKey(false);
+							updateSettings(pendingSettings);
+						} else {
+							setIsInvalidAPIKey(true);
+						}
 					}}
 				>
 					{__('Save Changes', 'mind')}

@@ -39,15 +39,23 @@
 			}
 		}
 	}
+	.mind-admin-settings-card-input-error input {
+		border-color: var(--mind-error-color);
+	}
 }
 
 .mind-admin-settings-error {
 	padding: 20px;
 	margin-top: 20px;
 	margin-bottom: -20px;
-	background-color: #faf4f4;
-	color: #e74f4f;
-	border-left: 3px solid #e74f4f;
+	background-color: var(--mind-error-light-color);
+	color: var(--mind-error-color);
+	border-left: 3px solid var(--mind-error-color);
+}
+.mind-admin-setting-error {
+	font-size: 12px;
+	margin-top: 2px;
+	color: var(--mind-error-color);
 }
 
 .mind-admin-settings-actions {
