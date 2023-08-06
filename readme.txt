@@ -1,6 +1,6 @@
 === Mind ===
 Contributors:      nko
-Tags:              ai, openai, gpt, magic, assistant, help, block
+Tags:              ai, openai, gpt, copywriting, assistant, artificial intelligence
 Requires at least: 6.0
 Tested up to:      6.3
 Requires PHP:      7.2
@@ -12,7 +12,74 @@ OpenAI content assistant and enhancer for WordPress page builder Gutenberg.
 
 == Description ==
 
-OpenAI content assistant and enhancer for WordPress page builder Gutenberg.
+Mind is a WordPress plugin designed to assist content editors in writing and improving posts. Powered by the OpenAI API, Mind offers a range of features to enhance the content creation process.
+
+=== 🚀 Community-Driven Development ===
+
+This plugin was created in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin.
+
+You have the opportunity to influence the future of this plugin and vote on functionality in the [GitHub Discussions](https://github.com/nk-crew/mind/discussions).
+
+=== ✍️ Writing Assistance ===
+
+Mind provides various tools to help with writing content. You can use it to write an entire post, create a catchy post title, or draft a comprehensive post outline. Whether you need assistance in brainstorming ideas or structuring your content, Mind is there to support you.
+
+- Write a post about specific topic
+- Write a post title about specific topic
+- Write a post outline about specific topic
+
+=== 📝 Writing Language Improvement ===
+
+With Mind, you can improve the language of your writing. It helps you fix spelling and grammar errors, ensuring that your content is polished and professional. Additionally, Mind can make your writing shorter or longer, based on your preferences.
+
+- Improve writing language
+- Fix spelling & grammar
+- Make shorter
+- Make longer
+
+=== ✂️ Summarization and Paraphrasing ===
+
+Mind offers the ability to summarize lengthy content, making it easier for readers to grasp the main points. It can also help you paraphrase sentences or paragraphs, ensuring that your content is unique and engaging.
+
+- Summarize
+- Paraphrase
+
+=== 🤗 Tone Adjustment ===
+
+Mind allows you to adjust the tone of your writing to suit your desired style.
+
+- Professional
+- Friendly
+- Straightforward
+- Educational
+- Confident
+- Witty
+- Heartfelt
+
+=== 🌐 Translation ===
+
+Mind supports translation into multiple languages. It enables you to reach a wider audience by translating your content accurately and efficiently. Supported languages:
+
+- Chinese
+- Dutch
+- English
+- Filipino
+- French
+- German
+- Indonesian
+- Italian
+- Japanese
+- Korean
+- Portuguese
+- Russian
+- Spanish
+
+=== Other ===
+
+With its comprehensive set of features, Mind empowers content editors to write high-quality and engaging posts, while saving time and effort in the content creation process.
+
+p.s. this plugin description is created using Mind and OpenAI API.
+
 
 == Installation ==
 
