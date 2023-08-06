@@ -16,7 +16,7 @@ Mind is a WordPress plugin designed to assist content editors in writing and imp
 
 === 🚀 Community-Driven Development ===
 
-This plugin was created in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin.
+This plugin was created as an experiment in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin.
 
 You have the opportunity to influence the future of this plugin and vote on functionality in the [GitHub Discussions](https://github.com/nk-crew/mind/discussions).
 
@@ -74,6 +74,14 @@ Mind supports translation into multiple languages. It enables you to reach a wid
 - Russian
 - Spanish
 
+=== ⚙️ Features ===
+
+There are a couple of places, which implemented in Mind to help writing content:
+
+- Mind Popup - open the popup to write a blog post content or send a specific request to AI
+- Paragraph Enhancer - select existing paragraphs and enhance it using Toolbar Mind button
+- Press `space` in the empty paragraph to instantly open the Mind Popup and make a request
+
 === Other ===
 
 With its comprehensive set of features, Mind empowers content editors to write high-quality and engaging posts, while saving time and effort in the content creation process.
@@ -95,19 +103,18 @@ The manual installation method involves downloading our Mind plugin and uploadin
 
 == Frequently Asked Questions ==
 
-= Website and Documentation =
+=== Website and Documentation ===
 
-There is no site available, but in the future all information will be placed here - https://www.wp-mind.com/
+There is no site available, but in the future all information will be placed here - <https://www.wp-mind.com/>
 
 == Screenshots ==
+
+1. Paragraph toolbar button
+2. Popup for AI request
+3. Summarization request
 
 == Changelog ==
 
 = 0.1.0 =
-* Release
 
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above. This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation." Arbitrary sections will be shown below the built-in sections outlined above.
+- Release
