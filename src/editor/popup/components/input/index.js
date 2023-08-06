@@ -5,7 +5,6 @@ import './style.scss';
  */
 import { __ } from '@wordpress/i18n';
 import { useRef, useEffect } from '@wordpress/element';
-import { TextControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -62,31 +61,21 @@ export default function Input(props) {
 		}
 
 		// Insert request to post.
-		if (response && e.key === 'Enter') {
+		if (response && e.key === 'Enter' && !e.shiftKey) {
 			onInsert();
 			return;
 		}
 
 		// Send request to AI.
-		if (screen === 'request' && e.key === 'Enter') {
+		if (screen === 'request' && e.key === 'Enter' && !e.shiftKey) {
 			requestAI();
-		}
-	}
-
-	function focusInput() {
-		if (ref?.current) {
-			const inputEl = ref.current.querySelector('input');
-
-			if (inputEl) {
-				inputEl.focus();
-			}
 		}
 	}
 
 	// Set focus on Input.
 	useEffect(() => {
 		if (isOpen && !loading && ref?.current) {
-			focusInput();
+			ref.current.focus();
 		}
 	}, [isOpen, loading, ref]);
 
@@ -97,17 +86,32 @@ export default function Input(props) {
 		}
 	}, [screen, input, setScreen]);
 
+	// Automatic height.
+	useEffect(() => {
+		if (ref?.current) {
+			// We need to reset the height momentarily to get the correct scrollHeight for the textarea
+			ref.current.style.height = '0px';
+			const scrollHeight = ref.current.scrollHeight;
+
+			// We then set the height directly, outside of the render loop
+			// Trying to set this with state or a ref will product an incorrect value.
+			ref.current.style.height = scrollHeight + 'px';
+		}
+	}, [ref, input]);
+
 	return (
-		<div className="mind-popup-input" ref={ref}>
+		<div className="mind-popup-input">
 			<MindLogoIcon />
-			<TextControl
+			<textarea
+				ref={ref}
 				placeholder={__('Ask AI to write anything…', 'mind')}
 				value={input}
-				onChange={(val) => {
-					setInput(val);
+				onChange={(e) => {
+					setInput(e.target.value);
 				}}
 				onKeyDown={onKeyDown}
 				disabled={loading}
+				rows={1}
 			/>
 			{contextLabel ? (
 				<span className="mind-popup-input-context">{contextLabel}</span>
