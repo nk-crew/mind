@@ -194,7 +194,6 @@ class Mind_Rest extends WP_REST_Controller {
 			// Use `gpt-3.5-turbo-16k` for longer context.
 			'stream'      => false,
 			'temperature' => 0.7,
-			'max_tokens'  => 200,
 			'messages'    => $messages,
 		];
 
