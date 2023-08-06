@@ -106,6 +106,7 @@ export default function PageSettings() {
 						e.preventDefault();
 
 						if (
+							!pendingSettings.openai_api_key ||
 							isValidOpenAIApiKey(pendingSettings.openai_api_key)
 						) {
 							setIsInvalidAPIKey(false);
