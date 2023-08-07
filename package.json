@@ -5,6 +5,13 @@
 	"author": "Mind Team",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
+	"files": [
+		"assets",
+		"build",
+		"classes",
+		"mind.php",
+		"readme.txt"
+	],
 	"scripts": {
 		"dev": "wp-scripts start --hot --progress",
 		"build": "wp-scripts build --progress",
