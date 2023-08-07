@@ -1,6 +1,6 @@
 === Mind ===
 Contributors:      nko
-Tags:              ai, openai, gpt, copywriting, assistant, artificial intelligence
+Tags:              ai, openai, gpt, copywriting, assistant
 Requires at least: 6.0
 Tested up to:      6.3
 Requires PHP:      7.2
@@ -89,21 +89,27 @@ p.s. this plugin description is created using Mind and OpenAI API.
 
 == Installation ==
 
-=== Automatic installation ===
+= Automatic installation =
 
-Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of Mind, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
+Install the Mind either via the WordPress plugin directory or by uploading the files to your server at `wp-content/plugins`.
 
-In the search field type Mind and click Search Plugins. Once you’ve found our plugin you can view details about it such as the point release, rating and description. Most importantly of course, you can install it by simply clicking “Install Now”.
+= Usage =
 
-=== Manual installation ===
+To start using the Mind features you have to insert your OpenAI API key in the plugin settings.
 
-The manual installation method involves downloading our Mind plugin and uploading it to your webserver via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](https://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+- Create OpenAI API key <https://platform.openai.com/account/api-keys>
+- Insert this key in the plugin settings (Admin Menu → Mind → Settings)
+- Open any post or page in WordPress editor (Gutenberg) and you can see the new button in the editor and paragraph toolbars
 
 == Frequently Asked Questions ==
 
-=== Website and Documentation ===
+= Website and Documentation =
 
 There is no documentation available yet, but in the future it will be placed here - <https://www.wp-mind.com/>
+
+= Supported page builders =
+
+Mind is developed for the WordPress page builder - Gutenberg. Currently we don't have support for 3rd-party builders.
 
 == Screenshots ==
 
