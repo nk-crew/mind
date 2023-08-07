@@ -4,7 +4,6 @@
 	"description": "Mind - Content Assistant Plugin based on OpenAI",
 	"author": "Mind Team",
 	"license": "GPL-2.0-or-later",
-	"main": "build/index.js",
 	"files": [
 		"assets",
 		"build",
