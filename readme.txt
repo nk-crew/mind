@@ -16,9 +16,7 @@ Mind is a WordPress plugin designed to assist content editors in writing and imp
 
 === 🚀 Community-Driven Development ===
 
-This plugin was created as an experiment in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin.
-
-You have the opportunity to influence the future of this plugin and vote on functionality in the [GitHub Discussions](https://github.com/nk-crew/mind/discussions).
+This plugin was created as an experiment in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin in [GitHub Discussions](https://github.com/nk-crew/mind/discussions).
 
 === ✍️ Writing Assistance ===
 
@@ -105,7 +103,7 @@ The manual installation method involves downloading our Mind plugin and uploadin
 
 === Website and Documentation ===
 
-There is no site available, but in the future all information will be placed here - <https://www.wp-mind.com/>
+There is no documentation available yet, but in the future it will be placed here - <https://www.wp-mind.com/>
 
 == Screenshots ==
 
