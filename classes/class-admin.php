@@ -118,10 +118,10 @@ class Mind_Admin {
         // phpcs:ignore
 		if ( isset( $_GET['sub_page'] ) && $_GET['sub_page'] ) {
 			// phpcs:ignore
-			$page_name = $_GET['sub_page'];
+			$page_name = esc_attr( $_GET['sub_page'] );
 		}
 
-		$classes .= ' mind-admin-page-' . esc_attr( $page_name );
+		$classes .= ' mind-admin-page-' . $page_name;
 
 		// Is first loading after plugin activation redirect.
         // phpcs:ignore
