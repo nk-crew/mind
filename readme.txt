@@ -1,8 +1,8 @@
-=== Mind ===
+=== AI Mind ===
 Contributors:      nko
 Tags:              ai, openai, gpt, copywriting, assistant
-Requires at least: 6.0
-Tested up to:      6.3
+Requires at least: 6.2
+Tested up to:      6.4
 Requires PHP:      7.2
 Stable tag:        0.1.0
 License:           GPL-2.0-or-later
@@ -85,6 +85,14 @@ There are a couple of places, which implemented in Mind to help writing content:
 With its comprehensive set of features, Mind empowers content editors to write high-quality and engaging posts, while saving time and effort in the content creation process.
 
 p.s. this plugin description is created using Mind and OpenAI API.
+
+=== OpenAI ===
+
+The AI Mind plugin utilizes [OpenAI](https://platform.openai.com/) API without collecting any personal information. Data transmitted to OpenAI servers includes post content and specified context.
+
+For the AI Mind plugin to function correctly, you need an API key from OpenAI. Sign up at <https://platform.openai.com/account/api-keys> to obtain the key.
+
+Please make sure to review their [Privacy Policy](https://openai.com/policies/privacy-policy), as well as their [Terms of Use](https://openai.com/policies/terms-of-use) for more information.
 
 
 == Installation ==

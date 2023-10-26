@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Mind
+ * Plugin Name:       AI Mind
  * Description:       Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more.
  * Requires at least: 6.0
  * Requires PHP:      7.2
