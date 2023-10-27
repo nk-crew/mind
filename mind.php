@@ -6,7 +6,7 @@
  * Requires PHP:      7.2
  * Version:           0.1.0
  * Author:            Mind Team
- * Author URI:        https://www.wp-mind.com/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=byline
+ * Author URI:        https://www.wp-mind.com/
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       mind
