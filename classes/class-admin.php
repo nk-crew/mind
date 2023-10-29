@@ -117,8 +117,7 @@ class Mind_Admin {
 
         // phpcs:ignore
 		if ( isset( $_GET['sub_page'] ) && $_GET['sub_page'] ) {
-			// phpcs:ignore
-			$page_name = esc_attr( $_GET['sub_page'] );
+			$page_name = esc_attr( sanitize_text_field( $_GET['sub_page'] ) );
 		}
 
 		$classes .= ' mind-admin-page-' . $page_name;
