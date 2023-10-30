@@ -61,7 +61,7 @@ class Mind_Admin {
 			'manage_options',
 			'mind',
 			[ $this, 'print_admin_page' ],
-			// phpcs:ignore
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			'data:image/svg+xml;base64,' . base64_encode( file_get_contents( mind()->plugin_path . 'assets/images/admin-icon.svg' ) ),
 			'58.7'
 		);
@@ -115,15 +115,16 @@ class Mind_Admin {
 		// Sub page.
 		$page_name = 'welcome';
 
-        // phpcs:ignore
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_GET['sub_page'] ) && $_GET['sub_page'] ) {
+			// phpcs:ignore WordPress.Security.NonceVerification
 			$page_name = esc_attr( sanitize_text_field( $_GET['sub_page'] ) );
 		}
 
 		$classes .= ' mind-admin-page-' . $page_name;
 
 		// Is first loading after plugin activation redirect.
-        // phpcs:ignore
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_GET['is_first_loading'] ) ) {
 			$classes .= ' mind-admin-first-loading';
 		}
