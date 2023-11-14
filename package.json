@@ -22,15 +22,15 @@
 		"plugin-zip": "wp-scripts plugin-zip"
 	},
 	"devDependencies": {
-		"@wordpress/eslint-plugin": "^14.7.0",
-		"@wordpress/prettier-config": "^2.17.0",
-		"@wordpress/scripts": "^26.2.0",
-		"@wordpress/stylelint-config": "^21.17.0",
-		"prettier": "^2.8.8"
+		"@wordpress/eslint-plugin": "^17.2.0",
+		"@wordpress/prettier-config": "^3.2.0",
+		"@wordpress/scripts": "^26.16.0",
+		"@wordpress/stylelint-config": "^21.28.0",
+		"prettier": "^3.1.0"
 	},
 	"dependencies": {
 		"clsx": "^2.0.0",
-		"marked": "^5.0.4",
+		"marked": "^10.0.0",
 		"react-transition-group": "^4.4.5"
 	}
 }
