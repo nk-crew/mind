@@ -1,0 +1,21 @@
+# Directories to ignore
+/.git
+/.github
+/.vscode
+/.wordpress-org
+/node_modules
+/src
+/vendor
+
+# Files to ignore
+/.*
+/composer.json
+/composer.lock
+/LICENSE.md
+/package.json
+/package-lock.json
+/phpcs.xml
+/phpcs.xml.dist
+/phpunit.xml
+/README.md
+/webpack.config.js

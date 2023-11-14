@@ -14,7 +14,7 @@
 	"scripts": {
 		"dev": "wp-scripts start --hot --progress",
 		"build": "wp-scripts build --progress",
-		"build:production": "npm run build && npm run plugin-zip",
+		"build:prod": "npm run build && npm run plugin-zip",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
 		"lint:php": "composer run phpcs",
