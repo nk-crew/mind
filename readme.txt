@@ -1,4 +1,4 @@
-=== AI Mind ===
+=== Mind - AI Content Assistant ===
 Contributors:      nko
 Tags:              ai, openai, gpt, copywriting, assistant
 Requires at least: 6.2
@@ -8,7 +8,7 @@ Stable tag:        0.1.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-OpenAI content assistant and enhancer for WordPress page builder Gutenberg.
+AI content assistant and enhancer for WordPress page builder.
 
 == Description ==
 
