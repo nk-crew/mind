@@ -212,13 +212,11 @@ class Mind_Rest extends WP_REST_Controller {
 		);
 
 		// Error.
-		if ( is_wp_error( $ai_request ) || wp_remote_retrieve_response_code( $ai_request ) !== 200 ) {
+		if ( is_wp_error( $ai_request ) ) {
 			$response = $ai_request->get_error_message();
 
-			if ( $response ) {
-				return $this->error( 'openai_request_error', $response );
-			}
-
+			return $this->error( 'openai_request_error', $response );
+		} elseif ( wp_remote_retrieve_response_code( $ai_request ) !== 200 ) {
 			$response = json_decode( wp_remote_retrieve_body( $ai_request ), true );
 
 			if ( isset( $response['error']['message'] ) ) {
