@@ -1,6 +1,6 @@
 {
 	"name": "mind",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Mind - Content Assistant Plugin based on OpenAI",
 	"author": "Mind Team",
 	"license": "GPL-2.0-or-later",
