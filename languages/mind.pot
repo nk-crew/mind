@@ -1,0 +1,447 @@
+# Copyright (C) 2024 Mind Team
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Mind 0.1.1\n"
+"Report-Msgid-Bugs-To: https://github.com/nk-crew/mind/issues\n"
+"Last-Translator: Lazy Blocks Team\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-11-27T17:58:33+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: mind\n"
+
+#. Plugin Name of the plugin
+#: mind.php
+msgid "AI Mind"
+msgstr ""
+
+#. Description of the plugin
+#: mind.php
+msgid "Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more."
+msgstr ""
+
+#. Author of the plugin
+#: mind.php
+msgid "Mind Team"
+msgstr ""
+
+#. Author URI of the plugin
+#: mind.php
+msgid "https://www.wp-mind.com/"
+msgstr ""
+
+#: classes/class-admin.php:59
+#: classes/class-admin.php:60
+#: mind.php:87
+#: src/admin/index.js:121
+msgid "Mind"
+msgstr ""
+
+#: classes/class-admin.php:72
+#: src/admin/pages/index.js:14
+msgid "Welcome"
+msgstr ""
+
+#: classes/class-admin.php:79
+#: src/admin/pages/index.js:18
+msgid "Settings"
+msgstr ""
+
+#: classes/class-admin.php:86
+#: src/admin/pages/index.js:22
+msgid "Discussions"
+msgstr ""
+
+#: classes/class-rest.php:73
+msgid "User don't have permissions to change options."
+msgstr ""
+
+#: classes/class-rest.php:86
+msgid "You don't have permissions to request Mind API."
+msgstr ""
+
+#: classes/class-rest.php:125
+msgid "Provide OpenAI key in the plugin settings."
+msgstr ""
+
+#: classes/class-rest.php:129
+msgid "Provide request to receive AI response."
+msgstr ""
+
+#: classes/class-rest.php:226
+msgid "OpenAI data failed to load."
+msgstr ""
+
+#: src/admin/page-settings/index.js:58
+msgid "OpenAI API Key"
+msgstr ""
+
+#: src/admin/page-settings/index.js:61
+msgid "This setting is required, since our plugin works with OpenAI."
+msgstr ""
+
+#: src/admin/page-settings/index.js:70
+msgid "Create API key"
+msgstr ""
+
+#: src/admin/page-settings/index.js:84
+msgid "Enter API key"
+msgstr ""
+
+#: src/admin/page-settings/index.js:96
+msgid "Please enter a valid API key"
+msgstr ""
+
+#: src/admin/page-settings/index.js:119
+msgid "Save Changes"
+msgstr ""
+
+#. translators: %s - Mind logo.
+#: src/admin/page-welcome/index.js:34
+msgid "Hello, my name is %s"
+msgstr ""
+
+#: src/admin/page-welcome/index.js:40
+msgid "I am an AI assistant designed to help you in writing content for your blog"
+msgstr ""
+
+#: src/admin/page-welcome/index.js:48
+msgid "To get started, <em>open the page editor</em> and click on the <em>\"Open Mind\"</em> button in the toolbar"
+msgstr ""
+
+#: src/admin/page-welcome/index.js:56
+msgid "To get started, enter your"
+msgstr ""
+
+#: src/admin/page-welcome/index.js:63
+msgid "OpenAI API key →"
+msgstr ""
+
+#: src/admin/store/settings/actions.js:35
+#: src/editor/store/popup/actions.js:119
+msgid "Something went wrong, please, try again…"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:40
+msgid "professional"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:40
+msgid "🧐 Professional"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:41
+msgid "friendly"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:41
+msgid "😀 Friendly"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:42
+msgid "straightforward"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:42
+msgid "🙂 Straightforward"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:43
+msgid "educational"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:43
+msgid "🎓 Educational"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:44
+msgid "confident"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:44
+msgid "😎 Confident"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:45
+msgid "witty"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:45
+msgid "🤣 Witty"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:46
+msgid "heartfelt"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:46
+msgid "🤗 Heartfelt"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:50
+msgid "chinese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:50
+msgid "🇨🇳 Chinese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:51
+msgid "dutch"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:51
+msgid "🇳🇱 Dutch"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:52
+msgid "english"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:52
+msgid "🇺🇸 English"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:53
+msgid "filipino"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:53
+msgid "🇵🇭 Filipino"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:54
+msgid "french"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:54
+msgid "🇫🇷 French"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:55
+msgid "german"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:55
+msgid "🇩🇪 German"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:56
+msgid "indonesian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:56
+msgid "🇮🇩 Indonesian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:57
+msgid "italian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:57
+msgid "🇮🇹 Italian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:58
+msgid "japanese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:58
+msgid "🇯🇵 Japanese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:59
+msgid "korean"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:59
+msgid "🇰🇷 Korean"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:60
+msgid "portuguese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:60
+msgid "🇵🇹 Portuguese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:61
+msgid "russian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:61
+msgid "🇷🇺 Russian"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:62
+msgid "spanish"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:62
+msgid "🇪🇸 Spanish"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:63
+msgid "vietnamese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:63
+msgid "🇻🇳 Vietnamese"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:105
+msgid "Improve writing language"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:112
+msgid "Improve"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:119
+msgid "Fix spelling and grammar"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:126
+msgid "Fix Spelling & Grammar"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:132
+msgid "Make shorter"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:135
+msgid "Make Shorter"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:141
+msgid "Make longer"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:144
+msgid "Make Longer"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:150
+#: src/editor/extensions/block-toolbar/index.js:153
+msgid "Summarize"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:159
+#: src/editor/extensions/block-toolbar/index.js:162
+msgid "Paraphrase"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:172
+msgid "Adjust Tone"
+msgstr ""
+
+#. translators: %s - tone.
+#: src/editor/extensions/block-toolbar/index.js:199
+msgid "Change tone to %s"
+msgstr ""
+
+#: src/editor/extensions/block-toolbar/index.js:226
+msgid "Translate"
+msgstr ""
+
+#. translators: %s - tone.
+#: src/editor/extensions/block-toolbar/index.js:253
+msgid "Translate to %s"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:26
+msgid "Post Presets"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:30
+msgid "Post title about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:31
+msgid "Write a post title about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:36
+msgid "Post about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:37
+msgid "Write a blog post about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:42
+msgid "Outline about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:43
+msgid "Write a blog post outline about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:49
+msgid "Content Presets"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:53
+msgid "Paragraph about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:54
+msgid "Create a paragraph about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:59
+msgid "List about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:60
+msgid "Create a list about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:65
+msgid "Table about…"
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:66
+msgid "Create a table about "
+msgstr ""
+
+#: src/editor/popup/components/content/index.js:161
+msgid "Waiting for AI response"
+msgstr ""
+
+#: src/editor/popup/components/footer/index.js:43
+msgid "Get Answer"
+msgstr ""
+
+#: src/editor/popup/components/footer/index.js:54
+msgid "Regenerate"
+msgstr ""
+
+#: src/editor/popup/components/footer/index.js:65
+msgid "Copy"
+msgstr ""
+
+#: src/editor/popup/components/footer/index.js:68
+msgid "Insert"
+msgstr ""
+
+#: src/editor/popup/components/input/index.js:107
+msgid "Ask AI to write anything…"
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:30
+msgid "OpenAI Key"
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:34
+msgid "In order to use Mind, you will need to provide your OpenAI API key. Please insert your API key in the plugin settings to get started."
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:45
+msgid "Go to Settings"
+msgstr ""

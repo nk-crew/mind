@@ -3,6 +3,7 @@
 		"wp-coding-standards/wpcs": "^2.3",
 		"sirbrillig/phpcs-variable-analysis": "^2.8",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"wp-cli/i18n-command": "^2.4",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
 		"php-stubs/wordpress-stubs": "^6.1"
 	},

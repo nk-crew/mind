@@ -14,10 +14,12 @@
 	"scripts": {
 		"dev": "wp-scripts start --hot --progress",
 		"build": "wp-scripts build --progress",
-		"build:prod": "npm run build && npm run plugin-zip",
+		"build:prod": "npm run make-pot && npm run make-json && npm run build && npm run plugin-zip",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
 		"lint:php": "composer run phpcs",
+		"make-pot": "composer wp -- i18n make-pot ./ ./languages/mind.pot --skip-audit --exclude=vendor,vendors,tests,node_modules,build,dist-zip --headers='{\"Last-Translator\":\"Lazy Blocks Team\",\"Report-Msgid-Bugs-To\":\"https://github.com/nk-crew/mind/issues\"}'",
+		"make-json": "po2json ./languages/mind.pot ./languages/mind.json --format=jed1.x --pretty --domain=mind",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip"
 	},
@@ -26,6 +28,7 @@
 		"@wordpress/prettier-config": "^3.2.0",
 		"@wordpress/scripts": "^26.16.0",
 		"@wordpress/stylelint-config": "^21.28.0",
+		"po2json": "^0.4.5",
 		"prettier": "^3.1.0"
 	},
 	"dependencies": {
