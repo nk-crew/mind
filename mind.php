@@ -4,7 +4,7 @@
  * Description:       Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more.
  * Requires at least: 6.0
  * Requires PHP:      7.2
- * Version:           0.1.1
+ * Version:           0.1.2
  * Author:            Mind Team
  * Author URI:        https://www.wp-mind.com/
  * License:           GPLv2 or later
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'MIND_VERSION' ) ) {
-	define( 'MIND_VERSION', '0.1.1' );
+	define( 'MIND_VERSION', '0.1.2' );
 }
 
 /**

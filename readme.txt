@@ -4,7 +4,7 @@ Tags:              ai, openai, gpt, copywriting, assistant
 Requires at least: 6.2
 Tested up to:      6.7
 Requires PHP:      7.2
-Stable tag:        0.1.1
+Stable tag:        0.1.2
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,6 +126,11 @@ Mind is developed for the WordPress page builder - Gutenberg. Currently we don't
 3. Summarization request
 
 == Changelog ==
+
+= 0.1.2 - Nov 28, 2024 =
+
+- added translation files
+- check compatibility with WordPress 6.7
 
 = 0.1.1 - 21 Jan, 2024 =
 

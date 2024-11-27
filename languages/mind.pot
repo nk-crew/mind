@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Mind 0.1.1\n"
+"Project-Id-Version: AI Mind 0.1.2\n"
 "Report-Msgid-Bugs-To: https://github.com/nk-crew/mind/issues\n"
 "Last-Translator: Lazy Blocks Team\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-27T17:58:33+00:00\n"
+"POT-Creation-Date: 2024-11-27T18:04:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -36,7 +36,6 @@ msgstr ""
 
 #: classes/class-admin.php:59
 #: classes/class-admin.php:60
-#: mind.php:87
 #: src/admin/index.js:121
 msgid "Mind"
 msgstr ""
