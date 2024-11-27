@@ -59,7 +59,7 @@ const mountEditorToolbarToggle = () => {
 				}
 
 				const postHeader = document.querySelector(
-					'.edit-post-header__toolbar'
+					'.editor-header__toolbar, .edit-post-header__toolbar'
 				);
 
 				if (postHeader) {
