@@ -2,7 +2,7 @@
 /**
  * Rest API functions
  *
- * @package @@plugin_name
+ * @package mind
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -46,20 +46,6 @@ class Mind {
 	}
 
 	/**
-	 * Name of the plugin
-	 *
-	 * @var $plugin_name
-	 */
-	public $plugin_name;
-
-	/**
-	 * Basename of plugin main file
-	 *
-	 * @var $plugin_basename
-	 */
-	public $plugin_basename;
-
-	/**
 	 * Path to the plugin directory
 	 *
 	 * @var $plugin_path
@@ -84,16 +70,31 @@ class Mind {
 	 * Init options
 	 */
 	public function init() {
-		$this->plugin_name     = esc_html__( 'Mind', 'mind' );
-		$this->plugin_basename = plugin_basename( __FILE__ );
-		$this->plugin_path     = plugin_dir_path( __FILE__ );
-		$this->plugin_url      = plugin_dir_url( __FILE__ );
-
-		// load textdomain.
-		load_plugin_textdomain( 'mind', false, basename( dirname( __FILE__ ) ) . '/languages' );
+		$this->plugin_path = plugin_dir_path( __FILE__ );
+		$this->plugin_url  = plugin_dir_url( __FILE__ );
 
 		// include helper files.
 		$this->include_dependencies();
+
+		// hooks.
+		add_action( 'init', [ $this, 'init_hook' ] );
+	}
+
+	/**
+	 * Include dependencies
+	 */
+	private function include_dependencies() {
+		require_once $this->plugin_path . 'classes/class-admin.php';
+		require_once $this->plugin_path . 'classes/class-assets.php';
+		require_once $this->plugin_path . 'classes/class-rest.php';
+	}
+
+	/**
+	 * Init Hook
+	 */
+	public function init_hook() {
+		// load textdomain.
+		load_plugin_textdomain( 'mind', false, basename( dirname( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
@@ -109,15 +110,6 @@ class Mind {
 	 */
 	public function deactivation_hook() {
 		// Nothing here yet.
-	}
-
-	/**
-	 * Include dependencies
-	 */
-	private function include_dependencies() {
-		require_once $this->plugin_path . 'classes/class-admin.php';
-		require_once $this->plugin_path . 'classes/class-assets.php';
-		require_once $this->plugin_path . 'classes/class-rest.php';
 	}
 }
 
