@@ -190,8 +190,7 @@ class Mind_Rest extends WP_REST_Controller {
 		];
 
 		$body = [
-			'model'       => 'gpt-3.5-turbo',
-			// Use `gpt-3.5-turbo-16k` for longer context.
+			'model'       => 'gpt-4o-mini',
 			'stream'      => false,
 			'temperature' => 0.7,
 			'messages'    => $messages,
