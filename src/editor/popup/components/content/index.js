@@ -4,15 +4,15 @@ import './style.scss';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useRef, useEffect, RawHTML } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import LoadingText from '../loading-text';
 import Notice from '../notice';
+import AIResponse from '../ai-response';
 import { ReactComponent as PopupPostTitleAboutIcon } from '../../../../icons/popup-post-title-about.svg';
 import { ReactComponent as PopupPostAboutIcon } from '../../../../icons/popup-post-about.svg';
 import { ReactComponent as PopupOutlineAboutIcon } from '../../../../icons/popup-outline-about.svg';
@@ -73,29 +73,40 @@ export default function Content() {
 
 	const { setInput, setScreen } = useDispatch('mind/popup');
 
-	const { isOpen, input, screen, loading, response, error } = useSelect(
-		(select) => {
-			const {
-				isOpen: checkIsOpen,
-				getInput,
-				getContext,
-				getScreen,
-				getLoading,
-				getResponse,
-				getError,
-			} = select('mind/popup');
+	const {
+		isOpen,
+		input,
+		screen,
+		loading,
+		response,
+		progress,
+		renderBuffer,
+		error,
+	} = useSelect((select) => {
+		const {
+			isOpen: checkIsOpen,
+			getInput,
+			getContext,
+			getScreen,
+			getLoading,
+			getResponse,
+			getProgress,
+			getRenderBuffer,
+			getError,
+		} = select('mind/popup');
 
-			return {
-				isOpen: checkIsOpen(),
-				input: getInput(),
-				context: getContext(),
-				screen: getScreen(),
-				loading: getLoading(),
-				response: getResponse(),
-				error: getError(),
-			};
-		}
-	);
+		return {
+			isOpen: checkIsOpen(),
+			input: getInput(),
+			context: getContext(),
+			screen: getScreen(),
+			loading: getLoading(),
+			response: getResponse(),
+			progress: getProgress(),
+			renderBuffer: getRenderBuffer(),
+			error: getError(),
+		};
+	});
 
 	function focusInput() {
 		if (ref?.current) {
@@ -156,12 +167,14 @@ export default function Content() {
 
 			{screen === 'request' && (
 				<div className="mind-popup-request">
-					{loading && (
-						<LoadingText>
-							{__('Waiting for AI response', 'mind')}
-						</LoadingText>
+					{response && (
+						<AIResponse
+							progress={progress}
+							loading={loading}
+							response={response}
+							renderBuffer={renderBuffer}
+						/>
 					)}
-					{!loading && response && <RawHTML>{response}</RawHTML>}
 					{!loading && error && <Notice type="error">{error}</Notice>}
 				</div>
 			)}

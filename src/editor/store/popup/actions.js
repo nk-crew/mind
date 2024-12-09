@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
+import AIStreamProcessor from '../../../utils/ai-stream-processor';
 import getSelectedBlocksContent from '../../../utils/get-selected-blocks-content';
 import { isConnected } from '../core/selectors';
 
@@ -77,8 +78,92 @@ export function setError(error) {
 	};
 }
 
+export function reset() {
+	return {
+		type: 'RESET',
+	};
+}
+
+/**
+ * Process stream data from the API
+ *
+ * @param {ReadableStream} reader Stream reader
+ * @return {Function} Redux-style action function
+ */
+export function processStream(reader) {
+	return async ({ dispatch }) => {
+		const decoder = new TextDecoder();
+		let buffer = '';
+		let responseText = '';
+
+		// Create artificial delay for smoother updates
+		const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+		try {
+			while (true) {
+				const { value, done } = await reader.read();
+				if (done) break;
+
+				// Process smaller chunks.
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || '';
+
+				for (const line of lines) {
+					if (line.startsWith('data: ')) {
+						try {
+							const data = JSON.parse(line.slice(6));
+
+							if (data.error) {
+								dispatch({
+									type: 'REQUEST_AI_ERROR',
+									payload: data.message,
+								});
+								return;
+							}
+
+							if (data.done) {
+								dispatch({
+									type: 'REQUEST_AI_SUCCESS',
+									payload: responseText,
+								});
+								return;
+							}
+
+							if (data.content) {
+								responseText += data.content;
+
+								dispatch({
+									type: 'REQUEST_AI_CHUNK',
+									payload: responseText,
+								});
+
+								// Add small delay between chunks for smoother appearance.
+								await delay(50);
+							}
+						} catch (error) {
+							dispatch({
+								type: 'REQUEST_AI_ERROR',
+								payload: __(
+									'Failed to parse stream data',
+									'mind'
+								),
+							});
+						}
+					}
+				}
+			}
+		} catch (error) {
+			dispatch({
+				type: 'REQUEST_AI_ERROR',
+				payload: error.message,
+			});
+		}
+	};
+}
+
 export function requestAI() {
-	return ({ dispatch, select }) => {
+	return async ({ dispatch, select }) => {
 		if (!isConnected) {
 			return;
 		}
@@ -98,32 +183,34 @@ export function requestAI() {
 			data.context = getSelectedBlocksContent();
 		}
 
-		apiFetch({
-			path: '/mind/v1/request_ai',
-			method: 'POST',
-			data,
-		})
-			.then((res) => {
-				dispatch({
-					type: 'REQUEST_AI_SUCCESS',
-					payload: res.response,
-				});
-				return res.response;
-			})
-			.catch((err) => {
-				dispatch({
-					type: 'REQUEST_AI_ERROR',
-					payload:
-						err?.response ||
-						err?.error_code ||
-						__('Something went wrong, please, try again…', 'mind'),
-				});
-			});
-	};
-}
+		try {
+			// Initialize StreamProcessor with dispatch
+			const streamProcessor = new AIStreamProcessor(dispatch);
 
-export function reset() {
-	return {
-		type: 'RESET',
+			const response = await apiFetch({
+				path: '/mind/v1/request_ai',
+				method: 'POST',
+				data,
+				// Important: don't parse the response automatically
+				parse: false,
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(
+					errorData.message ||
+						__('Failed to fetch AI response', 'mind')
+				);
+			}
+
+			// Process the stream
+			await streamProcessor.processStream(response.body.getReader());
+		} catch (error) {
+			dispatch({
+				type: 'REQUEST_AI_ERROR',
+				payload:
+					error.message || __('Failed to fetch AI response', 'mind'),
+			});
+		}
 	};
 }

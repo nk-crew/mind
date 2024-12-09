@@ -1,18 +1,29 @@
 import mdToHtml from '../../../utils/md-to-html';
 
-function reducer(
-	state = {
-		isOpen: false,
-		input: '',
-		context: '',
-		insertionPlace: '',
-		screen: '',
-		loading: false,
-		response: false,
-		error: false,
+const initialState = {
+	isOpen: false,
+	input: '',
+	context: '',
+	insertionPlace: '',
+	screen: '',
+	loading: false,
+	response: '',
+	error: null,
+	progress: {
+		charsProcessed: 0,
+		queueSize: 0,
+		isComplete: false,
 	},
-	action = {}
-) {
+	renderBuffer: {
+		content: '',
+		lastUpdate: 0,
+	},
+};
+
+// throttle in ms.
+const RENDER_THROTTLE = 50;
+
+function reducer(state = initialState, action = {}) {
 	switch (action.type) {
 		case 'CLOSE':
 			if (state.isOpen) {
@@ -94,22 +105,62 @@ function reducer(
 		case 'REQUEST_AI_PENDING':
 			return {
 				...state,
-				loading: true,
 				isOpen: true,
+				loading: true,
+				response: '',
+				error: null,
 				screen: 'request',
+				progress: initialState.progress,
+				renderBuffer: initialState.renderBuffer,
+			};
+		case 'REQUEST_AI_CHUNK':
+			const now = Date.now();
+			const shouldUpdate =
+				now - state.renderBuffer.lastUpdate >= RENDER_THROTTLE;
+
+			if (!shouldUpdate) {
+				return {
+					...state,
+					renderBuffer: {
+						content: action.payload.content,
+						lastUpdate: state.renderBuffer.lastUpdate,
+					},
+				};
+			}
+
+			return {
+				...state,
+				loading: true,
+				response: action.payload.content
+					? mdToHtml(action.payload.content)
+					: false,
+				progress: action.payload.progress,
+				renderBuffer: {
+					content: action.payload.content,
+					lastUpdate: now,
+				},
 			};
 		case 'REQUEST_AI_SUCCESS':
 			return {
 				...state,
 				loading: false,
-				response: action.payload ? mdToHtml(action.payload) : false,
+				response: action.payload.content
+					? mdToHtml(action.payload.content)
+					: false,
+				progress: { ...action.payload.progress, isComplete: true },
+				renderBuffer: {
+					content: action.payload.content,
+					lastUpdate: Date.now(),
+				},
 			};
 		case 'REQUEST_AI_ERROR':
 			return {
 				...state,
 				loading: false,
-				error: action.payload || '',
 				response: false,
+				error: action.payload || '',
+				progress: initialState.progress,
+				renderBuffer: initialState.renderBuffer,
 			};
 		case 'RESET':
 			return {

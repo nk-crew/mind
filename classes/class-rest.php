@@ -108,28 +108,12 @@ class Mind_Rest extends WP_REST_Controller {
 	}
 
 	/**
-	 * Send request to OpenAI.
+	 * Prepare messages for request.
 	 *
-	 * @param WP_REST_Request $req  request object.
-	 *
-	 * @return mixed
+	 * @param string $request user request.
+	 * @param string $context context.
 	 */
-	public function request_ai( WP_REST_Request $req ) {
-		$settings   = get_option( 'mind_settings', array() );
-		$openai_key = $settings['openai_api_key'] ?? '';
-
-		$request = $req->get_param( 'request' ) ?? '';
-		$context = $req->get_param( 'context' ) ?? '';
-
-		if ( ! $openai_key ) {
-			return $this->error( 'no_openai_key_found', __( 'Provide OpenAI key in the plugin settings.', 'mind' ) );
-		}
-
-		if ( ! $request ) {
-			return $this->error( 'no_request', __( 'Provide request to receive AI response.', 'mind' ) );
-		}
-
-		// Messages.
+	public function prepare_messages( $request, $context ) {
 		$messages = [];
 
 		$messages[] = [
@@ -189,52 +173,75 @@ class Mind_Rest extends WP_REST_Controller {
 			),
 		];
 
+		return $messages;
+	}
+
+	/**
+	 * Send request to OpenAI.
+	 *
+	 * @param WP_REST_Request $req  request object.
+	 *
+	 * @return mixed
+	 */
+	public function request_ai( WP_REST_Request $req ) {
+		// Set headers for streaming.
+		header( 'Content-Type: text/event-stream' );
+		header( 'Cache-Control: no-cache' );
+		header( 'Connection: keep-alive' );
+		// For Nginx.
+		header( 'X-Accel-Buffering: no' );
+
+		$settings   = get_option( 'mind_settings', array() );
+		$openai_key = $settings['openai_api_key'] ?? '';
+
+		$request = $req->get_param( 'request' ) ?? '';
+		$context = $req->get_param( 'context' ) ?? '';
+
+		if ( ! $openai_key ) {
+			$this->send_stream_error( 'no_openai_key_found', __( 'Provide OpenAI key in the plugin settings.', 'mind' ) );
+			exit;
+		}
+
+		if ( ! $request ) {
+			$this->send_stream_error( 'no_request', __( 'Provide request to receive AI response.', 'mind' ) );
+			exit;
+		}
+
+		// Messages.
+		$messages = $this->prepare_messages( $request, $context );
+
 		$body = [
 			'model'       => 'gpt-4o-mini',
-			'stream'      => false,
+			'stream'      => true,
 			'temperature' => 0.7,
 			'messages'    => $messages,
 		];
 
-		// Make Request to OpenAI API.
-		$ai_request = wp_remote_post(
-			'https://api.openai.com/v1/chat/completions',
-			[
-				'headers'   => [
-					'Authorization' => 'Bearer ' . $openai_key,
-					'Content-Type'  => 'application/json',
-				],
-				'timeout'   => 30,
-				'sslverify' => false,
-				'body'      => wp_json_encode( $body ),
-			]
-		);
+		// Initialize cURL.
+		// phpcs:disable
+		$ch = curl_init( 'https://api.openai.com/v1/chat/completions' );
+		curl_setopt( $ch, CURLOPT_POST, 1 );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Authorization: Bearer ' . $openai_key,
+		] );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
+		curl_setopt( $ch, CURLOPT_WRITEFUNCTION, function ( $curl, $data ) {
+			$this->process_stream_chunk( $data );
+			return strlen( $data );
+		});
 
-		// Error.
-		if ( is_wp_error( $ai_request ) ) {
-			$response = $ai_request->get_error_message();
+		// Execute request
+		curl_exec( $ch );
 
-			return $this->error( 'openai_request_error', $response );
-		} elseif ( wp_remote_retrieve_response_code( $ai_request ) !== 200 ) {
-			$response = json_decode( wp_remote_retrieve_body( $ai_request ), true );
-
-			if ( isset( $response['error']['message'] ) ) {
-				return $this->error( 'openai_request_error', $response['error']['message'] );
-			}
-
-			return $this->error( 'openai_request_error', __( 'OpenAI data failed to load.', 'mind' ) );
+		if ( curl_errno( $ch ) ) {
+			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
 		}
 
-		// Success.
-		$result   = '';
-		$response = json_decode( wp_remote_retrieve_body( $ai_request ), true );
-
-		// TODO: this a limited part, which should be reworked.
-		if ( isset( $response['choices'][0]['message']['content'] ) ) {
-			$result = $response['choices'][0]['message']['content'];
-		}
-
-		return $this->success( $result );
+		curl_close( $ch );
+		// phpcs:enable
+		exit;
 	}
 
 	/**
@@ -253,6 +260,72 @@ class Mind_Rest extends WP_REST_Controller {
 			$r[] = "$key=" . rawurlencode( $value );
 		}
 		return $method . '&' . rawurlencode( $base_uri ) . '&' . rawurlencode( implode( '&', $r ) );
+	}
+
+	/**
+	 * Process streaming chunk from OpenAI
+	 *
+	 * @param string $chunk - chunk of data.
+	 */
+	private function process_stream_chunk( $chunk ) {
+		$lines = explode( "\n", $chunk );
+
+		foreach ( $lines as $line ) {
+			if ( strlen( trim( $line ) ) === 0 ) {
+				continue;
+			}
+
+			if ( strpos( $line, 'data: ' ) === 0 ) {
+				$json_data = trim( substr( $line, 6 ) );
+
+				if ( '[DONE]' === $json_data ) {
+					$this->send_stream_chunk( [ 'done' => true ] );
+					return;
+				}
+
+				try {
+					$data = json_decode( $json_data, true );
+
+					if ( isset( $data['choices'][0]['delta']['content'] ) ) {
+						// Send smaller chunks immediately.
+						$this->send_stream_chunk(
+							[
+								'content' => $data['choices'][0]['delta']['content'],
+							]
+						);
+						flush();
+					}
+				} catch ( Exception $e ) {
+					$this->send_stream_error( 'json_error', $e->getMessage() );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Send stream chunk
+	 *
+	 * @param array $data - data to send.
+	 */
+	private function send_stream_chunk( $data ) {
+		echo 'data: ' . wp_json_encode( $data ) . "\n\n";
+		flush();
+	}
+
+	/**
+	 * Send stream error
+	 *
+	 * @param string $code - error code.
+	 * @param string $message - error message.
+	 */
+	private function send_stream_error( $code, $message ) {
+		$this->send_stream_chunk(
+			[
+				'error'   => true,
+				'code'    => $code,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**

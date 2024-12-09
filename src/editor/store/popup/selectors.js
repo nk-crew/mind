@@ -26,6 +26,14 @@ export function getResponse(state) {
 	return state?.response || false;
 }
 
+export function getProgress(state) {
+	return state?.progress || false;
+}
+
+export function getRenderBuffer(state) {
+	return state?.renderBuffer || false;
+}
+
 export function getError(state) {
 	return state?.error || false;
 }

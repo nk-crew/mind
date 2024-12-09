@@ -7,6 +7,8 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 
+import LoadingText from '../loading-text';
+
 export default function Input(props) {
 	const { onInsert } = props;
 
@@ -25,7 +27,7 @@ export default function Input(props) {
 		};
 	});
 
-	const showFooter = response || (input && !loading && !response);
+	const showFooter = response || loading || (input && !loading && !response);
 
 	if (!showFooter) {
 		return null;
@@ -33,6 +35,7 @@ export default function Input(props) {
 
 	return (
 		<div className="mind-popup-footer">
+			{loading && <LoadingText>{__('Writing', 'mind')}</LoadingText>}
 			<div className="mind-popup-footer-actions">
 				{input && !loading && !response && (
 					<Button
@@ -43,7 +46,7 @@ export default function Input(props) {
 						{__('Get Answer', 'mind')} <kbd>⏎</kbd>
 					</Button>
 				)}
-				{response && (
+				{response && !loading && (
 					<>
 						<Button
 							onClick={() => {
