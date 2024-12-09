@@ -41,9 +41,6 @@
          "Provide request to receive AI response.": [
             ""
          ],
-         "OpenAI data failed to load.": [
-            ""
-         ],
          "OpenAI API Key": [
             ""
          ],
@@ -290,7 +287,7 @@
          "Create a table about ": [
             ""
          ],
-         "Waiting for AI response": [
+         "Writing": [
             ""
          ],
          "Get Answer": [
@@ -315,6 +312,12 @@
             ""
          ],
          "Go to Settings": [
+            ""
+         ],
+         "Failed to parse stream data": [
+            ""
+         ],
+         "Failed to fetch AI response": [
             ""
          ]
       }
