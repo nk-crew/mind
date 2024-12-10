@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import AIStreamProcessor from '../../../utils/ai-stream-processor';
+import BlocksStreamProcessor from '../../processors/blocks-stream-processor';
 import getSelectedBlocksContent from '../../../utils/get-selected-blocks-content';
 import { isConnected } from '../core/selectors';
 
@@ -184,8 +184,7 @@ export function requestAI() {
 		}
 
 		try {
-			// Initialize StreamProcessor with dispatch
-			const streamProcessor = new AIStreamProcessor(dispatch);
+			const streamProcessor = new BlocksStreamProcessor(dispatch);
 
 			const response = await apiFetch({
 				path: '/mind/v1/request_ai',

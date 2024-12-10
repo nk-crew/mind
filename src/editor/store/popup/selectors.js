@@ -22,16 +22,12 @@ export function getLoading(state) {
 	return state?.loading || false;
 }
 
-export function getResponse(state) {
-	return state?.response || false;
-}
-
 export function getProgress(state) {
 	return state?.progress || false;
 }
 
-export function getRenderBuffer(state) {
-	return state?.renderBuffer || false;
+export function getResponse(state) {
+	return state?.response || [];
 }
 
 export function getError(state) {

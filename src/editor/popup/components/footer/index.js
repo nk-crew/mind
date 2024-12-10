@@ -27,7 +27,10 @@ export default function Input(props) {
 		};
 	});
 
-	const showFooter = response || loading || (input && !loading && !response);
+	const showFooter =
+		response?.length > 0 ||
+		loading ||
+		(input && !loading && response?.length === 0);
 
 	if (!showFooter) {
 		return null;
@@ -37,7 +40,7 @@ export default function Input(props) {
 		<div className="mind-popup-footer">
 			{loading && <LoadingText>{__('Writing', 'mind')}</LoadingText>}
 			<div className="mind-popup-footer-actions">
-				{input && !loading && !response && (
+				{input && !loading && response?.length === 0 && (
 					<Button
 						onClick={() => {
 							requestAI();
@@ -46,7 +49,7 @@ export default function Input(props) {
 						{__('Get Answer', 'mind')} <kbd>⏎</kbd>
 					</Button>
 				)}
-				{response && !loading && (
+				{response?.length > 0 && !loading && (
 					<>
 						<Button
 							onClick={() => {
@@ -59,7 +62,9 @@ export default function Input(props) {
 						<Button
 							onClick={() => {
 								// Copy to clipboard.
-								window.navigator.clipboard.writeText(response);
+								window.navigator.clipboard.writeText(
+									JSON.stringify(response)
+								);
 
 								reset();
 								close();

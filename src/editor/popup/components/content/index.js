@@ -73,40 +73,30 @@ export default function Content() {
 
 	const { setInput, setScreen } = useDispatch('mind/popup');
 
-	const {
-		isOpen,
-		input,
-		screen,
-		loading,
-		response,
-		progress,
-		renderBuffer,
-		error,
-	} = useSelect((select) => {
-		const {
-			isOpen: checkIsOpen,
-			getInput,
-			getContext,
-			getScreen,
-			getLoading,
-			getResponse,
-			getProgress,
-			getRenderBuffer,
-			getError,
-		} = select('mind/popup');
+	const { isOpen, input, screen, loading, response, progress, error } =
+		useSelect((select) => {
+			const {
+				isOpen: checkIsOpen,
+				getInput,
+				getContext,
+				getScreen,
+				getLoading,
+				getResponse,
+				getProgress,
+				getError,
+			} = select('mind/popup');
 
-		return {
-			isOpen: checkIsOpen(),
-			input: getInput(),
-			context: getContext(),
-			screen: getScreen(),
-			loading: getLoading(),
-			response: getResponse(),
-			progress: getProgress(),
-			renderBuffer: getRenderBuffer(),
-			error: getError(),
-		};
-	});
+			return {
+				isOpen: checkIsOpen(),
+				input: getInput(),
+				context: getContext(),
+				screen: getScreen(),
+				loading: getLoading(),
+				response: getResponse(),
+				progress: getProgress(),
+				error: getError(),
+			};
+		});
 
 	function focusInput() {
 		if (ref?.current) {
@@ -167,12 +157,11 @@ export default function Content() {
 
 			{screen === 'request' && (
 				<div className="mind-popup-request">
-					{response && (
+					{response?.length > 0 && (
 						<AIResponse
 							progress={progress}
 							loading={loading}
 							response={response}
-							renderBuffer={renderBuffer}
 						/>
 					)}
 					{!loading && error && <Notice type="error">{error}</Notice>}

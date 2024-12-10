@@ -1,4 +1,4 @@
-export default class AIStreamProcessor {
+export default class TextStreamProcessor {
 	constructor(dispatch) {
 		this.dispatch = dispatch;
 		this.buffer = '';

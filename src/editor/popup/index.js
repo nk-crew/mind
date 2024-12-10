@@ -58,20 +58,19 @@ export default function Popup() {
 		};
 	}, []);
 
-	const { insertBlocks, replaceBlocks } = useDispatch('core/block-editor');
+	const { insertBlocks: wpInsertBlocks, replaceBlocks } =
+		useDispatch('core/block-editor');
 
-	function insertResponse() {
-		const parsedBlocks = rawHandler({ HTML: response });
-
-		if (parsedBlocks.length) {
+	function insertBlocks() {
+		if (response.length) {
 			if (insertionPlace === 'selected-blocks') {
-				replaceBlocks(selectedClientIds, parsedBlocks);
+				replaceBlocks(selectedClientIds, response);
 			} else {
-				insertBlocks(parsedBlocks);
+				wpInsertBlocks(response);
 			}
 
 			setHighlightBlocks(
-				parsedBlocks.map((data) => {
+				response.map((data) => {
 					return data.clientId;
 				})
 			);
@@ -79,7 +78,7 @@ export default function Popup() {
 	}
 
 	function onInsert() {
-		insertResponse();
+		insertBlocks();
 
 		reset();
 		close();

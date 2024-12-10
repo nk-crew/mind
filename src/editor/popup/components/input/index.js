@@ -61,7 +61,7 @@ export default function Input(props) {
 		}
 
 		// Insert request to post.
-		if (response && e.key === 'Enter' && !e.shiftKey) {
+		if (response?.length > 0 && e.key === 'Enter' && !e.shiftKey) {
 			onInsert();
 			return;
 		}

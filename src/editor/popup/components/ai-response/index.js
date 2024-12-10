@@ -6,7 +6,8 @@ import './style.scss';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, RawHTML, memo } from '@wordpress/element';
+import { useEffect, useRef, memo } from '@wordpress/element';
+import { BlockPreview } from '@wordpress/block-editor';
 
 const AIResponse = memo(
 	function AIResponse({ response, loading }) {
@@ -25,21 +26,35 @@ const AIResponse = memo(
 				return;
 			}
 
-			// Smooth scroll to bottom of response.
-			const { scrollHeight, clientHeight } = popupContent;
+			const handleResize = () => {
+				// Smooth scroll to bottom of response.
+				const { scrollHeight, clientHeight } = popupContent;
 
-			// Only auto-scroll for shorter contents.
-			const shouldScroll = scrollHeight - clientHeight < 1000;
+				// Only auto-scroll for shorter contents.
+				const shouldScroll = scrollHeight - clientHeight < 1000;
 
-			if (shouldScroll) {
-				popupContent.scrollTo({
-					top: scrollHeight,
-					behavior: 'smooth',
-				});
+				if (shouldScroll) {
+					popupContent.scrollTo({
+						top: scrollHeight,
+						behavior: 'smooth',
+					});
+				}
+			};
+
+			const observer = new window.ResizeObserver(handleResize);
+
+			if (popupContent) {
+				observer.observe(popupContent);
 			}
-		}, [response]);
 
-		if (!response && !loading) {
+			return () => {
+				if (popupContent) {
+					observer.unobserve(popupContent);
+				}
+			};
+		}, [responseRef]);
+
+		if (!response.length && !loading) {
 			return null;
 		}
 
@@ -51,18 +66,26 @@ const AIResponse = memo(
 					opacity: loading ? 0.85 : 1,
 				}}
 			>
-				<RawHTML>{response}</RawHTML>
+				{response.length > 0 && (
+					<div
+						className="mind-popup-response__preview"
+						style={{
+							opacity: loading ? 0.85 : 1,
+						}}
+					>
+						<BlockPreview blocks={response} viewportWidth={800} />
+					</div>
+				)}
 				{loading && <div className="mind-popup-cursor" />}
 			</div>
 		);
 	},
 	(prevProps, nextProps) => {
-		// Custom memoization to prevent unnecessary rerenders.
+		// Compare blocks length and loading state
 		return (
-			prevProps.renderBuffer.lastUpdate ===
-				nextProps.renderBuffer.lastUpdate &&
+			prevProps.response?.length === nextProps.response?.length &&
 			prevProps.loading === nextProps.loading &&
-			prevProps.progress.isComplete === nextProps.progress.isComplete
+			prevProps.progress?.blocksCount === nextProps.progress?.blocksCount
 		);
 	}
 );
