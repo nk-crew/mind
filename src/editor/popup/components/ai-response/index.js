@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash';
+
 /**
  * Styles
  */
@@ -26,16 +28,13 @@ const AIResponse = memo(
 			}
 
 			const handleResize = () => {
-				// Smooth scroll to bottom of response.
 				const { scrollHeight, clientHeight } = popupContent;
-
-				// Only auto-scroll for shorter contents.
 				const shouldScroll = scrollHeight - clientHeight < 1000;
 
 				if (shouldScroll) {
 					popupContent.scrollTo({
 						top: scrollHeight,
-						behavior: 'smooth',
+						behavior: 'instant',
 					});
 				}
 			};
@@ -80,11 +79,9 @@ const AIResponse = memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		// Compare blocks length and loading state
 		return (
-			prevProps.response?.length === nextProps.response?.length &&
-			prevProps.loading === nextProps.loading &&
-			prevProps.progress?.blocksCount === nextProps.progress?.blocksCount
+			isEqual(prevProps.response, nextProps.response) &&
+			prevProps.loading === nextProps.loading
 		);
 	}
 );
