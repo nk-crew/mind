@@ -14,13 +14,12 @@ const AIResponse = memo(
 		const responseRef = useRef();
 
 		useEffect(() => {
-			if (!responseRef.current) {
+			const responseElement = responseRef.current;
+			if (!responseElement) {
 				return;
 			}
 
-			const popupContent = responseRef.current.closest(
-				'.mind-popup-content'
-			);
+			const popupContent = responseElement.closest('.mind-popup-content');
 
 			if (!popupContent) {
 				return;
@@ -43,13 +42,13 @@ const AIResponse = memo(
 
 			const observer = new window.ResizeObserver(handleResize);
 
-			if (popupContent) {
-				observer.observe(popupContent);
+			if (responseElement) {
+				observer.observe(responseElement);
 			}
 
 			return () => {
-				if (popupContent) {
-					observer.unobserve(popupContent);
+				if (responseElement) {
+					observer.unobserve(responseElement);
 				}
 			};
 		}, [responseRef]);
