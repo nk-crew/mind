@@ -1,3 +1,5 @@
+import untruncateJson from 'untruncate-json';
+
 import { createBlock } from '@wordpress/blocks';
 
 export default class BlocksStreamProcessor {
@@ -8,7 +10,7 @@ export default class BlocksStreamProcessor {
 		this.lastUpdate = Date.now();
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
-		this.lastDispatchedBlocks = null;
+		this.lastDispatchedBlocks = [];
 		this.renderDelay = 150;
 
 		// In Nginx server we have the true steaming experience and receive chunks in JS as soon as they are available.
@@ -148,150 +150,7 @@ export default class BlocksStreamProcessor {
 			return '[]';
 		}
 
-		let result = '';
-		let inString = false;
-		let inEscape = false;
-		let openBrackets = 0;
-		let openBraces = 0;
-		let lastPropertyName = '';
-		let inPropertyName = false;
-		let currentProperty = '';
-		const arrayStack = [];
-		const braceStack = [];
-
-		// Process character by character
-		for (let i = 0; i < partial.length; i++) {
-			const char = partial[i];
-			const nextChar = partial[i + 1];
-			result += char;
-
-			// Handle escape sequences
-			if (char === '\\\\' && inString) {
-				inEscape = true;
-				continue;
-			}
-
-			if (inEscape) {
-				inEscape = false;
-				continue;
-			}
-
-			// Track string boundaries
-			if (char === '"' && !inEscape) {
-				if (!inString) {
-					inString = true;
-
-					// Check if this is a property name
-					if (!inPropertyName && nextChar === ':') {
-						inPropertyName = true;
-					}
-				} else {
-					inString = false;
-
-					if (inPropertyName) {
-						lastPropertyName = currentProperty;
-						currentProperty = '';
-						inPropertyName = false;
-					}
-				}
-			} else if (inString) {
-				if (inPropertyName) {
-					currentProperty += char;
-				}
-			}
-
-			// Only count structure characters outside strings
-			if (!inString) {
-				if (char === '[') {
-					openBrackets++;
-					arrayStack.push(i);
-				}
-				if (char === ']') {
-					openBrackets--;
-					if (arrayStack.length > 0) {
-						arrayStack.pop();
-					}
-				}
-				if (char === '{') {
-					openBraces++;
-					braceStack.push(i);
-				}
-				if (char === '}') {
-					openBraces--;
-					if (braceStack.length > 0) {
-						braceStack.pop();
-					}
-				}
-			}
-		}
-
-		// Complete the structure
-		let completed = result;
-
-		// Handle unclosed strings
-		if (inString) {
-			completed += '"';
-		}
-
-		// Complete property values if needed
-		if (lastPropertyName === 'content' && inString) {
-			completed += '"';
-		}
-
-		// Complete objects and arrays from inside out
-		while (openBraces > 0) {
-			completed += '}';
-			openBraces--;
-		}
-
-		while (openBrackets > 0) {
-			completed += ']';
-			openBrackets--;
-		}
-
-		// Validate and fix common issues
-		try {
-			JSON.parse(completed);
-			return completed;
-		} catch (e) {
-			// Try to fix common issues
-			let fixed = completed;
-
-			// Fix unclosed content property
-			const contentMatch = fixed.match(
-				/"content"\\s*:\\s*"([^"]*)(?:[^"]*)?$/
-			);
-			if (contentMatch) {
-				const contentEndIndex =
-					fixed.lastIndexOf(contentMatch[1]) + contentMatch[1].length;
-				fixed =
-					fixed.substring(0, contentEndIndex) +
-					'"' +
-					fixed.substring(contentEndIndex);
-			}
-
-			// Fix missing commas between blocks
-			fixed = fixed.replace(/}(\\s*){/g, '},\\n{');
-
-			// Fix trailing commas
-			fixed = fixed.replace(/,(\\s*[}\\]])/g, '$1');
-
-			try {
-				JSON.parse(fixed);
-				return fixed;
-			} catch (e2) {
-				// If still invalid, try to extract valid parts
-				const blockMatch = fixed.match(
-					/\[\s*{[^{]*"name"\s*:\s*"[^"]+"\s*,\s*"attributes"\s*:\s*{[^}]+}/
-				);
-				if (blockMatch) {
-					return blockMatch[0] + '}]';
-				}
-
-				// Return minimal valid structure as last resort
-				return '[{"name":"core/paragraph","attributes":{"content":""},"innerBlocks":[]}]';
-			}
-		}
+		return untruncateJson(partial);
 	}
 
 	transformToBlock(blockData) {
