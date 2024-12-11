@@ -9,10 +9,11 @@ export default class BlocksStreamProcessor {
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
 		this.lastDispatchedBlocks = null;
+		this.blockStructure = new Map();
 
 		this.CONFIG = {
-			UPDATE_INTERVAL: 50,
-			CHUNK_DELAY: 20,
+			UPDATE_INTERVAL: 150,
+			CHUNK_DELAY: 50,
 		};
 	}
 
@@ -20,11 +21,7 @@ export default class BlocksStreamProcessor {
 		try {
 			while (true) {
 				const { value, done } = await reader.read();
-
-				if (done) {
-					break;
-				}
-
+				if (done) break;
 				await this.processChunk(value);
 			}
 		} catch (error) {
@@ -34,7 +31,6 @@ export default class BlocksStreamProcessor {
 
 	async processChunk(value) {
 		const text = this.decoder.decode(value, { stream: true });
-
 		const lines = text.split('\n');
 
 		for (const line of lines) {
@@ -42,55 +38,48 @@ export default class BlocksStreamProcessor {
 
 			try {
 				const dataContent = line.slice(6);
-
 				const data = JSON.parse(dataContent);
 
-				// Handle completion signal
 				if (data.done === true) {
-					// If we have any remaining content, parse and dispatch it
 					if (this.jsonBuffer) {
 						await this.parseAndDispatchBlocks(
 							this.jsonBuffer,
 							true
 						);
-					} else {
-						// If no remaining content, dispatch the last known blocks as final
-						await this.dispatchBlocks(
-							this.lastDispatchedBlocks || [],
-							true
-						);
 					}
-
-					// Reset only processing state
-					this.isJsonStarted = false;
-					this.jsonBuffer = '';
-					continue;
+					return;
 				}
 
 				if (!data.content) continue;
 
-				// Accumulate content
-				this.contentBuffer += data.content;
-
-				if (!this.isJsonStarted) {
-					if (this.contentBuffer.includes('```json')) {
-						this.isJsonStarted = true;
-						const parts = this.contentBuffer.split('```json');
-						this.jsonBuffer = parts[1] || '';
-					}
-				} else if (data.content.includes('```')) {
-					const endIndex = data.content.indexOf('```');
-					this.jsonBuffer += data.content.substring(0, endIndex);
-					await this.parseAndDispatchBlocks(this.jsonBuffer, true);
-					this.isJsonStarted = false;
-					this.jsonBuffer = '';
-				} else {
-					this.jsonBuffer += data.content;
-					await this.tryParseIncomplete(this.jsonBuffer);
-				}
+				await this.processContent(data.content);
+				await new Promise((resolve) =>
+					setTimeout(resolve, this.CONFIG.CHUNK_DELAY)
+				);
 			} catch (e) {
-				// console.log('Error processing line:', e);
+				// console.error('Error processing line:', e);
 			}
+		}
+	}
+
+	async processContent(content) {
+		this.contentBuffer += content;
+
+		if (!this.isJsonStarted) {
+			if (this.contentBuffer.includes('```json')) {
+				this.isJsonStarted = true;
+				const parts = this.contentBuffer.split('```json');
+				this.jsonBuffer = parts[1] || '';
+			}
+		} else if (content.includes('```')) {
+			const endIndex = content.indexOf('```');
+			this.jsonBuffer += content.substring(0, endIndex);
+			await this.parseAndDispatchBlocks(this.jsonBuffer, true);
+			this.isJsonStarted = false;
+			this.jsonBuffer = '';
+		} else {
+			this.jsonBuffer += content;
+			await this.tryParseIncomplete(this.jsonBuffer);
 		}
 	}
 
@@ -100,44 +89,39 @@ export default class BlocksStreamProcessor {
 			const parsed = JSON.parse(completedJson);
 
 			if (Array.isArray(parsed) && parsed.length > 0) {
-				const blocks = parsed
+				const contentMatches = [
+					...jsonContent.matchAll(
+						/"content"\s*:\s*"([^"]*)(?:[^"]*)?/g
+					),
+				];
+
+				const updatedBlocks = parsed.map((block, index) => {
+					if (
+						block.name === 'core/paragraph' &&
+						contentMatches[index]
+					) {
+						return {
+							...block,
+							attributes: {
+								...block.attributes,
+								content: contentMatches[index][1],
+							},
+						};
+					}
+					return block;
+				});
+
+				const transformedBlocks = updatedBlocks
 					.map((block) => this.transformToBlock(block))
 					.filter(Boolean);
 
-				if (blocks.length > 0) {
-					// Reuse dispatchBlocks for incomplete content
-					await this.dispatchBlocks(blocks, false);
+				if (transformedBlocks.length > 0) {
+					await this.dispatchBlocks(transformedBlocks, false);
 				}
 			}
 		} catch (e) {
-			// console.log('Error in tryParseIncomplete:', e);
+			// Expected error for incomplete JSON
 		}
-	}
-
-	balanceJsonStructure(partial) {
-		let openBrackets = 0;
-		let openBraces = 0;
-
-		// Count opening and closing brackets
-		for (const char of partial) {
-			if (char === '[') openBrackets++;
-			if (char === ']') openBrackets--;
-			if (char === '{') openBraces++;
-			if (char === '}') openBraces--;
-		}
-
-		// Complete the structure
-		let completed = partial;
-		while (openBraces > 0) {
-			completed += '}';
-			openBraces--;
-		}
-		while (openBrackets > 0) {
-			completed += ']';
-			openBrackets--;
-		}
-
-		return completed;
 	}
 
 	async parseAndDispatchBlocks(jsonContent, isFinal = false) {
@@ -154,9 +138,160 @@ export default class BlocksStreamProcessor {
 				await this.dispatchBlocks(transformedBlocks, isFinal);
 			}
 		} catch (e) {
-			// console.log('Error parsing complete JSON:', e);
 			if (!isFinal) {
 				await this.tryParseIncomplete(jsonContent);
+			}
+		}
+	}
+
+	balanceJsonStructure(partial) {
+		// If empty or not starting with [, return minimal valid JSON
+		if (!partial || !partial.trim().startsWith('[')) {
+			return '[]';
+		}
+
+		let result = '';
+		let inString = false;
+		let inEscape = false;
+		let openBrackets = 0;
+		let openBraces = 0;
+		let lastPropertyName = '';
+		let inPropertyName = false;
+		let currentProperty = '';
+		const arrayStack = [];
+		const braceStack = [];
+
+		// Process character by character
+		for (let i = 0; i < partial.length; i++) {
+			const char = partial[i];
+			const nextChar = partial[i + 1];
+			result += char;
+
+			// Handle escape sequences
+			if (char === '\\\\' && inString) {
+				inEscape = true;
+				continue;
+			}
+
+			if (inEscape) {
+				inEscape = false;
+				continue;
+			}
+
+			// Track string boundaries
+			if (char === '"' && !inEscape) {
+				if (!inString) {
+					inString = true;
+
+					// Check if this is a property name
+					if (!inPropertyName && nextChar === ':') {
+						inPropertyName = true;
+					}
+				} else {
+					inString = false;
+
+					if (inPropertyName) {
+						lastPropertyName = currentProperty;
+						currentProperty = '';
+						inPropertyName = false;
+					}
+				}
+			} else if (inString) {
+				if (inPropertyName) {
+					currentProperty += char;
+				}
+			}
+
+			// Only count structure characters outside strings
+			if (!inString) {
+				if (char === '[') {
+					openBrackets++;
+					arrayStack.push(i);
+				}
+				if (char === ']') {
+					openBrackets--;
+					if (arrayStack.length > 0) {
+						arrayStack.pop();
+					}
+				}
+				if (char === '{') {
+					openBraces++;
+					braceStack.push(i);
+				}
+				if (char === '}') {
+					openBraces--;
+					if (braceStack.length > 0) {
+						braceStack.pop();
+					}
+				}
+			}
+		}
+
+		// Complete the structure
+		let completed = result;
+
+		// Handle unclosed strings
+		if (inString) {
+			completed += '"';
+		}
+
+		// Complete property values if needed
+		if (lastPropertyName === 'content' && inString) {
+			completed += '"';
+		}
+
+		// Complete objects and arrays from inside out
+		while (openBraces > 0) {
+			completed += '}';
+			openBraces--;
+		}
+
+		while (openBrackets > 0) {
+			completed += ']';
+			openBrackets--;
+		}
+
+		// Validate and fix common issues
+		try {
+			JSON.parse(completed);
+			return completed;
+		} catch (e) {
+			// Try to fix common issues
+			let fixed = completed;
+
+			// Fix unclosed content property
+			const contentMatch = fixed.match(
+				/"content"\\s*:\\s*"([^"]*)(?:[^"]*)?$/
+			);
+			if (contentMatch) {
+				const contentEndIndex =
+					fixed.lastIndexOf(contentMatch[1]) + contentMatch[1].length;
+				fixed =
+					fixed.substring(0, contentEndIndex) +
+					'"' +
+					fixed.substring(contentEndIndex);
+			}
+
+			// Fix missing commas between blocks
+			fixed = fixed.replace(/}(\\s*){/g, '},\\n{');
+
+			// Fix trailing commas
+			fixed = fixed.replace(/,(\\s*[}\\]])/g, '$1');
+
+			try {
+				JSON.parse(fixed);
+				return fixed;
+			} catch (e2) {
+				// If still invalid, try to extract valid parts
+				const blockMatch = fixed.match(
+					/\[\s*{[^{]*"name"\s*:\s*"[^"]+"\s*,\s*"attributes"\s*:\s*{[^}]+}/
+				);
+				if (blockMatch) {
+					return blockMatch[0] + '}]';
+				}
+
+				// Return minimal valid structure as last resort
+				return '[{"name":"core/paragraph","attributes":{"content":""},"innerBlocks":[]}]';
 			}
 		}
 	}
@@ -185,10 +320,8 @@ export default class BlocksStreamProcessor {
 	async dispatchBlocks(blocks, isFinal = false) {
 		const now = Date.now();
 		if (now - this.lastUpdate >= this.CONFIG.UPDATE_INTERVAL || isFinal) {
-			// Store the last dispatched blocks
 			this.lastDispatchedBlocks = blocks;
 
-			// Single dispatch point for both streaming and completion
 			this.dispatch({
 				type: isFinal ? 'REQUEST_AI_SUCCESS' : 'REQUEST_AI_CHUNK',
 				payload: {
@@ -204,7 +337,7 @@ export default class BlocksStreamProcessor {
 			this.lastUpdate = now;
 			if (!isFinal) {
 				await new Promise((resolve) =>
-					setTimeout(resolve, this.CONFIG.CHUNK_DELAY)
+					setTimeout(resolve, this.CONFIG.UPDATE_INTERVAL)
 				);
 			}
 		}
