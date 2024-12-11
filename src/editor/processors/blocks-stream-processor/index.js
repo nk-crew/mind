@@ -7,15 +7,25 @@ export default class BlocksStreamProcessor {
 		this.dispatch = dispatch;
 		this.contentBuffer = '';
 		this.decoder = new TextDecoder();
-		this.lastUpdate = Date.now();
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
-		this.lastDispatchedBlocks = [];
-		this.renderDelay = 150;
 
-		// In Nginx server we have the true steaming experience and receive chunks in JS as soon as they are available.
-		// In Apache server we receive the butches of chunks and then JS process them. So, we can use this flag to detect the mode.
-		this.isBatchMode = false;
+		// Add throttled dispatch
+		this.throttledDispatch = this.throttle(
+			this.performDispatch.bind(this),
+			150
+		);
+	}
+
+	throttle(func, limit) {
+		let inThrottle;
+		return function (...args) {
+			if (!inThrottle) {
+				func.apply(this, args);
+				inThrottle = true;
+				setTimeout(() => (inThrottle = false), limit);
+			}
+		};
 	}
 
 	async processStream(reader) {
@@ -23,16 +33,6 @@ export default class BlocksStreamProcessor {
 			while (true) {
 				const { value, done } = await reader.read();
 				if (done) break;
-
-				// Detect batch mode by analyzing first chunks timing
-				if (!this.firstChunkTime) {
-					this.firstChunkTime = Date.now();
-				} else if (!this.secondChunkTime) {
-					this.secondChunkTime = Date.now();
-					// If chunks come with big delay, it's probably Apache with batching
-					this.isBatchMode =
-						this.secondChunkTime - this.firstChunkTime > 500;
-				}
 
 				await this.processChunk(value);
 			}
@@ -77,8 +77,8 @@ export default class BlocksStreamProcessor {
 		if (!this.isJsonStarted) {
 			if (this.contentBuffer.includes('```json')) {
 				this.isJsonStarted = true;
-				const parts = this.contentBuffer.split('```json');
-				this.jsonBuffer = parts[1] || '';
+				const [, json] = this.contentBuffer.split('```json');
+				this.jsonBuffer = json || '';
 			}
 		} else if (content.includes('```')) {
 			const endIndex = content.indexOf('```');
@@ -88,26 +88,23 @@ export default class BlocksStreamProcessor {
 			this.jsonBuffer = '';
 		} else {
 			this.jsonBuffer += content;
-			if (!this.isBatchMode) {
-				// For Nginx - process immediately
-				await this.tryParseIncomplete(this.jsonBuffer);
-			} else {
-				// For Apache - add delay for typing effect
-				await this.tryParseWithDelay(this.jsonBuffer);
-			}
-		}
-	}
-
-	async tryParseWithDelay(jsonContent) {
-		const now = Date.now();
-		if (now - this.lastUpdate >= this.renderDelay) {
-			await this.tryParseIncomplete(jsonContent);
+			await this.tryParseIncomplete(this.jsonBuffer);
 		}
 	}
 
 	async tryParseIncomplete(jsonContent) {
 		try {
-			const completedJson = this.balanceJsonStructure(jsonContent);
+			// If empty or not starting with [, return minimal valid JSON
+			if (!jsonContent || !jsonContent.trim().startsWith('[')) {
+				return;
+			}
+
+			const completedJson = untruncateJson(jsonContent);
+
+			if (!completedJson) {
+				return;
+			}
+
 			const parsed = JSON.parse(completedJson);
 
 			if (Array.isArray(parsed) && parsed.length > 0) {
@@ -144,15 +141,6 @@ export default class BlocksStreamProcessor {
 		}
 	}
 
-	balanceJsonStructure(partial) {
-		// If empty or not starting with [, return minimal valid JSON
-		if (!partial || !partial.trim().startsWith('[')) {
-			return '[]';
-		}
-
-		return untruncateJson(partial);
-	}
-
 	transformToBlock(blockData) {
 		if (!blockData?.name) return null;
 
@@ -165,51 +153,14 @@ export default class BlocksStreamProcessor {
 
 			const attributes = blockData.attributes || {};
 
-			// Recursively process attributes
-			const processedAttributes = this.processAttributes(attributes);
-
-			return createBlock(
-				blockData.name,
-				processedAttributes,
-				innerBlocks
-			);
+			return createBlock(blockData.name, attributes, innerBlocks);
 		} catch (error) {
 			// console.log('Error transforming block:', error);
 			return null;
 		}
 	}
 
-	processAttributes(attributes) {
-		const processedAttributes = {};
-
-		for (const [key, value] of Object.entries(attributes)) {
-			if (typeof value === 'object' && value !== null) {
-				processedAttributes[key] = this.processAttributes(value);
-			} else {
-				processedAttributes[key] = value;
-			}
-		}
-
-		return processedAttributes;
-	}
-
-	async dispatchBlocks(blocks, isFinal = false) {
-		const now = Date.now();
-		const timeSinceLastUpdate = now - this.lastUpdate;
-
-		// Apply render delay only in batch mode or if it's too soon
-		if (
-			(this.isBatchMode || timeSinceLastUpdate < this.renderDelay) &&
-			!isFinal
-		) {
-			await new Promise((resolve) =>
-				setTimeout(resolve, this.renderDelay - timeSinceLastUpdate)
-			);
-		}
-
-		this.lastDispatchedBlocks = blocks;
-		this.lastUpdate = Date.now();
-
+	performDispatch(blocks, isFinal) {
 		this.dispatch({
 			type: isFinal ? 'REQUEST_AI_SUCCESS' : 'REQUEST_AI_CHUNK',
 			payload: {
@@ -221,6 +172,16 @@ export default class BlocksStreamProcessor {
 				},
 			},
 		});
+	}
+
+	async dispatchBlocks(blocks, isFinal = false) {
+		if (isFinal) {
+			// Final dispatch should always happen immediately
+			this.performDispatch(blocks, true);
+		} else {
+			// Use throttled dispatch for streaming updates
+			this.throttledDispatch(blocks, false);
+		}
 	}
 
 	handleError(error) {
