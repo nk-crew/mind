@@ -5,16 +5,6 @@
 
 	/* Optimize repaints */
 	contain: content;
-
-	/* Smooth typing cursor */
-	.mind-popup-cursor {
-		display: inline-block;
-		width: 1.5px;
-		height: 1em;
-		background: currentColor;
-		margin-left: 2px;
-		animation: mind-cursor-blink 1s step-end infinite;
-	}
 }
 
 @keyframes mind-cursor-blink {

@@ -25,16 +25,10 @@ const AIResponse = memo(
 				}}
 			>
 				{response.length > 0 && (
-					<div
-						className="mind-popup-response__preview"
-						style={{
-							opacity: loading ? 0.85 : 1,
-						}}
-					>
+					<div className="mind-popup-response__preview">
 						<BlockPreview blocks={response} viewportWidth={800} />
 					</div>
 				)}
-				{loading && <div className="mind-popup-cursor" />}
 			</div>
 		);
 	},
