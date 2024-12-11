@@ -98,7 +98,7 @@ export default class BlocksStreamProcessor {
 
 	async tryParseWithDelay(jsonContent) {
 		const now = Date.now();
-		if (now - this.lastUpdate >= this.RENDER_DELAY) {
+		if (now - this.lastUpdate >= this.renderDelay) {
 			await this.tryParseIncomplete(jsonContent);
 		}
 	}
@@ -343,11 +343,11 @@ export default class BlocksStreamProcessor {
 
 		// Apply render delay only in batch mode or if it's too soon
 		if (
-			(this.isBatchMode || timeSinceLastUpdate < this.RENDER_DELAY) &&
+			(this.isBatchMode || timeSinceLastUpdate < this.renderDelay) &&
 			!isFinal
 		) {
 			await new Promise((resolve) =>
-				setTimeout(resolve, this.RENDER_DELAY - timeSinceLastUpdate)
+				setTimeout(resolve, this.renderDelay - timeSinceLastUpdate)
 			);
 		}
 
