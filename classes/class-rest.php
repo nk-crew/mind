@@ -240,14 +240,12 @@ class Mind_Rest extends WP_REST_Controller {
 		header( 'Content-Type: text/event-stream' );
 		header( 'Cache-Control: no-cache' );
 		header( 'Connection: keep-alive' );
-		// For Nginx.
 		header( 'X-Accel-Buffering: no' );
 
 		$settings   = get_option( 'mind_settings', array() );
 		$openai_key = $settings['openai_api_key'] ?? '';
-
-		$request = $req->get_param( 'request' ) ?? '';
-		$context = $req->get_param( 'context' ) ?? '';
+		$request    = $req->get_param( 'request' ) ?? '';
+		$context    = $req->get_param( 'context' ) ?? '';
 
 		if ( ! $openai_key ) {
 			$this->send_stream_error( 'no_openai_key_found', __( 'Provide OpenAI key in the plugin settings.', 'mind' ) );
@@ -259,32 +257,37 @@ class Mind_Rest extends WP_REST_Controller {
 			exit;
 		}
 
-		// Messages.
 		$messages = $this->prepare_messages( $request, $context );
-
-		$body = [
+		$body     = [
 			'model'       => 'gpt-4o-mini',
 			'stream'      => true,
 			'temperature' => 0.7,
 			'messages'    => $messages,
 		];
 
-		// Initialize cURL.
-		// phpcs:disable
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
+
 		$ch = curl_init( 'https://api.openai.com/v1/chat/completions' );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $openai_key,
-		] );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
-		curl_setopt( $ch, CURLOPT_WRITEFUNCTION, function ( $curl, $data ) {
-			$this->process_stream_chunk( $data );
-			return strlen( $data );
-		});
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			[
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $openai_key,
+			]
+		);
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+		curl_setopt(
+			$ch,
+			CURLOPT_WRITEFUNCTION,
+			function ( $curl, $data ) {
+				$this->process_stream_chunk( $data );
+				return strlen( $data );
+			}
+		);
 
-		// Execute request
 		curl_exec( $ch );
 
 		if ( curl_errno( $ch ) ) {
@@ -292,7 +295,6 @@ class Mind_Rest extends WP_REST_Controller {
 		}
 
 		curl_close( $ch );
-		// phpcs:enable
 		exit;
 	}
 
@@ -342,14 +344,26 @@ class Mind_Rest extends WP_REST_Controller {
 					$data = json_decode( $json_data, true );
 
 					if ( isset( $data['choices'][0]['delta']['content'] ) ) {
-						$content       = $data['choices'][0]['delta']['content'];
-						$this->buffer .= $content;
+						$content = $data['choices'][0]['delta']['content'];
 
+						// Send immediately for JSON markers.
+						if ( strpos( $content, '```json' ) !== false ||
+							strpos( $content, '```' ) !== false ) {
+							if ( ! empty( $this->buffer ) ) {
+								$this->send_buffered_chunk();
+							}
+							$this->send_stream_chunk( [ 'content' => $content ] );
+							$this->last_send_time = microtime( true );
+							continue;
+						}
+
+						$this->buffer        .= $content;
 						$current_time         = microtime( true );
 						$time_since_last_send = $current_time - $this->last_send_time;
 
 						if ( strlen( $this->buffer ) >= self::BUFFER_THRESHOLD ||
-							$time_since_last_send >= self::MIN_SEND_INTERVAL ) {
+							$time_since_last_send >= self::MIN_SEND_INTERVAL ||
+							strpos( $this->buffer, "\n" ) !== false ) {
 							$this->send_buffered_chunk();
 						}
 					}
@@ -385,6 +399,11 @@ class Mind_Rest extends WP_REST_Controller {
 	 */
 	private function send_stream_chunk( $data ) {
 		echo 'data: ' . wp_json_encode( $data ) . "\n\n";
+
+		if ( ob_get_level() > 0 ) {
+			ob_flush();
+		}
+
 		flush();
 	}
 
