@@ -14,6 +14,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Mind_Rest extends WP_REST_Controller {
 	/**
+	 * Buffer for streaming response.
+	 *
+	 * @var string
+	 */
+	private $buffer = '';
+
+	/**
+	 * Last time the buffer was sent.
+	 *
+	 * @var int
+	 */
+	private $last_send_time = 0;
+
+	/**
+	 * Buffer threshold.
+	 *
+	 * @var int
+	 */
+	private const BUFFER_THRESHOLD = 150;
+
+	/**
+	 * Minimum send interval.
+	 *
+	 * @var float
+	 */
+	private const MIN_SEND_INTERVAL = 0.05;
+
+	/**
 	 * Namespace.
 	 *
 	 * @var string
@@ -303,6 +331,9 @@ class Mind_Rest extends WP_REST_Controller {
 				$json_data = trim( substr( $line, 6 ) );
 
 				if ( '[DONE]' === $json_data ) {
+					if ( ! empty( $this->buffer ) ) {
+						$this->send_buffered_chunk();
+					}
 					$this->send_stream_chunk( [ 'done' => true ] );
 					return;
 				}
@@ -311,19 +342,40 @@ class Mind_Rest extends WP_REST_Controller {
 					$data = json_decode( $json_data, true );
 
 					if ( isset( $data['choices'][0]['delta']['content'] ) ) {
-						// Send smaller chunks immediately.
-						$this->send_stream_chunk(
-							[
-								'content' => $data['choices'][0]['delta']['content'],
-							]
-						);
-						flush();
+						$content       = $data['choices'][0]['delta']['content'];
+						$this->buffer .= $content;
+
+						$current_time         = microtime( true );
+						$time_since_last_send = $current_time - $this->last_send_time;
+
+						if ( strlen( $this->buffer ) >= self::BUFFER_THRESHOLD ||
+							$time_since_last_send >= self::MIN_SEND_INTERVAL ) {
+							$this->send_buffered_chunk();
+						}
 					}
 				} catch ( Exception $e ) {
 					$this->send_stream_error( 'json_error', $e->getMessage() );
 				}
 			}
 		}
+	}
+
+	/**
+	 * Send buffered chunk
+	 */
+	private function send_buffered_chunk() {
+		if ( empty( $this->buffer ) ) {
+			return;
+		}
+
+		$this->send_stream_chunk(
+			[
+				'content' => $this->buffer,
+			]
+		);
+
+		$this->buffer         = '';
+		$this->last_send_time = microtime( true );
 	}
 
 	/**
