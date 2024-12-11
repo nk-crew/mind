@@ -109,29 +109,7 @@ export default class BlocksStreamProcessor {
 			const parsed = JSON.parse(completedJson);
 
 			if (Array.isArray(parsed) && parsed.length > 0) {
-				const contentMatches = [
-					...jsonContent.matchAll(
-						/"content"\s*:\s*"([^"]*)(?:[^"]*)?/g
-					),
-				];
-
-				const updatedBlocks = parsed.map((block, index) => {
-					if (
-						block.name === 'core/paragraph' &&
-						contentMatches[index]
-					) {
-						return {
-							...block,
-							attributes: {
-								...block.attributes,
-								content: contentMatches[index][1],
-							},
-						};
-					}
-					return block;
-				});
-
-				const transformedBlocks = updatedBlocks
+				const transformedBlocks = parsed
 					.map((block) => this.transformToBlock(block))
 					.filter(Boolean);
 
@@ -326,15 +304,34 @@ export default class BlocksStreamProcessor {
 						.filter(Boolean)
 				: [];
 
+			const attributes = blockData.attributes || {};
+
+			// Recursively process attributes
+			const processedAttributes = this.processAttributes(attributes);
+
 			return createBlock(
 				blockData.name,
-				blockData.attributes || {},
+				processedAttributes,
 				innerBlocks
 			);
 		} catch (error) {
 			// console.log('Error transforming block:', error);
 			return null;
 		}
+	}
+
+	processAttributes(attributes) {
+		const processedAttributes = {};
+
+		for (const [key, value] of Object.entries(attributes)) {
+			if (typeof value === 'object' && value !== null) {
+				processedAttributes[key] = this.processAttributes(value);
+			} else {
+				processedAttributes[key] = value;
+			}
+		}
+
+		return processedAttributes;
 	}
 
 	async dispatchBlocks(blocks, isFinal = false) {
