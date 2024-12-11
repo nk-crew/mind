@@ -9,12 +9,11 @@ export default class BlocksStreamProcessor {
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
 		this.lastDispatchedBlocks = null;
-		this.blockStructure = new Map();
+		this.renderDelay = 150;
 
-		this.CONFIG = {
-			UPDATE_INTERVAL: 150,
-			CHUNK_DELAY: 50,
-		};
+		// In Nginx server we have the true steaming experience and receive chunks in JS as soon as they are available.
+		// In Apache server we receive the butches of chunks and then JS process them. So, we can use this flag to detect the mode.
+		this.isBatchMode = false;
 	}
 
 	async processStream(reader) {
@@ -22,6 +21,17 @@ export default class BlocksStreamProcessor {
 			while (true) {
 				const { value, done } = await reader.read();
 				if (done) break;
+
+				// Detect batch mode by analyzing first chunks timing
+				if (!this.firstChunkTime) {
+					this.firstChunkTime = Date.now();
+				} else if (!this.secondChunkTime) {
+					this.secondChunkTime = Date.now();
+					// If chunks come with big delay, it's probably Apache with batching
+					this.isBatchMode =
+						this.secondChunkTime - this.firstChunkTime > 500;
+				}
+
 				await this.processChunk(value);
 			}
 		} catch (error) {
@@ -53,9 +63,6 @@ export default class BlocksStreamProcessor {
 				if (!data.content) continue;
 
 				await this.processContent(data.content);
-				await new Promise((resolve) =>
-					setTimeout(resolve, this.CONFIG.CHUNK_DELAY)
-				);
 			} catch (e) {
 				// console.error('Error processing line:', e);
 			}
@@ -79,7 +86,20 @@ export default class BlocksStreamProcessor {
 			this.jsonBuffer = '';
 		} else {
 			this.jsonBuffer += content;
-			await this.tryParseIncomplete(this.jsonBuffer);
+			if (!this.isBatchMode) {
+				// For Nginx - process immediately
+				await this.tryParseIncomplete(this.jsonBuffer);
+			} else {
+				// For Apache - add delay for typing effect
+				await this.tryParseWithDelay(this.jsonBuffer);
+			}
+		}
+	}
+
+	async tryParseWithDelay(jsonContent) {
+		const now = Date.now();
+		if (now - this.lastUpdate >= this.RENDER_DELAY) {
+			await this.tryParseIncomplete(jsonContent);
 		}
 	}
 
@@ -319,28 +339,32 @@ export default class BlocksStreamProcessor {
 
 	async dispatchBlocks(blocks, isFinal = false) {
 		const now = Date.now();
-		if (now - this.lastUpdate >= this.CONFIG.UPDATE_INTERVAL || isFinal) {
-			this.lastDispatchedBlocks = blocks;
+		const timeSinceLastUpdate = now - this.lastUpdate;
 
-			this.dispatch({
-				type: isFinal ? 'REQUEST_AI_SUCCESS' : 'REQUEST_AI_CHUNK',
-				payload: {
-					response: blocks,
-					progress: {
-						charsProcessed: this.contentBuffer.length,
-						blocksCount: blocks.length,
-						isComplete: isFinal,
-					},
-				},
-			});
-
-			this.lastUpdate = now;
-			if (!isFinal) {
-				await new Promise((resolve) =>
-					setTimeout(resolve, this.CONFIG.UPDATE_INTERVAL)
-				);
-			}
+		// Apply render delay only in batch mode or if it's too soon
+		if (
+			(this.isBatchMode || timeSinceLastUpdate < this.RENDER_DELAY) &&
+			!isFinal
+		) {
+			await new Promise((resolve) =>
+				setTimeout(resolve, this.RENDER_DELAY - timeSinceLastUpdate)
+			);
 		}
+
+		this.lastDispatchedBlocks = blocks;
+		this.lastUpdate = Date.now();
+
+		this.dispatch({
+			type: isFinal ? 'REQUEST_AI_SUCCESS' : 'REQUEST_AI_CHUNK',
+			payload: {
+				response: blocks,
+				progress: {
+					charsProcessed: this.contentBuffer.length,
+					blocksCount: blocks.length,
+					isComplete: isFinal,
+				},
+			},
+		});
 	}
 
 	handleError(error) {
