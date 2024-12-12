@@ -8,6 +8,9 @@
 .mind-admin-page {
 	background-color: #1d2327;
 
+	#wpbody-content > .notice {
+		display: none;
+	}
 	#wpcontent {
 		min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0) - var(--mind-admin-page-offset));
 		border-radius: 10px;
