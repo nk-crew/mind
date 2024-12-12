@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 import BlocksStreamProcessor from '../../processors/blocks-stream-processor';
-import getSelectedBlocksContent from '../../../utils/get-selected-blocks-content';
+import getSelectedBlocksJSON from '../../../utils/get-selected-blocks-json';
 import { isConnected } from '../core/selectors';
 
 export function open() {
@@ -105,7 +105,7 @@ export function requestAI() {
 
 			// Add context if needed
 			if (select.getContext() === 'selected-blocks') {
-				data.context = getSelectedBlocksContent();
+				data.context = getSelectedBlocksJSON();
 			}
 
 			// Initialize stream processor

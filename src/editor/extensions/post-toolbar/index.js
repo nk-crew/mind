@@ -5,7 +5,7 @@ import './style.scss';
  */
 import { __ } from '@wordpress/i18n';
 import { createRoot } from '@wordpress/element';
-import { subscribe, useDispatch } from '@wordpress/data';
+import { subscribe, useSelect, useDispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { throttle } from 'lodash';
@@ -18,7 +18,14 @@ import { ReactComponent as MindLogoIcon } from '../../../icons/mind-logo.svg';
 const TOOLBAR_TOGGLE_CONTAINER_CLASS = 'mind-post-toolbar-toggle';
 
 function Toggle() {
-	const { toggle } = useDispatch('mind/popup');
+	const { open, setContext, setInsertionPlace } = useDispatch('mind/popup');
+
+	const { getSelectedBlockClientIds } = useSelect((select) => {
+		return {
+			getSelectedBlockClientIds:
+				select('core/block-editor').getSelectedBlockClientIds,
+		};
+	});
 
 	return (
 		<button
@@ -27,7 +34,17 @@ function Toggle() {
 			onClick={(e) => {
 				e.preventDefault();
 
-				toggle();
+				open();
+
+				const selectedIDs = getSelectedBlockClientIds();
+
+				// This is a temporary solution to provide context when multiple blocks selected.
+				// We need this because Gutenberg does not provide an ability to add toolbar button when multiple selection.
+				// We actually should make a toggle in `extensions/block-toolbar/index.js` to handle this case.
+				if (selectedIDs && selectedIDs.length > 1) {
+					setContext('selected-blocks');
+					setInsertionPlace('selected-blocks');
+				}
 			}}
 		>
 			<MindLogoIcon />

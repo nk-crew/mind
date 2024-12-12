@@ -1,17 +1,17 @@
-export default function getSelectedBlocksContent() {
+export default function getSelectedBlocksJSON() {
 	const { getBlock, getSelectedBlockClientIds } =
 		wp.data.select('core/block-editor');
 
 	const ids = getSelectedBlockClientIds();
-	let blocksContent = '';
+	const blocksJSON = [];
 
 	ids.forEach((id) => {
 		const blockData = getBlock(id);
 
 		if (blockData?.attributes?.content) {
-			blocksContent = `${blocksContent}<p>${blockData.attributes.content}</p>`;
+			blocksJSON.push(blockData);
 		}
 	});
 
-	return blocksContent;
+	return JSON.stringify(blocksJSON);
 }

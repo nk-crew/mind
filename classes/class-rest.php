@@ -202,6 +202,7 @@ class Mind_Rest extends WP_REST_Controller {
 				[
 					'Rules:',
 					$context ? '- The context for the user request placed under "Context".' : '',
+					$context ? '- Context usually contains the current blocks JSON, use it to improve by the user request. Try to keep essential information, links and images.' : '',
 					'- Respond to the user request placed under "Request".',
 					'- See the "Response Format Rules" section for block output rules.',
 					'- Avoid offensive or sensitive content.',

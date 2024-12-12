@@ -27,14 +27,13 @@ import { ReactComponent as AIImproveIcon } from '../../../icons/ai-improve.svg';
 import { ReactComponent as AIFixSpellingIcon } from '../../../icons/ai-fix-spelling.svg';
 import { ReactComponent as AIShorterIcon } from '../../../icons/ai-shorter.svg';
 import { ReactComponent as AILongerIcon } from '../../../icons/ai-longer.svg';
+import { ReactComponent as AIMessage } from '../../../icons/ai-message.svg';
 import { ReactComponent as AISummarizeIcon } from '../../../icons/ai-summarize.svg';
 import { ReactComponent as AIToneIcon } from '../../../icons/ai-tone.svg';
 import { ReactComponent as AIParaphraseIcon } from '../../../icons/ai-paraphrase.svg';
 import { ReactComponent as AITranslateIcon } from '../../../icons/ai-translate.svg';
 import { ReactComponent as MindLogoIcon } from '../../../icons/mind-logo.svg';
 import wrapEmoji from '../../../utils/wrap-emoji';
-
-const ALLOWED_BLOCKS = ['core/paragraph', 'core/heading'];
 
 const TONE = [
 	[__('professional', 'mind'), __('🧐 Professional', 'mind')],
@@ -63,16 +62,6 @@ const LANGUAGE = [
 	[__('vietnamese', 'mind'), __('🇻🇳 Vietnamese', 'mind')],
 ];
 
-/**
- * Check if Mind allowed in block toolbar.
- *
- * @param {Object} data - block data.
- * @return {boolean} allowed.
- */
-function isToolbarAllowed(data) {
-	return ALLOWED_BLOCKS.includes(data.name);
-}
-
 function Toolbar() {
 	const { open, setInput, setContext, setInsertionPlace, requestAI } =
 		useDispatch('mind/popup');
@@ -82,7 +71,10 @@ function Toolbar() {
 		setInput(prompt);
 		setContext('selected-blocks');
 		setInsertionPlace('selected-blocks');
-		requestAI();
+
+		if (prompt) {
+			requestAI();
+		}
 	}
 
 	return (
@@ -97,6 +89,15 @@ function Toolbar() {
 					return (
 						<>
 							<MenuGroup>
+								<MenuItem
+									icon={<AIMessage />}
+									iconPosition="left"
+									onClick={() => {
+										openModal();
+									}}
+								>
+									{__('Ask AI', 'mind')}
+								</MenuItem>
 								<MenuItem
 									icon={<AIImproveIcon />}
 									iconPosition="left"
@@ -290,12 +291,6 @@ function Toolbar() {
  */
 const withToolbarControl = createHigherOrderComponent((OriginalComponent) => {
 	function MindToolbarToggle(props) {
-		const allow = isToolbarAllowed(props);
-
-		if (!allow) {
-			return <OriginalComponent {...props} />;
-		}
-
 		return (
 			<>
 				<OriginalComponent {...props} />

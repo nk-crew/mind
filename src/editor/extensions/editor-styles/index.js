@@ -11,15 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
  */
 import EditorStyles from '../../components/editor-styles';
 
-const HIGHLIGHT_BLOCKS = [
-	'core/paragraph',
-	'core/list',
-	'core/code',
-	'core/preformatted',
-	'core/quote',
-	'core/blockquote',
-];
-
 /**
  * Add new blocks highlight to see what exactly added by the AI.
  *
@@ -30,7 +21,7 @@ const HIGHLIGHT_BLOCKS = [
 const withMindAIEditorStyles = createHigherOrderComponent(
 	(OriginalComponent) => {
 		function MindHighlightInsertedBlocks(props) {
-			const { name, clientId } = props;
+			const { clientId } = props;
 
 			const [animateOpacity, setAnimateOpacity] = useState(false);
 
@@ -45,7 +36,6 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 			});
 
 			const allowHighlight =
-				HIGHLIGHT_BLOCKS.includes(name) &&
 				highlightBlocks &&
 				highlightBlocks.length &&
 				highlightBlocks.includes(clientId);
