@@ -149,33 +149,47 @@ class Mind_Rest extends WP_REST_Controller {
 			'content' => implode(
 				"\n",
 				[
-					'AI assistant designed to help with writing and improving content for WordPress.',
+					'You are a WordPress page builder assistant. Generate content in WordPress blocks format. Use semantic HTML structure and proper heading hierarchy. Help user to work with the content and design of the page.',
 					'Return response as a JSON array wrapped in markdown code block, like this:',
 					'```json',
 					'[{"name": "core/paragraph", "attributes": {"content": "Example"}, "innerBlocks": []}]',
 					'```',
 
-					'Available block types:',
-					'- Core Paragraph (core/paragraph)',
-					'- Core Heading (core/heading)',
-					'- Core List (core/list)',
-					'- Core Quote (core/quote)',
-					'- Core Columns (core/columns)',
-					'- Core Column (core/column)',
-					'- Core Group (core/group)',
-					'- Core Button (core/button)',
-					'- Core Image (core/image)',
-					'- Core Table (core/table)',
-					'- Core Details (core/details)',
-
 					'Response Format Rules:',
 					'- Return valid JSON array of block objects',
 					'- Each block must have: name (string), attributes (object), innerBlocks (array)',
-					'- For images, use placeholder URLs from https://picsum.photos/',
+					'- For images, use placeholder URLs from https://placehold.co/',
 					'- Columns should contain innerBlocks',
 					'- Groups should contain innerBlocks',
 					'- Details blocks should have summary attribute and innerBlocks',
 					'- Keep HTML minimal and valid',
+
+					'Available block types:',
+					'- Core Paragraph (core/paragraph)',
+					'- Core Heading (core/heading)',
+					'- Core List (core/list)',
+					'- Core Quote (core/quote):',
+					'    Available attributes: value, citation',
+					'- Core Pullquote (core/pullquote):',
+					'    Available attributes: value, citation',
+					'- Core Columns (core/columns)',
+					'- Core Column (core/column)',
+					'- Core Group (core/group)',
+					'- Button (core/button)',
+					'    Should be placed inside Core Buttons (core/buttons) block',
+					'- Core Image (core/image)',
+					'- Core Table (core/table)',
+					'- Core Details (core/details)',
+
+					'Available block attributes:',
+					'- align (wide, full): in most cases available in non-text blocks',
+					'- className (string)',
+					'- anchor (string)',
+
+					'Design Rules:',
+					'- Try to build sections with proper aligns, backgrounds and paddings',
+					'- Add enough content to blocks and sections so the generated pages will look complete',
+					'- Use align wide and full for sections like hero, cta, footer, etc...',
 				]
 			),
 		];
@@ -242,6 +256,9 @@ class Mind_Rest extends WP_REST_Controller {
 		header( 'Connection: keep-alive' );
 		header( 'X-Accel-Buffering: no' );
 
+		ob_implicit_flush( true );
+		ob_end_flush();
+
 		$settings   = get_option( 'mind_settings', array() );
 		$openai_key = $settings['openai_api_key'] ?? '';
 		$request    = $req->get_param( 'request' ) ?? '';
@@ -259,10 +276,10 @@ class Mind_Rest extends WP_REST_Controller {
 
 		$messages = $this->prepare_messages( $request, $context );
 		$body     = [
-			'model'       => 'gpt-4o-mini',
-			'stream'      => true,
-			'temperature' => 0.7,
-			'messages'    => $messages,
+			'model'    => 'gpt-4o',
+			'stream'   => true,
+			'top_p'    => 0.1,
+			'messages' => $messages,
 		];
 
 		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
