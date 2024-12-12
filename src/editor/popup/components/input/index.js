@@ -41,6 +41,7 @@ export default function Input(props) {
 		}
 	);
 
+	const hasResponse = response?.length > 0;
 	let contextLabel = context;
 
 	switch (context) {
@@ -97,7 +98,7 @@ export default function Input(props) {
 			// Trying to set this with state or a ref will product an incorrect value.
 			ref.current.style.height = scrollHeight + 'px';
 		}
-	}, [ref, input]);
+	}, [ref, input, loading, hasResponse]);
 
 	return (
 		<div className="mind-popup-input">

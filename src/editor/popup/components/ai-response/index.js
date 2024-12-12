@@ -26,7 +26,35 @@ const AIResponse = memo(
 			>
 				{response.length > 0 && (
 					<div className="mind-popup-response__preview">
-						<BlockPreview blocks={response} viewportWidth={800} />
+						<BlockPreview
+							blocks={response}
+							viewportWidth={0}
+							// TODO: the following container style is hardcoded and should be changed.
+							additionalStyles={[
+								{
+									css: `
+									.is-root-container > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+										max-width: var(--wp--style--global--content-size);
+										margin-left: auto !important;
+										margin-right: auto !important;
+									}
+									.is-root-container > .alignwide {
+										max-width: var(--wp--style--global--wide-size);
+										margin-left: auto;
+										margin-right: auto;
+									}
+									.is-root-container > .alignfull {
+										max-width: none;
+									}
+									:root :where(.is-layout-flow) > *,
+									.is-root-container > * {
+										margin-block-start: 1.2rem;
+										margin-block-end: 0;
+									}
+								`,
+								},
+							]}
+						/>
 					</div>
 				)}
 			</div>

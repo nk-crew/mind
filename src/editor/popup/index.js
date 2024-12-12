@@ -9,7 +9,6 @@ import './style.scss';
 import { createRoot } from '@wordpress/element';
 import { Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { rawHandler } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
 import clsx from 'clsx';
 
@@ -100,6 +99,7 @@ export default function Popup() {
 				reset();
 				close();
 			}}
+			isFullScreen={loading || response?.length}
 			__experimentalHideHeader
 		>
 			{connected ? (

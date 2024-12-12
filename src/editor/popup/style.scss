@@ -5,10 +5,14 @@ $padding: 10px;
 	position: relative;
 	top: 15%;
 	margin-top: 0;
-	width: 650px;
+	width: 550px;
 	max-height: clamp(0px, 440px, 75vh);
 	border-radius: 10px;
 	color: #000;
+
+	&.is-full-screen {
+		top: 40px;
+	}
 
 	.components-modal__content {
 		padding: 0;
