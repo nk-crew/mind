@@ -8,8 +8,13 @@ export default function getSelectedBlocksJSON() {
 	ids.forEach((id) => {
 		const blockData = getBlock(id);
 
-		if (blockData?.attributes?.content) {
-			blocksJSON.push(blockData);
+		if (blockData?.name && blockData?.attributes) {
+			blocksJSON.push({
+				clientId: blockData.clientId,
+				name: blockData.name,
+				attributes: blockData.attributes,
+				innerBlocks: blockData?.innerBlocks || [],
+			});
 		}
 	});
 
