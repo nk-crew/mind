@@ -38,10 +38,11 @@ const withMindAI = createHigherOrderComponent((OriginalComponent) => {
 		const { open, setInsertionPlace } = useDispatch('mind/popup');
 
 		useEffect(() => {
+			// Convert content to string, because it is a RichText value.
 			if (
 				name === 'core/paragraph' &&
-				!previousContent &&
-				content === ' '
+				!`${previousContent || ''}` &&
+				`${content || ''}` === ' '
 			) {
 				open();
 				setInsertionPlace('selected-blocks');
