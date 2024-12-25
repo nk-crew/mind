@@ -52,7 +52,10 @@ export default class BlocksStreamProcessor {
 				const dataContent = line.slice(6);
 				const data = JSON.parse(dataContent);
 
-				if (data.done === true) {
+				if (data.error) {
+					this.handleError(data);
+					break;
+				} else if (data.done === true) {
 					if (this.jsonBuffer) {
 						await this.parseAndDispatchBlocks(
 							this.jsonBuffer,
