@@ -9,7 +9,8 @@ $padding: 10px;
 	padding: $padding $padding * 2;
 
 	&:empty,
-	&:has(.mind-popup-request:empty) {
+	&:has(.mind-popup-request:empty),
+	&:has(.mind-popup-request iframe) {
 		padding: 0;
 		margin-bottom: -1px;
 	}

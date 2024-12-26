@@ -5,6 +5,11 @@
 
 	/* Optimize repaints */
 	contain: content;
+
+	.block-editor-block-preview__content,
+	.block-editor-block-preview__content iframe {
+		max-height: none !important;
+	}
 }
 
 @keyframes mind-cursor-blink {

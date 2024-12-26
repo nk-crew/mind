@@ -18,40 +18,37 @@ const AIResponse = memo(
 		}
 
 		return (
-			<div
-				className="mind-popup-response"
-				style={{
-					opacity: loading ? 0.85 : 1,
-				}}
-			>
+			<div className="mind-popup-response">
 				{response.length > 0 && (
 					<div className="mind-popup-response__preview">
 						<BlockPreview
-							blocks={response}
+							// Since the preview does not render properly first block align full, we need to create the wrapper Group block with our custom styles.
+							// Align classes rendered properly only for the inner blocks.
+							blocks={[
+								{
+									name: 'core/group',
+									clientId:
+										'a9b75f7e-55c7-4f2b-93bb-00cf24181278',
+									isValid: true,
+									attributes: {
+										// "tagName": "div",
+										align: 'full',
+										layout: {
+											type: 'constrained',
+										},
+										className: 'alignfull',
+									},
+									innerBlocks: response,
+								},
+							]}
 							viewportWidth={0}
-							// TODO: the following container style is hardcoded and should be changed.
 							additionalStyles={[
 								{
 									css: `
-									.is-root-container > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
-										max-width: var(--wp--style--global--content-size);
-										margin-left: auto !important;
-										margin-right: auto !important;
-									}
-									.is-root-container > .alignwide {
-										max-width: var(--wp--style--global--wide-size);
-										margin-left: auto;
-										margin-right: auto;
-									}
-									.is-root-container > .alignfull {
-										max-width: none;
-									}
-									:root :where(.is-layout-flow) > *,
-									.is-root-container > * {
-										margin-block-start: 1.2rem;
-										margin-block-end: 0;
-									}
-								`,
+										.is-root-container > div {
+											margin-top: 0;
+										}
+									`,
 								},
 							]}
 						/>
