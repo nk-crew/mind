@@ -52,8 +52,8 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 					setTimeout(() => {
 						setAnimateOpacity(false);
 						removeHighlightBlocks([clientId]);
-					}, 3000);
-				}, 3000);
+					}, 1200);
+				}, 200);
 			}, [allowHighlight, clientId, removeHighlightBlocks]);
 
 			// Skip this block as not needed to highlight.
@@ -67,16 +67,14 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 					<EditorStyles
 						styles={`
 							[data-block="${clientId}"] {
-								background-color: rgba(228, 85, 223, 0.1);
-								box-shadow: 0 0 0 0.75rem rgba(228, 85, 223, 0.1);
-								${animateOpacity ? 'transition: 3s background-color, 3s box-shadow;' : ''}
+								filter: blur(15px);
+								${animateOpacity ? 'transition: 0.5s filter;' : ''}
 							}
 							${
 								animateOpacity
 									? `
 										[data-block="${clientId}"] {
-											background-color: rgba(228, 85, 223, 0);
-											box-shadow: 0 0 0 0.75rem rgba(228, 85, 223, 0);
+											filter: blur(0px);
 										}
 									`
 									: ''
