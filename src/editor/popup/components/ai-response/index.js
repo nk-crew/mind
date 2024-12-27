@@ -12,12 +12,9 @@ import './style.scss';
 import { memo, useState, useEffect, useRef } from '@wordpress/element';
 import { BlockPreview } from '@wordpress/block-editor';
 
-function RenderPreview({ response, className, style }) {
+function RenderPreview({ response }) {
 	return (
-		<div
-			className={clsx('mind-popup-response__preview', className)}
-			style={style}
-		>
+		<div className="mind-popup-response__preview">
 			<BlockPreview
 				// Since the preview does not render properly first block align full, we need to create the wrapper Group block with our custom styles.
 				// Align classes rendered properly only for the inner blocks.
@@ -96,38 +93,18 @@ const AIResponse = memo(
 			return null;
 		}
 
-		const hiddenPreviewStyles = {
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			right: 0,
-		};
-
 		return (
-			<div className="mind-popup-response">
+			<div
+				className={clsx(
+					'mind-popup-response',
+					`mind-popup-response--${activePreview}`
+				)}
+			>
 				{(preview1Data.length > 0 || preview2Data.length > 0) && (
-					<div style={{ position: 'relative' }}>
-						<RenderPreview
-							response={preview1Data}
-							style={{
-								...(activePreview === 1
-									? {}
-									: hiddenPreviewStyles),
-								opacity: activePreview === 1 ? 1 : 0,
-								zIndex: activePreview === 1 ? 2 : 1,
-							}}
-						/>
-						<RenderPreview
-							response={preview2Data}
-							style={{
-								...(activePreview === 2
-									? {}
-									: hiddenPreviewStyles),
-								opacity: activePreview === 2 ? 1 : 0,
-								zIndex: activePreview === 2 ? 2 : 1,
-							}}
-						/>
-					</div>
+					<>
+						<RenderPreview response={preview1Data} />
+						<RenderPreview response={preview2Data} />
+					</>
 				)}
 			</div>
 		);

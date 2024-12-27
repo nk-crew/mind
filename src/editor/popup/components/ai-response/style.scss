@@ -1,4 +1,6 @@
 .mind-popup-response {
+	position: relative;
+
 	/* GPU acceleration */
 	transform: translateZ(0);
 	will-change: transform;
@@ -17,6 +19,18 @@
 	will-change: opacity;
 	backface-visibility: hidden;
 	transform: translateZ(0);
+	z-index: 2;
+}
+
+// Hidden preview styles.
+.mind-popup-response--1 .mind-popup-response__preview:nth-child(2),
+.mind-popup-response--2 .mind-popup-response__preview:nth-child(1), {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	opacity: 0;
+	z-index: 1;
 }
 
 @keyframes mind-cursor-blink {
