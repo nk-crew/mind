@@ -4,7 +4,12 @@
 
 .mind-admin-settings-card {
 	display: flex;
+	flex-direction: column;
 	gap: 20px;
+
+	+ .mind-admin-settings-card {
+		margin-top: 35px;
+	}
 
 	.mind-admin-settings-card-name {
 		flex: 1;
@@ -12,15 +17,59 @@
 
 		label {
 			display: block;
-			margin-top: 8px;
 			font-size: 18px;
 			font-weight: 300;
 		}
 	}
 	.mind-admin-settings-card-description {
 		font-size: 12px;
-		margin-top: 16px;
+		margin-top: -10px;
 		color: #646464;
+	}
+
+	.mind-admin-settings-card-button-group {
+		display: flex;
+		gap: 3px;
+		border: 1px solid #000;
+		border-radius: 10px;
+		padding: 3px;
+
+		button {
+			padding: 14px 18px;
+			background: none;
+			border: none;
+			color: #000;
+			font-weight: 500;
+			font-size: 14px;
+			cursor: pointer;
+			margin: 0;
+			text-align: left;
+			align-items: start;
+			display: flex;
+			flex-direction: column;
+			flex-wrap: wrap;
+			flex: auto;
+			border-radius: 7px;
+			gap: 3px;
+			transition: 0.2s background-color;
+
+			&:hover,
+			&:focus-visible {
+				background-color: #eee;
+				outline: 2px solid transparent;
+			}
+
+			&.mind-admin-settings-card-button-active {
+				color: #fff;
+				background-color: #000;
+			}
+
+			span {
+				opacity: 0.5;
+				font-weight: 400;
+				font-size: 12px;
+			}
+		}
 	}
 
 	.mind-admin-settings-card-input {
@@ -34,7 +83,7 @@
 			border-radius: 7px;
 
 			&:focus {
-				box-shadow: 0 0 0 2px rgba(#000, 30%);
+				box-shadow: 0 0 0 3px rgba(#000, 20%);
 				outline: 2px solid transparent;
 			}
 		}
@@ -59,7 +108,7 @@
 }
 
 .mind-admin-settings-actions {
-	margin-top: 50px;
+	margin-top: 35px;
 
 	button {
 		display: inline-flex;
@@ -73,12 +122,12 @@
 		cursor: pointer;
 
 		&:hover,
-		&:focus {
+		&:focus-visible {
 			background-color: #303030;
 		}
 
-		&:focus {
-			box-shadow: 0 0 0 2px rgba(#000, 30%);
+		&:focus-visible {
+			box-shadow: 0 0 0 3px rgba(#000, 30%);
 			outline: 2px solid transparent;
 		}
 

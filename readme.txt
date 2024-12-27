@@ -1,6 +1,6 @@
-=== Mind - AI Content Assistant ===
+=== Mind - AI Page Builder ===
 Contributors:      nko
-Tags:              ai, openai, gpt, copywriting, assistant
+Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 6.2
 Tested up to:      6.7
 Requires PHP:      7.2
@@ -8,11 +8,11 @@ Stable tag:        0.2.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-AI content assistant and enhancer for WordPress page builder.
+AI page builder for WordPress which let's you build sections, redesign existing blocks, etc...
 
 == Description ==
 
-Mind is a WordPress plugin designed to assist content editors in writing and improving posts. Powered by the OpenAI API, Mind offers a range of features to enhance the content creation process.
+Mind is a WordPress plugin that transforms your page building experience. Powered by AI technology, it helps you create and modify entire page sections, layouts, and content directly in the WordPress editor. With support for both Anthropic and OpenAI AI models, Mind seamlessly integrates with the WordPress block editor to enhance your page building workflow.
 
 === 🚀 Community-Driven Development ===
 

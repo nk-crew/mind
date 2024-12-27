@@ -13,6 +13,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import FirstLoadingAnimation from './first-loading-animation';
+import isAIConnected from '../../utils/is-ai-connected';
 
 export default function PageWelcome() {
 	const { setActivePage } = useDispatch('mind/admin');
@@ -24,6 +25,7 @@ export default function PageWelcome() {
 			settings: getSettings(),
 		};
 	});
+	const isConnected = isAIConnected(settings);
 
 	return (
 		<>
@@ -42,25 +44,25 @@ export default function PageWelcome() {
 					'mind'
 				)}
 			</p>
-			{settings.openai_api_key ? (
+			{isConnected ? (
 				<div
 					dangerouslySetInnerHTML={{
 						__html: __(
-							'To get started, <em>open the page editor</em> and click on the <em>"Open Mind"</em> button in the toolbar',
+							'To get started, <em>open the page editor</em> and click on the <br /><span class="mind-inline-logo">Open Mind</span> button in the toolbar',
 							'mind'
 						),
 					}}
 				/>
 			) : (
 				<div>
-					{__('To get started, enter your', 'mind')}
+					{__('To get started,', 'mind')}
 					<button
 						onClick={(e) => {
 							e.preventDefault();
 							setActivePage('settings');
 						}}
 					>
-						{__('OpenAI API key →', 'mind')}
+						{__('select the model and API key →', 'mind')}
 					</button>
 				</div>
 			)}

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       AI Mind
- * Description:       Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more.
- * Requires at least: 6.0
+ * Description:       AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.
+ * Requires at least: 6.3
  * Requires PHP:      7.2
  * Version:           0.2.0
  * Author:            Mind Team
@@ -85,6 +85,7 @@ class Mind {
 	 */
 	private function include_dependencies() {
 		require_once $this->plugin_path . 'classes/class-prompts.php';
+		require_once $this->plugin_path . 'classes/class-ai-api.php';
 		require_once $this->plugin_path . 'classes/class-admin.php';
 		require_once $this->plugin_path . 'classes/class-assets.php';
 		require_once $this->plugin_path . 'classes/class-rest.php';
