@@ -129,7 +129,7 @@ class Mind_AI_API {
 
 		$messages = $this->prepare_messages( $request, $context );
 
-		if ( 'gpt-4o' === $connected_model['model'] || 'gpt-4o-mini' === $connected_model['model'] ) {
+		if ( 'gpt-4o' === $connected_model['name'] || 'gpt-4o-mini' === $connected_model['name'] ) {
 			$this->request_open_ai( $connected_model, $messages );
 		} else {
 			$this->request_anthropic( $connected_model, $messages );
