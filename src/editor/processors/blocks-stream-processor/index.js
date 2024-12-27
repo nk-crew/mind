@@ -13,7 +13,7 @@ export default class BlocksStreamProcessor {
 		// Add throttled dispatch
 		this.throttledDispatch = this.throttle(
 			this.performDispatch.bind(this),
-			150
+			200
 		);
 	}
 

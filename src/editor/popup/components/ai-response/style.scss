@@ -12,6 +12,13 @@
 	}
 }
 
+.mind-popup-response__preview {
+	/* GPU acceleration */
+	will-change: opacity;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+}
+
 @keyframes mind-cursor-blink {
 	0%,
 	100% {
