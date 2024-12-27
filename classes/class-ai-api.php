@@ -82,14 +82,14 @@ class Mind_AI_API {
 			if ( 'gpt-4o' === $ai_model || 'gpt-4o-mini' === $ai_model ) {
 				if ( ! empty( $settings['openai_api_key'] ) ) {
 					$result = [
-						'model' => $ai_model,
-						'key'   => $settings['openai_api_key'],
+						'name' => $ai_model,
+						'key'  => $settings['openai_api_key'],
 					];
 				}
 			} elseif ( ! empty( $settings['anthropic_api_key'] ) ) {
 				$result = [
-					'model' => 'claude-3-5-haiku' === $ai_model ? 'claude-3-5-haiku' : 'claude-3-5-sonnet',
-					'key'   => $settings['anthropic_api_key'],
+					'name' => 'claude-3-5-haiku' === $ai_model ? 'claude-3-5-haiku' : 'claude-3-5-sonnet',
+					'key'  => $settings['anthropic_api_key'],
 				];
 			}
 		}
@@ -130,9 +130,9 @@ class Mind_AI_API {
 		$messages = $this->prepare_messages( $request, $context );
 
 		if ( 'gpt-4o' === $connected_model['model'] || 'gpt-4o-mini' === $connected_model['model'] ) {
-			$this->request_open_ai( $connected_model['model'], $connected_model['key'], $messages );
+			$this->request_open_ai( $connected_model, $messages );
 		} else {
-			$this->request_anthropic( $connected_model['model'], $connected_model['key'], $messages );
+			$this->request_anthropic( $connected_model, $messages );
 		}
 
 		exit;
@@ -211,22 +211,22 @@ class Mind_AI_API {
 	/**
 	 * Request Anthropic API.
 	 *
-	 * @param string $model model.
-	 * @param string $key key.
-	 * @param array  $messages messages.
+	 * @param array $model model.
+	 * @param array $messages messages.
 	 */
-	public function request_anthropic( $model, $key, $messages ) {
+	public function request_anthropic( $model, $messages ) {
 		$anthropic_messages = $this->convert_to_anthropic_messages( $messages );
 		$anthropic_version  = '2023-06-01';
+		$model_name         = $model['name'];
 
-		if ( 'claude-3-5-haiku' === $model ) {
-			$model = 'claude-3-5-haiku-20241022';
+		if ( 'claude-3-5-haiku' === $model['name'] ) {
+			$model_name = 'claude-3-5-haiku-20241022';
 		} else {
-			$model = 'claude-3-5-sonnet-20241022';
+			$model_name = 'claude-3-5-sonnet-20241022';
 		}
 
 		$body = [
-			'model'      => $model,
+			'model'      => $model_name,
 			'max_tokens' => 8192,
 			'system'     => $anthropic_messages['system'],
 			'messages'   => $anthropic_messages['messages'],
@@ -243,7 +243,7 @@ class Mind_AI_API {
 			CURLOPT_HTTPHEADER,
 			[
 				'Content-Type: application/json',
-				'x-api-key: ' . $key,
+				'x-api-key: ' . $model['key'],
 				'anthropic-version: ' . $anthropic_version,
 			]
 		);
@@ -281,13 +281,12 @@ class Mind_AI_API {
 	/**
 	 * Request OpenAI API.
 	 *
-	 * @param string $model model.
-	 * @param string $key key.
-	 * @param array  $messages messages.
+	 * @param array $model model.
+	 * @param array $messages messages.
 	 */
-	public function request_open_ai( $model, $key, $messages ) {
+	public function request_open_ai( $model, $messages ) {
 		$body = [
-			'model'       => $model,
+			'model'       => $model['name'],
 			'stream'      => true,
 			'top_p'       => 0.9,
 			'temperature' => 0.7,
@@ -304,7 +303,7 @@ class Mind_AI_API {
 			CURLOPT_HTTPHEADER,
 			[
 				'Content-Type: application/json',
-				'Authorization: Bearer ' . $key,
+				'Authorization: Bearer ' . $model['key'],
 			]
 		);
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
