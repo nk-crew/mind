@@ -72,63 +72,72 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 
 <block_supports_features>
 	These features are shared across many blocks and include:
-	- anchor:
+
+	<feature name="anchor">
 	  { anchor: "custom-anchor-used-for-id-html-attribute" }
-	- align:
+	</feature>
+	<feature name="align">
 	  { align: "wide" }
-	- color:
+	</feature>
+	<feature name="color">
 	  { style: { color: { text: "#fff", background: "#000" } } }
-	- border:
+	</feature>
+	<feature name="border">
 	  { style: { border: { width: "2px", color: "#000", radius: "5px" } } }
-	- typography:
+	</feature>
+	<feature name="typography">
 	  { fontSize: "large", style: { typography: { fontStyle: "normal", fontWeight: "500", lineHeight: "3.5", letterSpacing: "6px", textDecoration: "underline", writingMode: "horizontal-tb", textTransform: "lowercase" } } }
-	  available fontSize presets: "small", "medium", "large", "x-large", "xx-large"
-	- spacing:
-	  - margin:
+	  Available fontSize presets: [ "small", "medium", "large", "x-large", "xx-large" ]
+	</feature>
+	<feature name="spacing:margin">
 	    { style: { spacing: { margin: { top: "var:preset|spacing|50", bottom: "var:preset|spacing|50", left: "var:preset|spacing|20", right: "var:preset|spacing|20" } } } }
-	  - padding:
+		Available spacing presets: [ "20", "30", "40", "50", "60", "70", "80" ]
+		Available custom spacing values: [ "10px", "2rem", "3em", ... ]
+	</feature>
+	<feature name="spacing:padding">
 	    { style: { spacing: { padding: { top: "var:preset|spacing|50", bottom: "var:preset|spacing|50", left: "var:preset|spacing|20", right: "var:preset|spacing|20" } } } }
-	  available spacing presets: "20", "30", "40", "50", "60", "70", "80"
-	  available custom spacing values: 10px, 2rem, 3em, etc...
+		Available spacing presets: [ "20", "30", "40", "50", "60", "70", "80" ]
+		Available custom spacing values: [ "10px", "2rem", "3em", ... ]
+	</feature>
 
 	Note: Not all blocks support all features. Refer to block-specific attributes for available supports
 </block_supports_features>
 
 <block_attributes>
-	- Core Paragraph (core/paragraph):
+	- Paragraph (core/paragraph):
 		Supports: anchor, color, border, typography, margin, padding
 		Attributes:
 			- content (rich-text)
 			- dropCap (boolean)
 
-	- Core Heading (core/heading):
+	- Heading (core/heading):
 		Supports: align ("wide", "full"), anchor, color, border, typography, margin, padding
 		Attributes:
 			- content (rich-text)
 			- level (integer)
 			- textAlign (string)
 
-	- Core Columns (core/columns):
+	- Columns (core/columns):
 		Description: Display content in multiple columns, with blocks added to each column
 		Supports: anchor, align (wide, full), color, spacing, border, typography
 		Attributes:
 			- verticalAlignment (string)
 			- isStackedOnMobile (boolean, default: true)
 
-	- Core Column (core/column):
+	- Column (core/column):
 		Description: A single column within a columns block
 		Supports: anchor, color, spacing, border, typography
 		Attributes:
 			- verticalAlignment (string)
 			- width (string)
 
-	- Core Group (core/group):
+	- Group (core/group):
 		Description: Gather blocks in a layout container
 		Supports: align (wide, full), anchor, color, spacing, border, typography
 		Attributes:
 			- tagName (string, default: "div")
 
-	- Core List (core/list):
+	- List (core/list):
 		Description: An organized collection of items displayed in a specific order
 		Supports: anchor, color, spacing, border, typography
 		Attributes:
@@ -137,27 +146,27 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- start (number)
 			- reversed (boolean)
 
-	- Core List Item (core/list-item):
+	- List Item (core/list-item):
 		Description: An individual item within a list
 		Supports: anchor, color, spacing, border, typography
 		Attributes:
 			- content (rich-text)
 
-	- Core Separator (core/separator):
+	- Separator (core/separator):
 		Description: Create a break between ideas or sections with a horizontal separator
 		Supports: anchor, align (center, wide, full), color, spacing
 		Attributes:
 			- opacity (string, default: "alpha-channel")
 			- tagName (string, options: "hr", "div", default: "hr")
 
-	- Core Spacer (core/spacer):
+	- Spacer (core/spacer):
 		Description: Add white space between blocks and customize its height
 		Supports: anchor, spacing
 		Attributes:
 			- height (string, default: "100px")
 			- width (string)
 
-	- Core Image (core/image):
+	- Image (core/image):
 		Supports: align ("left", "center", "right", "wide", "full"), anchor, border, margin
 		Attributes:
 			- url (string)
@@ -169,7 +178,7 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- height (string)
 			- aspectRatio (string)
 
-	- Core Gallery (core/gallery):
+	- Gallery (core/gallery):
 		Description: Display multiple images in a rich gallery format using individual image blocks
 		Supports: anchor, align, border, spacing, color
 		Attributes:
@@ -185,11 +194,11 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 		InnerBlocks:
 			- core/image: Each image is added as an individual block within the gallery
 
-	- Core Buttons (core/buttons):
+	- Buttons (core/buttons):
 		Description: A parent block for "core/button" blocks allowing grouping and alignment
 		Supports: align (wide, full), anchor, color, border, typography, spacing
 
-	- Core Button (core/button):
+	- Button (core/button):
 		Supports: anchor, color, border, typography, padding
 		Attributes:
 			- url (string)
@@ -198,7 +207,7 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- linkTarget (string)
 			- rel (string)
 
-	- Core Quote (core/quote):
+	- Quote (core/quote):
 		Description: Give quoted text visual emphasis. "In quoting others, we cite ourselves" — Julio Cortázar
 		Supports: anchor, align, background, border, typography, color, spacing
 		Attributes:
@@ -206,7 +215,7 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- citation (rich-text): Citation for the quote
 			- textAlign (string): Alignment of the text
 
-	- Core Pullquote (core/pullquote):
+	- Pullquote (core/pullquote):
 		Description: Give special visual emphasis to a quote from your text
 		Supports: anchor, align, background, color, spacing, typography, border
 		Attributes:
@@ -214,19 +223,19 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- citation (rich-text): Citation for the quote
 			- textAlign (string): Alignment of the text
 
-	- Core Preformatted (core/preformatted):
+	- Preformatted (core/preformatted):
 		Description: Add text that respects your spacing and tabs, and also allows styling
 		Supports: anchor, color, spacing, typography, interactivity, border
 		Attributes:
 			- content (rich-text): Preformatted text content with preserved whitespace
 
-	- Core Code (core/code):
+	- Code (core/code):
 		Description: Display code snippets that respect your spacing and tabs
 		Supports: align (wide), anchor, typography, spacing, border, color
 		Attributes:
 			- content (rich-text): Code content with preserved whitespace
 
-	- Core Social Links (core/social-links):
+	- Social Links (core/social-links):
 		Description: Display icons linking to your social profiles or sites
 		Supports: align (left, center, right), anchor, color, spacing, border
 		Attributes:
@@ -234,7 +243,7 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- showLabels (boolean, default: false)
 			- size (string)
 
-	- Core Social Link (core/social-link):
+	- Social Link (core/social-link):
 		Description: Display an icon linking to a social profile or site
 		Supports: -
 		Attributes:
@@ -243,14 +252,14 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- label (string)
 			- rel (string)
 
-	- Core Details (core/details):
+	- Details (core/details):
 		Description: Hide and show additional content, functioning like an accordion or toggle
 		Supports: align, anchor, color, border, spacing, typography
 		Attributes:
 			- showContent (boolean, default: false): Whether the content is shown by default
 			- summary (rich-text): The summary or title text for the details block
 
-	- Core Table (core/table):
+	- Table (core/table):
 		Description: Create structured content in rows and columns to display information
 		Supports: anchor, align, color, spacing, typography, border
 		Attributes:
@@ -260,7 +269,7 @@ You are Mind - an elite WordPress architect specializing in building high-conver
 			- body (array): Array of body row objects
 			- foot (array): Array of footer row objects
 
-	- Core Table of Contents (core/table-of-contents):
+	- Table of Contents (core/table-of-contents):
 		Description: Summarize your post with a list of headings. Add HTML anchors to Heading blocks to link them here
 		Supports: color, spacing, typography, border
 		Attributes:
