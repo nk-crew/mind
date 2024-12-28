@@ -6,6 +6,7 @@ import './style.scss';
 import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { serialize } from '@wordpress/blocks';
 
 import hasNonEmptySelectedBlocks from '../../../../utils/has-non-empty-selected-blocks';
 import LoadingText from '../loading-text';
@@ -154,11 +155,8 @@ export default function Input(props) {
 							onClick={() => {
 								// Copy to clipboard.
 								window.navigator.clipboard.writeText(
-									JSON.stringify(response)
+									serialize(response)
 								);
-
-								reset();
-								close();
 							}}
 						>
 							{__('Copy', 'mind')}
