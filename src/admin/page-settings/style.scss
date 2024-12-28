@@ -30,7 +30,7 @@
 	.mind-admin-settings-card-button-group {
 		display: flex;
 		gap: 3px;
-		border: 1px solid #000;
+		border: 1px solid #d0d0d0;
 		border-radius: 10px;
 		padding: 3px;
 
@@ -79,12 +79,13 @@
 			width: 100%;
 			padding: 6px 15px;
 			font-size: 1em;
-			border: 1px solid #000;
+			border: 1px solid #d0d0d0;
 			border-radius: 7px;
 
 			&:focus {
-				box-shadow: 0 0 0 3px rgba(#000, 20%);
-				outline: 2px solid transparent;
+				border-color: #222;
+				box-shadow: none;
+				outline: none;
 			}
 		}
 	}
