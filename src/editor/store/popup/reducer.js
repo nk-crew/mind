@@ -138,7 +138,6 @@ function reducer(state = initialState, action = {}) {
 			return {
 				...state,
 				input: '',
-				context: '',
 				insertionPlace: '',
 				screen: '',
 				response: false,
