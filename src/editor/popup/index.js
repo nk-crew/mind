@@ -6,7 +6,7 @@ import './style.scss';
 /**
  * WordPress dependencies
  */
-import { createRoot } from '@wordpress/element';
+import { createRoot, useEffect, useState, useRef } from '@wordpress/element';
 import { Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -20,13 +20,16 @@ import LoadingLine from './components/loading-line';
 import Content from './components/content';
 import Footer from './components/footer';
 import NotConnectedScreen from './components/not-connected-screen';
-import hasNonEmptySelectedBlocks from '../../utils/has-non-empty-selected-blocks';
 
 const POPUP_CONTAINER_CLASS = 'mind-popup-container';
 
 export default function Popup() {
 	const { setHighlightBlocks } = useDispatch('mind/blocks');
 	const { close, reset } = useDispatch('mind/popup');
+
+	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [fullScreenTransitionStyles, setFullScreenTransitionStyles] =
+		useState(null);
 
 	const { connected, isOpen, insertionPlace, loading, response } = useSelect(
 		(select) => {
@@ -57,6 +60,39 @@ export default function Popup() {
 			selectedClientIds: ids,
 		};
 	}, []);
+
+	// Change modal size with transition.
+	const modalRef = useRef();
+	useEffect(() => {
+		if (!isOpen || !modalRef.current) {
+			return;
+		}
+
+		const allowTransition =
+			// Set fullscreen true.
+			((loading || response?.length) &&
+				!isFullscreen &&
+				!fullScreenTransitionStyles) ||
+			// Set fullscreen false.
+			(!(loading || response?.length) &&
+				isFullscreen &&
+				!fullScreenTransitionStyles);
+
+		if (!allowTransition) {
+			return;
+		}
+
+		const { height } = modalRef.current.children[0].getBoundingClientRect();
+
+		setFullScreenTransitionStyles({
+			height: `${height}px`,
+		});
+
+		setTimeout(() => {
+			setFullScreenTransitionStyles(null);
+			setIsFullscreen(!isFullscreen);
+		}, 10);
+	}, [isFullscreen, loading, response, isOpen, fullScreenTransitionStyles]);
 
 	const { insertBlocks: wpInsertBlocks, replaceBlocks } =
 		useDispatch('core/block-editor');
@@ -96,6 +132,7 @@ export default function Popup() {
 
 	return (
 		<Modal
+			ref={modalRef}
 			title={false}
 			className={clsx(
 				'mind-popup',
@@ -106,7 +143,8 @@ export default function Popup() {
 				reset();
 				close();
 			}}
-			isFullScreen={loading || response?.length}
+			isFullScreen={isFullscreen}
+			style={fullScreenTransitionStyles}
 			__experimentalHideHeader
 		>
 			{connected ? (
