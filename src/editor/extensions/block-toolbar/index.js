@@ -63,13 +63,12 @@ const LANGUAGE = [
 ];
 
 function Toolbar() {
-	const { open, setInput, setContext, setInsertionPlace, requestAI } =
+	const { open, setInput, setInsertionPlace, requestAI } =
 		useDispatch('mind/popup');
 
 	function openModal(prompt) {
 		open();
 		setInput(prompt);
-		setContext('selected-blocks');
 		setInsertionPlace('selected-blocks');
 
 		if (prompt) {

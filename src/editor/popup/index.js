@@ -20,6 +20,7 @@ import LoadingLine from './components/loading-line';
 import Content from './components/content';
 import Footer from './components/footer';
 import NotConnectedScreen from './components/not-connected-screen';
+import hasNonEmptySelectedBlocks from '../../utils/has-non-empty-selected-blocks';
 
 const POPUP_CONTAINER_CLASS = 'mind-popup-container';
 
@@ -60,9 +61,15 @@ export default function Popup() {
 	const { insertBlocks: wpInsertBlocks, replaceBlocks } =
 		useDispatch('core/block-editor');
 
-	function insertBlocks() {
+	function insertBlocks(customPlace) {
 		if (response.length) {
-			if (insertionPlace === 'selected-blocks') {
+			if (customPlace && customPlace === 'insert') {
+				wpInsertBlocks(response);
+			} else if (
+				insertionPlace === 'selected-blocks' &&
+				selectedClientIds &&
+				selectedClientIds.length
+			) {
 				replaceBlocks(selectedClientIds, response);
 			} else {
 				wpInsertBlocks(response);

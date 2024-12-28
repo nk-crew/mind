@@ -18,7 +18,7 @@ import { ReactComponent as MindLogoIcon } from '../../../icons/mind-logo.svg';
 const TOOLBAR_TOGGLE_CONTAINER_CLASS = 'mind-post-toolbar-toggle';
 
 function Toggle() {
-	const { open, setContext, setInsertionPlace } = useDispatch('mind/popup');
+	const { open, setInsertionPlace } = useDispatch('mind/popup');
 
 	const { getSelectedBlockClientIds } = useSelect((select) => {
 		return {
@@ -37,12 +37,7 @@ function Toggle() {
 				open();
 
 				const selectedIDs = getSelectedBlockClientIds();
-
-				// This is a temporary solution to provide context when multiple blocks selected.
-				// We need this because Gutenberg does not provide an ability to add toolbar button when multiple selection.
-				// We actually should make a toggle in `extensions/block-toolbar/index.js` to handle this case.
-				if (selectedIDs && selectedIDs.length > 1) {
-					setContext('selected-blocks');
+				if (selectedIDs && selectedIDs.length) {
 					setInsertionPlace('selected-blocks');
 				}
 			}}

@@ -115,10 +115,12 @@ class Mind_Rest extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function request_ai( WP_REST_Request $req ) {
-		$request = $req->get_param( 'request' ) ?? '';
-		$context = $req->get_param( 'context' ) ?? '';
+		$request         = $req->get_param( 'request' ) ?? '';
+		$selected_blocks = $req->get_param( 'selected_blocks' ) ?? '';
+		$page_blocks     = $req->get_param( 'page_blocks' ) ?? '';
+		$page_context    = $req->get_param( 'page_context' ) ?? '';
 
-		Mind_AI_API::instance()->request( $request, $context );
+		Mind_AI_API::instance()->request( $request, $selected_blocks, $page_blocks, $page_context );
 	}
 
 	/**

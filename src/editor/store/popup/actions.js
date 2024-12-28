@@ -8,7 +8,10 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 import BlocksStreamProcessor from '../../processors/blocks-stream-processor';
+import getPageBlocksJSON from '../../../utils/get-page-blocks-json';
+import getPageContextJSON from '../../../utils/get-page-context-json';
 import getSelectedBlocksJSON from '../../../utils/get-selected-blocks-json';
+import hasNonEmptySelectedBlocks from '../../../utils/has-non-empty-selected-blocks';
 import { isConnected } from '../core/selectors';
 
 export function open() {
@@ -103,9 +106,18 @@ export function requestAI() {
 				request: select.getInput(),
 			};
 
-			// Add context if needed
-			if (select.getContext() === 'selected-blocks') {
-				data.context = getSelectedBlocksJSON();
+			// Add selected_blocks context if needed
+			if (
+				select.getContext().includes('selected-blocks') &&
+				hasNonEmptySelectedBlocks()
+			) {
+				data.selected_blocks = getSelectedBlocksJSON(true);
+			}
+
+			// Add page context if needed
+			if (select.getContext().includes('page')) {
+				data.page_blocks = getPageBlocksJSON(true);
+				data.page_context = getPageContextJSON(true);
 			}
 
 			// Initialize stream processor

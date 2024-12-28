@@ -7,7 +7,7 @@ export function getInput(state) {
 }
 
 export function getContext(state) {
-	return state?.context || '';
+	return state?.context || [];
 }
 
 export function getInsertionPlace(state) {

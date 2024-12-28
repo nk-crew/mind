@@ -19,40 +19,25 @@ export default function Input(props) {
 
 	const { reset, setInput, setScreen, requestAI } = useDispatch('mind/popup');
 
-	const { isOpen, input, context, screen, loading, response } = useSelect(
-		(select) => {
-			const {
-				isOpen: checkIsOpen,
-				getInput,
-				getContext,
-				getScreen,
-				getLoading,
-				getResponse,
-			} = select('mind/popup');
+	const { isOpen, input, screen, loading, response } = useSelect((select) => {
+		const {
+			isOpen: checkIsOpen,
+			getInput,
+			getScreen,
+			getLoading,
+			getResponse,
+		} = select('mind/popup');
 
-			return {
-				isOpen: checkIsOpen(),
-				input: getInput(),
-				context: getContext(),
-				screen: getScreen(),
-				loading: getLoading(),
-				response: getResponse(),
-			};
-		}
-	);
+		return {
+			isOpen: checkIsOpen(),
+			input: getInput(),
+			screen: getScreen(),
+			loading: getLoading(),
+			response: getResponse(),
+		};
+	});
 
 	const hasResponse = response?.length > 0;
-	let contextLabel = context;
-
-	switch (context) {
-		case 'selected-blocks':
-			contextLabel = __('Selected Blocks');
-			break;
-		case 'post-title':
-			contextLabel = __('Post Title');
-			break;
-		// no default
-	}
 
 	function onKeyDown(e) {
 		// Go back to starter screen.
@@ -69,7 +54,11 @@ export default function Input(props) {
 
 		// Send request to AI.
 		if (screen === 'request' && e.key === 'Enter' && !e.shiftKey) {
-			requestAI();
+			e.preventDefault();
+
+			if (input) {
+				requestAI();
+			}
 		}
 	}
 
@@ -105,7 +94,7 @@ export default function Input(props) {
 			<MindLogoIcon />
 			<textarea
 				ref={ref}
-				placeholder={__('Ask AI to write anything…', 'mind')}
+				placeholder={__('Ask AI to build or change blocks…', 'mind')}
 				value={input}
 				onChange={(e) => {
 					setInput(e.target.value);
@@ -114,9 +103,6 @@ export default function Input(props) {
 				disabled={loading}
 				rows={1}
 			/>
-			{contextLabel ? (
-				<span className="mind-popup-input-context">{contextLabel}</span>
-			) : null}
 		</div>
 	);
 }

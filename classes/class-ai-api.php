@@ -101,11 +101,13 @@ class Mind_AI_API {
 	 * Send request to API.
 	 *
 	 * @param string $request request text.
-	 * @param string $context context.
+	 * @param string $selected_blocks selected blocks context.
+	 * @param string $page_blocks page blocks context.
+	 * @param string $page_context page context.
 	 *
 	 * @return mixed
 	 */
-	public function request( $request, $context ) {
+	public function request( $request, $selected_blocks = '', $page_blocks = '', $page_context = '' ) {
 		// Set headers for streaming.
 		header( 'Content-Type: text/event-stream' );
 		header( 'Cache-Control: no-cache' );
@@ -127,7 +129,7 @@ class Mind_AI_API {
 			exit;
 		}
 
-		$messages = $this->prepare_messages( $request, $context );
+		$messages = $this->prepare_messages( $request, $selected_blocks, $page_blocks, $page_context );
 
 		if ( 'gpt-4o' === $connected_model['name'] || 'gpt-4o-mini' === $connected_model['name'] ) {
 			$this->request_open_ai( $connected_model, $messages );
@@ -142,31 +144,36 @@ class Mind_AI_API {
 	 * Prepare messages for request.
 	 *
 	 * @param string $user_query user query.
-	 * @param string $context context.
+	 * @param string $selected_blocks selected blocks context.
+	 * @param string $page_blocks page blocks context.
+	 * @param string $page_context page context.
 	 */
-	public function prepare_messages( $user_query, $context ) {
-		$messages = [];
+	public function prepare_messages( $user_query, $selected_blocks, $page_blocks, $page_context ) {
+		$user_query = '<user_query>' . $user_query . '</user_query>';
 
-		$messages[] = [
-			'role'    => 'system',
-			'content' => Mind_Prompts::get_system_prompt( $user_query, $context ),
-		];
-
-		// Optional blocks JSON context.
-		if ( $context ) {
-			$messages[] = [
-				'role'    => 'user',
-				'content' => '<context>' . $context . '</context>',
-			];
+		if ( $selected_blocks ) {
+			$user_query .= "\n";
+			$user_query .= '<selected_blocks_context>' . $selected_blocks . '</selected_blocks_context>';
+		}
+		if ( $page_blocks ) {
+			$user_query .= "\n";
+			$user_query .= '<page_blocks_context>' . $page_blocks . '</page_blocks_context>';
+		}
+		if ( $page_context ) {
+			$user_query .= "\n";
+			$user_query .= '<page_context>' . $page_context . '</page_context>';
 		}
 
-		// User Query.
-		$messages[] = [
-			'role'    => 'user',
-			'content' => '<user_query>' . $user_query . '</user_query>',
+		return [
+			[
+				'role'    => 'system',
+				'content' => Mind_Prompts::get_system_prompt(),
+			],
+			[
+				'role'    => 'user',
+				'content' => $user_query,
+			],
 		];
-
-		return $messages;
 	}
 
 	/**

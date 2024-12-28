@@ -1,15 +1,12 @@
 import cleanBlockJSON from '../clean-block-json';
 
-export default function getSelectedBlocksJSON(stringify) {
-	const { getBlock, getSelectedBlockClientIds } =
-		wp.data.select('core/block-editor');
+export default function getPageBlocksJSON(stringify) {
+	const { getBlocks } = wp.data.select('core/block-editor');
 
-	const ids = getSelectedBlockClientIds();
+	const allBlocks = getBlocks();
 	const blocksJSON = [];
 
-	ids.forEach((id) => {
-		const blockData = getBlock(id);
-
+	allBlocks.forEach((blockData) => {
 		if (blockData?.name && blockData?.attributes) {
 			blocksJSON.push(cleanBlockJSON(blockData));
 		}

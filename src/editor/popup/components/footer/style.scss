@@ -1,23 +1,85 @@
-$padding: 10px;
-
 .mind-popup-footer {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: $padding $padding * 2;
-	background-color: #f9f9f9;
-	border-top: 1px solid #e8e7e7;
+	padding: 20px;
+	padding-top: 0;
+
+	.mind-popup-content:has(iframe) + & {
+		padding-top: 20px;
+	}
+}
+.mind-popup-footer-context {
+	display: flex;
+	gap: 8px;
+	width: 100%;
+
+	> * {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		font-weight: 500;
+		border-radius: 5px;
+		padding: 5px 10px;
+		padding-right: 5px;
+		white-space: nowrap;
+		background: none;
+		cursor: pointer;
+		color: rgb(0, 0, 0, 40%);
+		border: 1px dashed rgba(0, 0, 0, 15%);
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			right: 23px;
+			bottom: 0;
+			border-right: 1px dashed rgba(0, 0, 0, 15%);
+		}
+
+		&:hover,
+		&:focus-visible {
+			color: rgb(0, 0, 0, 50%);
+			background: rgba(0, 0, 0, 3%);
+			border-color: rgba(0, 0, 0, 20%);
+		}
+
+		&.active {
+			color: #121212;
+			border-style: solid;
+
+			&::after {
+				border-right-style: solid;
+			}
+
+			svg {
+				transform: rotate(45deg);
+			}
+		}
+
+		&:disabled {
+			padding-right: 10px;
+			color: rgba(0, 0, 0, 20%);
+			border-color: rgba(0, 0, 0, 10%);
+			pointer-events: none;
+
+			&::after,
+			svg {
+				display: none;
+			}
+		}
+	}
 }
 .mind-popup-footer-actions {
 	display: flex;
-	margin: -5px -15px;
 	margin-left: auto;
 	gap: 5px;
 
 	button {
 		display: flex;
 		gap: 8px;
-		height: 28px;
+		height: 27px;
 		border-radius: 5px;
 		font-weight: 500;
 
@@ -32,9 +94,37 @@ $padding: 10px;
 			font-weight: 400;
 			border-radius: 3px;
 			padding: 3px 4px;
-			margin-right: -8px;
+			margin-right: -9px;
 			color: rgba(0, 0, 0, 50%);
 			background-color: rgba(0, 0, 0, 8%);
+		}
+
+		&.mind-popup-footer-actions-primary {
+			background-color: #000;
+			color: #fff;
+
+			&:hover,
+			&:focus-visible {
+				background-color: #212121;
+				color: #fff;
+			}
+
+			kbd {
+				color: #fff;
+				background-color: #535353;
+			}
+
+			&:disabled {
+				color: rgba(0, 0, 0, 20%);
+				border: 1px solid rgba(0, 0, 0, 7%);
+				pointer-events: none;
+				background-color: rgba(0, 0, 0, 2%);
+			}
+		}
+		&.mind-popup-footer-actions-icon {
+			width: 27px;
+			padding: 0;
+			justify-content: center;
 		}
 	}
 }

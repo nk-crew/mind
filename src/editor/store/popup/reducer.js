@@ -1,7 +1,7 @@
 const initialState = {
 	isOpen: false,
 	input: '',
-	context: '',
+	context: ['selected-blocks', 'page'],
 	insertionPlace: '',
 	screen: '',
 	loading: false,
@@ -26,10 +26,19 @@ function reducer(state = initialState, action = {}) {
 			break;
 		case 'OPEN':
 			if (!state.isOpen) {
-				return {
+				const newState = {
 					...state,
 					isOpen: true,
 				};
+
+				// Always set context to selected blocks when open popup.
+				// In case the blocks are not selected or a single empty paragraph,
+				// we will not send the context to the AI.
+				if (!newState.context.includes('selected-blocks')) {
+					newState.context = [...newState.context, 'selected-blocks'];
+				}
+
+				return newState;
 			}
 			break;
 		case 'TOGGLE':
