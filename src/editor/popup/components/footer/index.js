@@ -44,7 +44,7 @@ export default function Input(props) {
 		},
 		hasNonEmptySelectedBlocks()
 			? {
-					name: __('Selected Blocks', 'mind'),
+					name: __('Blocks', 'mind'),
 					tooltip: __('Provide selected blocks context', 'mind'),
 					value: 'selected-blocks',
 			  }
