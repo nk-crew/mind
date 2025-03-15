@@ -88,7 +88,7 @@ class Mind_AI_API {
 				}
 			} elseif ( ! empty( $settings['anthropic_api_key'] ) ) {
 				$result = [
-					'name' => 'claude-3-5-haiku' === $ai_model ? 'claude-3-5-haiku' : 'claude-3-5-sonnet',
+					'name' => 'claude-3-5-haiku' === $ai_model ? 'claude-3-5-haiku' : 'claude-3-7-sonnet',
 					'key'  => $settings['anthropic_api_key'],
 				];
 			}
@@ -229,7 +229,7 @@ class Mind_AI_API {
 		if ( 'claude-3-5-haiku' === $model['name'] ) {
 			$model_name = 'claude-3-5-haiku-20241022';
 		} else {
-			$model_name = 'claude-3-5-sonnet-20241022';
+			$model_name = 'claude-3-7-sonnet-20250219';
 		}
 
 		$body = [

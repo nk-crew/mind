@@ -26,8 +26,8 @@ import { ReactComponent as LoadingIcon } from '../../icons/loading.svg';
 
 const models = [
 	{
-		title: __('Claude 3.5 Sonnet', 'mind'),
-		name: 'claude-3-5-sonnet',
+		title: __('Claude 3.7 Sonnet', 'mind'),
+		name: 'claude-3-7-sonnet',
 		description: __('Best quality and recommended', 'mind'),
 	},
 	{
