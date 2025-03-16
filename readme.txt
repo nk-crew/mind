@@ -121,9 +121,9 @@ Mind is developed for the WordPress page builder - Gutenberg. Currently we don't
 
 == Screenshots ==
 
-1. Paragraph toolbar button
-2. Popup for AI request
-3. Summarization request
+1. Ask AI to enhance section with blocks
+2. Result of enhanced section
+3. Paragraph toolbar button
 
 == Changelog ==
 
