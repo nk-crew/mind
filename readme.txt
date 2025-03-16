@@ -153,9 +153,10 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 
 == Screenshots ==
 
-1. Ask AI to enhance section with blocks
-2. Result of enhanced section
-3. Paragraph toolbar button
+1. Example of block section enhancement with simple request
+2. Ask AI to enhance section with blocks
+3. Result of enhanced section
+4. Paragraph toolbar button
 
 == Changelog ==
 
