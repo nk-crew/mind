@@ -1,4 +1,6 @@
 .mind-popup-response {
+	position: relative;
+
 	/* GPU acceleration */
 	transform: translateZ(0);
 	will-change: transform;
@@ -6,15 +8,29 @@
 	/* Optimize repaints */
 	contain: content;
 
-	/* Smooth typing cursor */
-	.mind-popup-cursor {
-		display: inline-block;
-		width: 1.5px;
-		height: 1em;
-		background: currentColor;
-		margin-left: 2px;
-		animation: mind-cursor-blink 1s step-end infinite;
+	.block-editor-block-preview__content,
+	.block-editor-block-preview__content iframe {
+		max-height: none !important;
 	}
+}
+
+.mind-popup-response__preview {
+	/* GPU acceleration */
+	will-change: opacity;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	z-index: 2;
+}
+
+// Hidden preview styles.
+.mind-popup-response--1 .mind-popup-response__preview:nth-child(2),
+.mind-popup-response--2 .mind-popup-response__preview:nth-child(1), {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	opacity: 0;
+	z-index: 1;
 }
 
 @keyframes mind-cursor-blink {

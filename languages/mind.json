@@ -8,7 +8,7 @@
          "AI Mind": [
             ""
          ],
-         "Content Assistant Plugin based on OpenAI. Write, improve, rewrite, rephrase, change the tone of your blog posts, and more.": [
+         "AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.": [
             ""
          ],
          "Mind Team": [
@@ -29,31 +29,64 @@
          "Discussions": [
             ""
          ],
+         "Provide request to receive AI response.": [
+            ""
+         ],
+         "Select an AI model and provide API key in the plugin settings.": [
+            ""
+         ],
          "User don't have permissions to change options.": [
             ""
          ],
          "You don't have permissions to request Mind API.": [
             ""
          ],
-         "Provide OpenAI key in the plugin settings.": [
+         "Claude 3.5 Sonnet": [
             ""
          ],
-         "Provide request to receive AI response.": [
+         "Best quality and recommended": [
             ""
          ],
-         "OpenAI API Key": [
+         "Claude 3.5 Haiku": [
             ""
          ],
-         "This setting is required, since our plugin works with OpenAI.": [
+         "Fast and accurate": [
             ""
          ],
-         "Create API key": [
+         "GPT-4o": [
+            ""
+         ],
+         "Quick and reliable": [
+            ""
+         ],
+         "GPT-4o mini": [
+            ""
+         ],
+         "Basic and fastest": [
+            ""
+         ],
+         "Model": [
+            ""
+         ],
+         "Anthropic API Key": [
             ""
          ],
          "Enter API key": [
             ""
          ],
          "Please enter a valid API key": [
+            ""
+         ],
+         "This setting is required to use Anthropic models.": [
+            ""
+         ],
+         "Create API key": [
+            ""
+         ],
+         "OpenAI API Key": [
+            ""
+         ],
+         "This setting is required to use OpenAI models.": [
             ""
          ],
          "Save Changes": [
@@ -65,13 +98,13 @@
          "I am an AI assistant designed to help you in writing content for your blog": [
             ""
          ],
-         "To get started, <em>open the page editor</em> and click on the <em>\"Open Mind\"</em> button in the toolbar": [
+         "To get started, <em>open the page editor</em> and click on the <br /><span class=\"mind-inline-logo\">Open Mind</span> button in the toolbar": [
             ""
          ],
-         "To get started, enter your": [
+         "To get started,": [
             ""
          ],
-         "OpenAI API key →": [
+         "select the model and API key →": [
             ""
          ],
          "Something went wrong, please, try again…": [
@@ -203,6 +236,9 @@
          "🇻🇳 Vietnamese": [
             ""
          ],
+         "Ask AI": [
+            ""
+         ],
          "Improve writing language": [
             ""
          ],
@@ -245,52 +281,25 @@
          "Translate to %s": [
             ""
          ],
-         "Post Presets": [
+         "Page": [
             ""
          ],
-         "Post title about…": [
+         "Provide page context": [
             ""
          ],
-         "Write a post title about ": [
+         "Blocks": [
             ""
          ],
-         "Post about…": [
+         "Provide selected blocks context": [
             ""
          ],
-         "Write a blog post about ": [
-            ""
-         ],
-         "Outline about…": [
-            ""
-         ],
-         "Write a blog post outline about ": [
-            ""
-         ],
-         "Content Presets": [
-            ""
-         ],
-         "Paragraph about…": [
-            ""
-         ],
-         "Create a paragraph about ": [
-            ""
-         ],
-         "List about…": [
-            ""
-         ],
-         "Create a list about ": [
-            ""
-         ],
-         "Table about…": [
-            ""
-         ],
-         "Create a table about ": [
-            ""
-         ],
-         "Writing": [
+         "Ask AI and get answer": [
             ""
          ],
          "Get Answer": [
+            ""
+         ],
+         "Loading": [
             ""
          ],
          "Regenerate": [
@@ -302,19 +311,22 @@
          "Insert": [
             ""
          ],
-         "Ask AI to write anything…": [
+         "Replace Selected Blocks": [
             ""
          ],
-         "OpenAI Key": [
+         "Ask AI to build or change blocks…": [
             ""
          ],
-         "In order to use Mind, you will need to provide your OpenAI API key. Please insert your API key in the plugin settings to get started.": [
+         "AI API Key": [
+            ""
+         ],
+         "In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started.": [
             ""
          ],
          "Go to Settings": [
             ""
          ],
-         "Failed to parse stream data": [
+         "Not connected": [
             ""
          ],
          "Failed to fetch AI response": [

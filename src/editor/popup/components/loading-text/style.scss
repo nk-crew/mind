@@ -1,6 +1,9 @@
 .mind-popup-loading-text::after {
 	content: "...";
-	animation: mind-popup-loading-text 2s infinite;
+	display: inline-block;
+	text-align: left;
+	min-width: 13px;
+	animation: mind-popup-loading-text 1s infinite;
 }
 
 @keyframes mind-popup-loading-text {

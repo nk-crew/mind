@@ -1,3 +1,6 @@
+import { isEqual } from 'lodash';
+import clsx from 'clsx';
+
 /**
  * Styles
  */
@@ -6,63 +9,110 @@ import './style.scss';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, RawHTML, memo } from '@wordpress/element';
+import { memo, useState, useEffect, useRef } from '@wordpress/element';
+import { BlockPreview } from '@wordpress/block-editor';
+
+function RenderPreview({ response }) {
+	return (
+		<div className="mind-popup-response__preview">
+			<BlockPreview
+				// Since the preview does not render properly first block align full, we need to create the wrapper Group block with our custom styles.
+				// Align classes rendered properly only for the inner blocks.
+				blocks={[
+					{
+						name: 'core/group',
+						clientId: 'a9b75f7e-55c7-4f2b-93bb-00cf24181278',
+						isValid: true,
+						attributes: {
+							align: 'full',
+							layout: {
+								type: 'constrained',
+							},
+							className: 'alignfull',
+						},
+						innerBlocks: response,
+					},
+				]}
+				viewportWidth={0}
+				additionalStyles={[
+					{
+						css: `
+							.is-root-container > div {
+								margin-top: 0;
+							}
+						`,
+					},
+				]}
+			/>
+		</div>
+	);
+}
 
 const AIResponse = memo(
 	function AIResponse({ response, loading }) {
-		const responseRef = useRef();
+		const [activePreview, setActivePreview] = useState(1);
+		const [preview1Data, setPreview1Data] = useState([]);
+		const [preview2Data, setPreview2Data] = useState([]);
+		const transitionTimeoutRef = useRef(null);
 
+		// This implementation make me cry, but it works for now.
+		// In short, when we have a single preview and update the response,
+		// it rerenders and we see a blink. To avoid this, we have two previews
+		// and we switch between them on each update.
 		useEffect(() => {
-			if (!responseRef.current) {
+			if (!response.length) {
 				return;
 			}
 
-			const popupContent = responseRef.current.closest(
-				'.mind-popup-content'
-			);
-
-			if (!popupContent) {
-				return;
+			// Clear any existing timeout
+			if (transitionTimeoutRef.current) {
+				clearTimeout(transitionTimeoutRef.current);
 			}
 
-			// Smooth scroll to bottom of response.
-			const { scrollHeight, clientHeight } = popupContent;
-
-			// Only auto-scroll for shorter contents.
-			const shouldScroll = scrollHeight - clientHeight < 1000;
-
-			if (shouldScroll) {
-				popupContent.scrollTo({
-					top: scrollHeight,
-					behavior: 'smooth',
-				});
+			// Update the inactive preview with new data
+			if (activePreview === 1) {
+				setPreview2Data(response);
+			} else {
+				setPreview1Data(response);
 			}
+
+			// Wait for the next frame to start transition.
+			// Small delay to ensure new content is rendered.
+			transitionTimeoutRef.current = setTimeout(() => {
+				setActivePreview(activePreview === 1 ? 2 : 1);
+			}, 50);
+
+			return () => {
+				if (transitionTimeoutRef.current) {
+					clearTimeout(transitionTimeoutRef.current);
+				}
+			};
 		}, [response]);
 
-		if (!response && !loading) {
+		if (!response.length && !loading) {
 			return null;
 		}
 
 		return (
 			<div
-				ref={responseRef}
-				className="mind-popup-response"
-				style={{
-					opacity: loading ? 0.85 : 1,
-				}}
+				className={clsx(
+					'mind-popup-response',
+					`mind-popup-response--${activePreview}`
+				)}
 			>
-				<RawHTML>{response}</RawHTML>
-				{loading && <div className="mind-popup-cursor" />}
+				{(preview1Data.length > 0 || preview2Data.length > 0) && (
+					<>
+						<RenderPreview response={preview1Data} />
+						<RenderPreview response={preview2Data} />
+					</>
+				)}
 			</div>
 		);
 	},
 	(prevProps, nextProps) => {
-		// Custom memoization to prevent unnecessary rerenders.
 		return (
-			prevProps.renderBuffer.lastUpdate ===
-				nextProps.renderBuffer.lastUpdate &&
-			prevProps.loading === nextProps.loading &&
-			prevProps.progress.isComplete === nextProps.progress.isComplete
+			isEqual(prevProps.response, nextProps.response) &&
+			prevProps.loading === nextProps.loading
 		);
 	}
 );

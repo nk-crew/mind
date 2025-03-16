@@ -11,15 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
  */
 import EditorStyles from '../../components/editor-styles';
 
-const HIGHLIGHT_BLOCKS = [
-	'core/paragraph',
-	'core/list',
-	'core/code',
-	'core/preformatted',
-	'core/quote',
-	'core/blockquote',
-];
-
 /**
  * Add new blocks highlight to see what exactly added by the AI.
  *
@@ -30,7 +21,7 @@ const HIGHLIGHT_BLOCKS = [
 const withMindAIEditorStyles = createHigherOrderComponent(
 	(OriginalComponent) => {
 		function MindHighlightInsertedBlocks(props) {
-			const { name, clientId } = props;
+			const { clientId } = props;
 
 			const [animateOpacity, setAnimateOpacity] = useState(false);
 
@@ -45,7 +36,6 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 			});
 
 			const allowHighlight =
-				HIGHLIGHT_BLOCKS.includes(name) &&
 				highlightBlocks &&
 				highlightBlocks.length &&
 				highlightBlocks.includes(clientId);
@@ -62,8 +52,8 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 					setTimeout(() => {
 						setAnimateOpacity(false);
 						removeHighlightBlocks([clientId]);
-					}, 3000);
-				}, 3000);
+					}, 1200);
+				}, 200);
 			}, [allowHighlight, clientId, removeHighlightBlocks]);
 
 			// Skip this block as not needed to highlight.
@@ -77,16 +67,14 @@ const withMindAIEditorStyles = createHigherOrderComponent(
 					<EditorStyles
 						styles={`
 							[data-block="${clientId}"] {
-								background-color: rgba(228, 85, 223, 0.1);
-								box-shadow: 0 0 0 0.75rem rgba(228, 85, 223, 0.1);
-								${animateOpacity ? 'transition: 3s background-color, 3s box-shadow;' : ''}
+								filter: blur(15px);
+								${animateOpacity ? 'transition: 0.5s filter;' : ''}
 							}
 							${
 								animateOpacity
 									? `
 										[data-block="${clientId}"] {
-											background-color: rgba(228, 85, 223, 0);
-											box-shadow: 0 0 0 0.75rem rgba(228, 85, 223, 0);
+											filter: blur(0px);
 										}
 									`
 									: ''

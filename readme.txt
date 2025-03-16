@@ -1,6 +1,6 @@
-=== Mind - AI Content Assistant ===
+=== Mind - AI Page Builder ===
 Contributors:      nko
-Tags:              ai, openai, gpt, copywriting, assistant
+Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 6.2
 Tested up to:      6.7
 Requires PHP:      7.2
@@ -8,11 +8,20 @@ Stable tag:        0.2.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-AI content assistant and enhancer for WordPress page builder.
+AI-powered page builder for WordPress that creates complete sections, redesigns existing blocks, and builds entire pages with natural language prompts.
 
 == Description ==
 
-Mind is a WordPress plugin designed to assist content editors in writing and improving posts. Powered by the OpenAI API, Mind offers a range of features to enhance the content creation process.
+Mind is a WordPress plugin that transforms your page building experience. Powered by AI technology, it helps you create and modify entire page sections, layouts, and content directly in the WordPress editor. With support for both Anthropic and OpenAI AI models, Mind seamlessly integrates with the WordPress block editor to enhance your page building workflow.
+
+=== 🏗️ Complete Page Building Solution ===
+
+Mind is not just an AI writing assistant - it's a full-featured page builder that allows you to:
+
+- Create entire page layouts with a simple text prompt
+- Design custom sections with specific styles and content
+- Modify and improve existing page sections
+- Build complex page structures without coding knowledge
 
 === 🚀 Community-Driven Development ===
 
@@ -74,26 +83,41 @@ Mind supports translation into multiple languages. It enables you to reach a wid
 
 === ⚙️ Features ===
 
-There are a couple of places, which implemented in Mind to help writing content:
+There are multiple ways to use Mind in your WordPress site:
 
-- Mind Popup - open the popup to write a blog post content or send a specific request to AI
-- Paragraph Enhancer - select existing paragraphs and enhance it using Toolbar Mind button
-- Press `space` in the empty paragraph to instantly open the Mind Popup and make a request
+- **Mind Popup** - Open the popup to talk with AI to write blog post content, create page sections, etc...
+- **Page Section Builder** - Generate complete page sections with custom layouts and content
+- **Block Enhancement** - Select existing blocks and enhance them using the Toolbar Mind button
+- **Quick Access** - Press `space` in an empty paragraph to instantly open the Mind Popup and make a request
+- **Whole Page Creation** - Generate entire pages based on your requirements with a single prompt
 
 === Other ===
 
-With its comprehensive set of features, Mind empowers content editors to write high-quality and engaging posts, while saving time and effort in the content creation process.
+With its comprehensive set of features, Mind empowers content creators to build high-quality pages and engaging posts, while saving time and effort in the content creation process.
 
 p.s. this plugin description is created using Mind and OpenAI API.
 
-=== OpenAI ===
+=== OpenAI and Anthropic ===
 
-The AI Mind plugin utilizes [OpenAI](https://platform.openai.com/) API without collecting any personal information. Data transmitted to OpenAI servers includes post content and specified context.
+The Mind plugin utilizes both [OpenAI](https://platform.openai.com/) and [Anthropic](https://www.anthropic.com/) APIs without collecting any personal information. Data transmitted to these AI providers' servers includes post content and specified context needed to generate responses.
 
-For the AI Mind plugin to function correctly, you need an API key from OpenAI. Sign up at <https://platform.openai.com/account/api-keys> to obtain the key.
+For the Mind plugin to function correctly, you need an API key from either OpenAI or Anthropic:
+- Sign up at <https://platform.openai.com/account/api-keys> to obtain an OpenAI API key
+- Sign up at <https://console.anthropic.com/> to obtain an Anthropic API key
 
-Please make sure to review their [Privacy Policy](https://openai.com/policies/privacy-policy), as well as their [Terms of Use](https://openai.com/policies/terms-of-use) for more information.
+Both services have their own data handling policies:
 
+**OpenAI Data Usage:**
+- Data sent to OpenAI may be used to improve their models
+- You can opt out of having your data used for training in your OpenAI account settings
+- Please review their [Privacy Policy](https://openai.com/policies/privacy-policy) and [Terms of Use](https://openai.com/policies/terms-of-use) for more information
+
+**Anthropic Data Usage:**
+- Anthropic has similar data retention policies for service improvement
+- They offer data handling options for enterprise customers
+- Please review their [Privacy Policy](https://www.anthropic.com/privacy) and [Terms of Service](https://www.anthropic.com/terms) for more information
+
+Your choice of AI provider can be configured in the plugin settings.
 
 == Installation ==
 
@@ -119,11 +143,19 @@ There is no documentation available yet, but in the future it will be placed her
 
 Mind is developed for the WordPress page builder - Gutenberg. Currently we don't have support for 3rd-party builders.
 
+= Can I create entire page layouts with Mind? =
+
+Yes! Mind can now generate complete page layouts and sections based on your text prompts. Simply describe what you want, and the AI will create responsive sections that fit your needs.
+
+= How do I improve existing page sections? =
+
+Select the section you want to enhance, click the Mind button in the toolbar, and describe how you'd like to improve it. Mind will intelligently modify the selected section while maintaining its structure.
+
 == Screenshots ==
 
-1. Paragraph toolbar button
-2. Popup for AI request
-3. Summarization request
+1. Ask AI to enhance section with blocks
+2. Result of enhanced section
+3. Paragraph toolbar button
 
 == Changelog ==
 

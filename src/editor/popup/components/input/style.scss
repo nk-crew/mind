@@ -2,9 +2,9 @@ $padding: 10px;
 
 .mind-popup-input {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	margin-bottom: 0;
-	border-bottom: 1px solid #e8e7e7;
 
 	> svg {
 		position: absolute;
@@ -32,15 +32,5 @@ $padding: 10px;
 		&::placeholder {
 			color: #a3a3a3;
 		}
-	}
-
-	.mind-popup-input-context {
-		font-weight: 400;
-		border-radius: 3px;
-		padding: 3px 10px;
-		margin-right: 10px;
-		color: rgb(0, 0, 0, 60%);
-		background-color: rgba(0, 0, 0, 8%);
-		white-space: nowrap;
 	}
 }

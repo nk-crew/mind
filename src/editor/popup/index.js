@@ -6,10 +6,9 @@ import './style.scss';
 /**
  * WordPress dependencies
  */
-import { createRoot } from '@wordpress/element';
+import { createRoot, useEffect, useState, useRef } from '@wordpress/element';
 import { Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { rawHandler } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
 import clsx from 'clsx';
 
@@ -27,6 +26,10 @@ const POPUP_CONTAINER_CLASS = 'mind-popup-container';
 export default function Popup() {
 	const { setHighlightBlocks } = useDispatch('mind/blocks');
 	const { close, reset } = useDispatch('mind/popup');
+
+	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [fullScreenTransitionStyles, setFullScreenTransitionStyles] =
+		useState(null);
 
 	const { connected, isOpen, insertionPlace, loading, response } = useSelect(
 		(select) => {
@@ -58,20 +61,58 @@ export default function Popup() {
 		};
 	}, []);
 
-	const { insertBlocks, replaceBlocks } = useDispatch('core/block-editor');
+	// Change modal size with transition.
+	const modalRef = useRef();
+	useEffect(() => {
+		if (!isOpen || !modalRef.current) {
+			return;
+		}
 
-	function insertResponse() {
-		const parsedBlocks = rawHandler({ HTML: response });
+		const allowTransition =
+			// Set fullscreen true.
+			((loading || response?.length) &&
+				!isFullscreen &&
+				!fullScreenTransitionStyles) ||
+			// Set fullscreen false.
+			(!(loading || response?.length) &&
+				isFullscreen &&
+				!fullScreenTransitionStyles);
 
-		if (parsedBlocks.length) {
-			if (insertionPlace === 'selected-blocks') {
-				replaceBlocks(selectedClientIds, parsedBlocks);
+		if (!allowTransition) {
+			return;
+		}
+
+		const { height } = modalRef.current.children[0].getBoundingClientRect();
+
+		setFullScreenTransitionStyles({
+			height: `${height}px`,
+		});
+
+		setTimeout(() => {
+			setFullScreenTransitionStyles(null);
+			setIsFullscreen(!isFullscreen);
+		}, 10);
+	}, [isFullscreen, loading, response, isOpen, fullScreenTransitionStyles]);
+
+	const { insertBlocks: wpInsertBlocks, replaceBlocks } =
+		useDispatch('core/block-editor');
+
+	function insertBlocks(customPlace) {
+		if (response.length) {
+			if (customPlace && customPlace === 'insert') {
+				wpInsertBlocks(response);
+			} else if (
+				insertionPlace === 'selected-blocks' &&
+				selectedClientIds &&
+				selectedClientIds.length
+			) {
+				replaceBlocks(selectedClientIds, response);
 			} else {
-				insertBlocks(parsedBlocks);
+				wpInsertBlocks(response);
 			}
 
 			setHighlightBlocks(
-				parsedBlocks.map((data) => {
+				response.map((data) => {
 					return data.clientId;
 				})
 			);
@@ -79,10 +120,11 @@ export default function Popup() {
 	}
 
 	function onInsert() {
-		insertResponse();
+		insertBlocks();
 
 		reset();
 		close();
+		setIsFullscreen(false);
 	}
 
 	if (!isOpen) {
@@ -91,6 +133,7 @@ export default function Popup() {
 
 	return (
 		<Modal
+			ref={modalRef}
 			title={false}
 			className={clsx(
 				'mind-popup',
@@ -100,12 +143,15 @@ export default function Popup() {
 			onRequestClose={() => {
 				reset();
 				close();
+				setIsFullscreen(false);
 			}}
+			isFullScreen={isFullscreen}
+			style={fullScreenTransitionStyles}
 			__experimentalHideHeader
 		>
 			{connected ? (
 				<>
-					<Input onInsert={onInsert} />
+					<Input onInsert={onInsert} isFullscreen={isFullscreen} />
 					{loading && <LoadingLine />}
 					<Content />
 					<Footer onInsert={onInsert} />

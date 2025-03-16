@@ -27,12 +27,12 @@ export default function NotConnectedScreen() {
 		<div className="mind-popup-connected-screen">
 			<h2>
 				<KeyIcon />
-				{__('OpenAI Key', 'mind')}
+				{__('AI API Key', 'mind')}
 			</h2>
 			<div>
 				<p>
 					{__(
-						'In order to use Mind, you will need to provide your OpenAI API key. Please insert your API key in the plugin settings to get started.',
+						'In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started.',
 						'mind'
 					)}
 				</p>
@@ -41,6 +41,8 @@ export default function NotConnectedScreen() {
 				<a
 					className="mind-popup-connected-screen-button"
 					href={settingsPageURL}
+					target="_blank"
+					rel="noreferrer"
 				>
 					{__('Go to Settings', 'mind')}
 				</a>

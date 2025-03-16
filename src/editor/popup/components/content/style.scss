@@ -1,17 +1,23 @@
 $padding: 10px;
 
 .mind-popup-content {
+	// Flex to automatically scroll to the bottom.
+	display: flex;
+	flex-direction: column-reverse;
 	overflow: auto;
 	flex: 1;
 	padding: $padding $padding * 2;
 
 	&:empty,
-	&:has(.mind-popup-request:empty) {
+	&:has(.mind-popup-request:empty),
+	&:has(.mind-popup-request iframe) {
 		padding: 0;
 		margin-bottom: -1px;
 	}
 
 	.mind-popup-request {
+		margin-bottom: auto;
+
 		ol,
 		ul {
 			list-style: auto;

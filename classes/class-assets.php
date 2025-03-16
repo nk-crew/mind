@@ -46,9 +46,8 @@ class Mind_Assets {
 	 * Enqueue editor assets
 	 */
 	public function enqueue_block_editor_assets() {
-		$settings = get_option( 'mind_settings', array() );
+		$connected_model = Mind_AI_API::instance()->get_connected_model();
 
-		$openai_key = $settings['openai_api_key'] ?? '';
 		$asset_data = $this->get_asset_file( 'build/editor' );
 
 		wp_enqueue_script(
@@ -63,7 +62,7 @@ class Mind_Assets {
 			'mind-editor',
 			'mindData',
 			[
-				'connected'       => ! ! $openai_key,
+				'connected'       => ! ! $connected_model,
 				'settingsPageURL' => admin_url( 'admin.php?page=mind&sub_page=settings' ),
 			]
 		);

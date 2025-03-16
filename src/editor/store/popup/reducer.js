@@ -1,9 +1,7 @@
-import mdToHtml from '../../../utils/md-to-html';
-
 const initialState = {
 	isOpen: false,
 	input: '',
-	context: '',
+	context: ['selected-blocks', 'page'],
 	insertionPlace: '',
 	screen: '',
 	loading: false,
@@ -14,14 +12,7 @@ const initialState = {
 		queueSize: 0,
 		isComplete: false,
 	},
-	renderBuffer: {
-		content: '',
-		lastUpdate: 0,
-	},
 };
-
-// throttle in ms.
-const RENDER_THROTTLE = 50;
 
 function reducer(state = initialState, action = {}) {
 	switch (action.type) {
@@ -35,10 +26,19 @@ function reducer(state = initialState, action = {}) {
 			break;
 		case 'OPEN':
 			if (!state.isOpen) {
-				return {
+				const newState = {
 					...state,
 					isOpen: true,
 				};
+
+				// Always set context to selected blocks when open popup.
+				// In case the blocks are not selected or a single empty paragraph,
+				// we will not send the context to the AI.
+				if (!newState.context.includes('selected-blocks')) {
+					newState.context = [...newState.context, 'selected-blocks'];
+				}
+
+				return newState;
 			}
 			break;
 		case 'TOGGLE':
@@ -107,66 +107,37 @@ function reducer(state = initialState, action = {}) {
 				...state,
 				isOpen: true,
 				loading: true,
-				response: '',
+				response: [],
 				error: null,
 				screen: 'request',
 				progress: initialState.progress,
-				renderBuffer: initialState.renderBuffer,
 			};
 		case 'REQUEST_AI_CHUNK':
-			const now = Date.now();
-			const shouldUpdate =
-				now - state.renderBuffer.lastUpdate >= RENDER_THROTTLE;
-
-			if (!shouldUpdate) {
-				return {
-					...state,
-					renderBuffer: {
-						content: action.payload.content,
-						lastUpdate: state.renderBuffer.lastUpdate,
-					},
-				};
-			}
-
 			return {
 				...state,
 				loading: true,
-				response: action.payload.content
-					? mdToHtml(action.payload.content)
-					: false,
+				response: action.payload.response,
 				progress: action.payload.progress,
-				renderBuffer: {
-					content: action.payload.content,
-					lastUpdate: now,
-				},
 			};
 		case 'REQUEST_AI_SUCCESS':
 			return {
 				...state,
 				loading: false,
-				response: action.payload.content
-					? mdToHtml(action.payload.content)
-					: false,
+				response: action.payload.response,
 				progress: { ...action.payload.progress, isComplete: true },
-				renderBuffer: {
-					content: action.payload.content,
-					lastUpdate: Date.now(),
-				},
 			};
 		case 'REQUEST_AI_ERROR':
 			return {
 				...state,
 				loading: false,
-				response: false,
+				response: [],
 				error: action.payload || '',
 				progress: initialState.progress,
-				renderBuffer: initialState.renderBuffer,
 			};
 		case 'RESET':
 			return {
 				...state,
 				input: '',
-				context: '',
 				insertionPlace: '',
 				screen: '',
 				response: false,

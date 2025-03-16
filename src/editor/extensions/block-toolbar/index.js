@@ -13,7 +13,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import {
-	ToolbarGroup,
+	ToolbarDropdownMenu,
 	DropdownMenu,
 	MenuGroup,
 	MenuItem,
@@ -27,14 +27,13 @@ import { ReactComponent as AIImproveIcon } from '../../../icons/ai-improve.svg';
 import { ReactComponent as AIFixSpellingIcon } from '../../../icons/ai-fix-spelling.svg';
 import { ReactComponent as AIShorterIcon } from '../../../icons/ai-shorter.svg';
 import { ReactComponent as AILongerIcon } from '../../../icons/ai-longer.svg';
+import { ReactComponent as AIMessage } from '../../../icons/ai-message.svg';
 import { ReactComponent as AISummarizeIcon } from '../../../icons/ai-summarize.svg';
 import { ReactComponent as AIToneIcon } from '../../../icons/ai-tone.svg';
 import { ReactComponent as AIParaphraseIcon } from '../../../icons/ai-paraphrase.svg';
 import { ReactComponent as AITranslateIcon } from '../../../icons/ai-translate.svg';
 import { ReactComponent as MindLogoIcon } from '../../../icons/mind-logo.svg';
 import wrapEmoji from '../../../utils/wrap-emoji';
-
-const ALLOWED_BLOCKS = ['core/paragraph', 'core/heading'];
 
 const TONE = [
 	[__('professional', 'mind'), __('🧐 Professional', 'mind')],
@@ -63,220 +62,209 @@ const LANGUAGE = [
 	[__('vietnamese', 'mind'), __('🇻🇳 Vietnamese', 'mind')],
 ];
 
-/**
- * Check if Mind allowed in block toolbar.
- *
- * @param {Object} data - block data.
- * @return {boolean} allowed.
- */
-function isToolbarAllowed(data) {
-	return ALLOWED_BLOCKS.includes(data.name);
-}
-
 function Toolbar() {
-	const { open, setInput, setContext, setInsertionPlace, requestAI } =
+	const { open, setInput, setInsertionPlace, requestAI } =
 		useDispatch('mind/popup');
 
 	function openModal(prompt) {
 		open();
 		setInput(prompt);
-		setContext('selected-blocks');
 		setInsertionPlace('selected-blocks');
-		requestAI();
+
+		if (prompt) {
+			requestAI();
+		}
 	}
 
 	return (
-		<ToolbarGroup>
-			<DropdownMenu
-				icon={<MindLogoIcon />}
-				label={__('Mind', '@@text_domain')}
-				className="mind-toolbar-toggle"
-				popoverProps={{ className: 'mind-toolbar-dropdown' }}
-			>
-				{() => {
-					return (
-						<>
-							<MenuGroup>
-								<MenuItem
-									icon={<AIImproveIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(
-											__(
-												'Improve writing language',
-												'mind'
-											)
-										);
-									}}
-								>
-									{__('Improve', 'mind')}
-								</MenuItem>
-								<MenuItem
-									icon={<AIFixSpellingIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(
-											__(
-												'Fix spelling and grammar',
-												'mind'
-											)
-										);
-									}}
-								>
-									{__('Fix Spelling & Grammar', 'mind')}
-								</MenuItem>
-								<MenuItem
-									icon={<AIShorterIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(__('Make shorter', 'mind'));
-									}}
-								>
-									{__('Make Shorter', 'mind')}
-								</MenuItem>
-								<MenuItem
-									icon={<AILongerIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(__('Make longer', 'mind'));
-									}}
-								>
-									{__('Make Longer', 'mind')}
-								</MenuItem>
-								<MenuItem
-									icon={<AISummarizeIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(__('Summarize', 'mind'));
-									}}
-								>
-									{__('Summarize', 'mind')}
-								</MenuItem>
-								<MenuItem
-									icon={<AIParaphraseIcon />}
-									iconPosition="left"
-									onClick={() => {
-										openModal(__('Paraphrase', 'mind'));
-									}}
-								>
-									{__('Paraphrase', 'mind')}
-								</MenuItem>
-							</MenuGroup>
-							<MenuGroup>
-								<DropdownMenu
-									icon={<AIToneIcon />}
-									iconPosition="left"
-									toggleProps={{
-										children: (
-											<>
-												{__('Adjust Tone', 'mind')}
-												<ArrowRightIcon />
-											</>
-										),
-									}}
-									popoverProps={{
-										placement: 'right-end',
-										className: 'mind-toolbar-dropdown',
-									}}
-									className="mind-toolbar-dropdown-toggle"
-								>
-									{() => {
-										return (
-											<>
-												<MenuGroup
-													label={__(
-														'Select Tone',
-														'@@text_domain'
-													)}
-												>
-													{TONE.map((data) => (
-														<MenuItem
-															key={data[0]}
-															onClick={() => {
-																openModal(
-																	sprintf(
-																		// translators: %s - tone.
-																		__(
-																			'Change tone to %s',
-																			'mind'
-																		),
-																		data[0]
-																	)
-																);
-															}}
-														>
-															<RawHTML>
-																{wrapEmoji(
-																	data[1]
-																)}
-															</RawHTML>
-														</MenuItem>
-													))}
-												</MenuGroup>
-											</>
-										);
-									}}
-								</DropdownMenu>
-								<DropdownMenu
-									icon={<AITranslateIcon />}
-									iconPosition="left"
-									toggleProps={{
-										children: (
-											<>
-												{__('Translate', 'mind')}
-												<ArrowRightIcon />
-											</>
-										),
-									}}
-									popoverProps={{
-										placement: 'right-end',
-										className: 'mind-toolbar-dropdown',
-									}}
-									className="mind-toolbar-dropdown-toggle"
-								>
-									{() => {
-										return (
-											<>
-												<MenuGroup
-													label={__(
-														'Select Language',
-														'@@text_domain'
-													)}
-												>
-													{LANGUAGE.map((data) => (
-														<MenuItem
-															key={data[0]}
-															onClick={() => {
-																openModal(
-																	sprintf(
-																		// translators: %s - tone.
-																		__(
-																			'Translate to %s',
-																			'mind'
-																		),
-																		data[0]
-																	)
-																);
-															}}
-														>
-															<RawHTML>
-																{wrapEmoji(
-																	data[1]
-																)}
-															</RawHTML>
-														</MenuItem>
-													))}
-												</MenuGroup>
-											</>
-										);
-									}}
-								</DropdownMenu>
-							</MenuGroup>
-						</>
-					);
-				}}
-			</DropdownMenu>
-		</ToolbarGroup>
+		<ToolbarDropdownMenu
+			icon={<MindLogoIcon />}
+			label={__('Mind', '@@text_domain')}
+			className="mind-toolbar-toggle"
+			popoverProps={{ className: 'mind-toolbar-dropdown' }}
+		>
+			{() => {
+				return (
+					<>
+						<MenuGroup>
+							<MenuItem
+								icon={<AIMessage />}
+								iconPosition="left"
+								onClick={() => {
+									openModal();
+								}}
+							>
+								{__('Ask AI', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AIImproveIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(
+										__('Improve writing language', 'mind')
+									);
+								}}
+							>
+								{__('Improve', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AIFixSpellingIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(
+										__('Fix spelling and grammar', 'mind')
+									);
+								}}
+							>
+								{__('Fix Spelling & Grammar', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AIShorterIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(__('Make shorter', 'mind'));
+								}}
+							>
+								{__('Make Shorter', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AILongerIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(__('Make longer', 'mind'));
+								}}
+							>
+								{__('Make Longer', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AISummarizeIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(__('Summarize', 'mind'));
+								}}
+							>
+								{__('Summarize', 'mind')}
+							</MenuItem>
+							<MenuItem
+								icon={<AIParaphraseIcon />}
+								iconPosition="left"
+								onClick={() => {
+									openModal(__('Paraphrase', 'mind'));
+								}}
+							>
+								{__('Paraphrase', 'mind')}
+							</MenuItem>
+						</MenuGroup>
+						<MenuGroup>
+							<DropdownMenu
+								icon={<AIToneIcon />}
+								iconPosition="left"
+								toggleProps={{
+									children: (
+										<>
+											{__('Adjust Tone', 'mind')}
+											<ArrowRightIcon />
+										</>
+									),
+								}}
+								popoverProps={{
+									placement: 'right-end',
+									className: 'mind-toolbar-dropdown',
+								}}
+								className="mind-toolbar-dropdown-toggle"
+							>
+								{() => {
+									return (
+										<>
+											<MenuGroup
+												label={__(
+													'Select Tone',
+													'@@text_domain'
+												)}
+											>
+												{TONE.map((data) => (
+													<MenuItem
+														key={data[0]}
+														onClick={() => {
+															openModal(
+																sprintf(
+																	// translators: %s - tone.
+																	__(
+																		'Change tone to %s',
+																		'mind'
+																	),
+																	data[0]
+																)
+															);
+														}}
+													>
+														<RawHTML>
+															{wrapEmoji(data[1])}
+														</RawHTML>
+													</MenuItem>
+												))}
+											</MenuGroup>
+										</>
+									);
+								}}
+							</DropdownMenu>
+							<DropdownMenu
+								icon={<AITranslateIcon />}
+								iconPosition="left"
+								toggleProps={{
+									children: (
+										<>
+											{__('Translate', 'mind')}
+											<ArrowRightIcon />
+										</>
+									),
+								}}
+								popoverProps={{
+									placement: 'right-end',
+									className: 'mind-toolbar-dropdown',
+								}}
+								className="mind-toolbar-dropdown-toggle"
+							>
+								{() => {
+									return (
+										<>
+											<MenuGroup
+												label={__(
+													'Select Language',
+													'@@text_domain'
+												)}
+											>
+												{LANGUAGE.map((data) => (
+													<MenuItem
+														key={data[0]}
+														onClick={() => {
+															openModal(
+																sprintf(
+																	// translators: %s - tone.
+																	__(
+																		'Translate to %s',
+																		'mind'
+																	),
+																	data[0]
+																)
+															);
+														}}
+													>
+														<RawHTML>
+															{wrapEmoji(data[1])}
+														</RawHTML>
+													</MenuItem>
+												))}
+											</MenuGroup>
+										</>
+									);
+								}}
+							</DropdownMenu>
+						</MenuGroup>
+					</>
+				);
+			}}
+		</ToolbarDropdownMenu>
 	);
 }
 
@@ -290,12 +278,6 @@ function Toolbar() {
  */
 const withToolbarControl = createHigherOrderComponent((OriginalComponent) => {
 	function MindToolbarToggle(props) {
-		const allow = isToolbarAllowed(props);
-
-		if (!allow) {
-			return <OriginalComponent {...props} />;
-		}
-
 		return (
 			<>
 				<OriginalComponent {...props} />

@@ -10,10 +10,7 @@ coverage
 
 # Webpack dev build
 build/runtime*
-build/*.hot-update.json
-build/*.hot-update.js
-build/*.hot-update.js.map
-build/*.hot-update.asset.php
+build/*.hot-update.*
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release

@@ -9,6 +9,12 @@ $padding: 10px;
 	max-height: clamp(0px, 440px, 75vh);
 	border-radius: 10px;
 	color: #000;
+	will-change: width, height, top;
+	transition: 0.3s width ease-in-out, 0.3s height ease-in-out, 0.3s top ease-in-out;
+
+	&.is-full-screen {
+		top: 40px;
+	}
 
 	.components-modal__content {
 		padding: 0;

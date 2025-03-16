@@ -1,7 +1,7 @@
 {
 	"name": "mind",
 	"version": "0.2.0",
-	"description": "Mind - Content Assistant Plugin based on OpenAI",
+	"description": "Mind - AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.",
 	"author": "Mind Team",
 	"license": "GPL-2.0-or-later",
 	"files": [
@@ -34,6 +34,7 @@
 	"dependencies": {
 		"clsx": "^2.0.0",
 		"marked": "^10.0.0",
-		"react-transition-group": "^4.4.5"
+		"react-transition-group": "^4.4.5",
+		"untruncate-json": "^0.0.1"
 	}
 }
