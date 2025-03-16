@@ -149,7 +149,7 @@ export default function Popup() {
 		>
 			{connected ? (
 				<>
-					<Input onInsert={onInsert} />
+					<Input onInsert={onInsert} isFullscreen={isFullscreen} />
 					{loading && <LoadingLine />}
 					<Content />
 					<Footer onInsert={onInsert} />
