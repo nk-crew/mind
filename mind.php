@@ -2,9 +2,9 @@
 /**
  * Plugin Name:       AI Mind
  * Description:       AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.
- * Requires at least: 6.3
+ * Requires at least: 6.5
  * Requires PHP:      7.2
- * Version:           0.2.0
+ * Version:           0.3.0
  * Author:            Mind Team
  * Author URI:        https://www.wp-mind.com/
  * License:           GPLv2 or later
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'MIND_VERSION' ) ) {
-	define( 'MIND_VERSION', '0.2.0' );
+	define( 'MIND_VERSION', '0.3.0' );
 }
 
 /**

@@ -1,10 +1,10 @@
 === Mind - AI Page Builder ===
 Contributors:      nko
 Tags:              ai, gpt, ai page builder, ai editor, copilot
-Requires at least: 6.2
+Requires at least: 6.5
 Tested up to:      6.7
 Requires PHP:      7.2
-Stable tag:        0.2.0
+Stable tag:        0.3.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,11 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 0.3.0 - Mar 16, 2025 =
+
+- rewrite code from simple text generation to block building
+- added support for Claude 3.7 Sonnet, Claude 3.5 Haiku, OpenAI GPT-4o and OpenAI GPT-4o mini
 
 = 0.2.0 - Dec 9, 2024 =
 

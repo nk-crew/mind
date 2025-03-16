@@ -1,6 +1,6 @@
 {
 	"name": "mind",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Mind - AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.",
 	"author": "Mind Team",
 	"license": "GPL-2.0-or-later",
