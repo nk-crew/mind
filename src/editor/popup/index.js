@@ -124,6 +124,7 @@ export default function Popup() {
 
 		reset();
 		close();
+		setIsFullscreen(false);
 	}
 
 	if (!isOpen) {
@@ -142,6 +143,7 @@ export default function Popup() {
 			onRequestClose={() => {
 				reset();
 				close();
+				setIsFullscreen(false);
 			}}
 			isFullScreen={isFullscreen}
 			style={fullScreenTransitionStyles}
