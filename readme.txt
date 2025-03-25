@@ -8,7 +8,7 @@ Stable tag:        0.3.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered page builder for WordPress that creates complete sections, redesigns existing blocks, and builds entire pages with natural language prompts.
+AI-powered WordPress page builder creates sections, redesigns blocks, and builds entire pages using natural language prompts.
 
 == Description ==
 
