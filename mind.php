@@ -5,6 +5,7 @@
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Version:           0.3.0
+ * Plugin URI:        https://www.wp-mind.com/
  * Author:            Mind Team
  * Author URI:        https://www.wp-mind.com/
  * License:           GPLv2 or later
