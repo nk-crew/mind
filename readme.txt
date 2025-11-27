@@ -4,7 +4,7 @@ Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 6.5
 Tested up to:      6.8
 Requires PHP:      7.2
-Stable tag:        0.3.0
+Stable tag:        0.4.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,10 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 0.4.0 - Nov 27, 2025 =
+
+- added support for Claude 4.5 Sonnet, Claude 4.5 Haiku, GPT-5.1 and GPT-5 mini
 
 = 0.3.0 - Mar 16, 2025 =
 

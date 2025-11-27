@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Mind 0.3.0\n"
+"Project-Id-Version: AI Mind 0.4.0\n"
 "Report-Msgid-Bugs-To: https://github.com/nk-crew/mind/issues\n"
 "Last-Translator: Lazy Blocks Team\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-03-16T08:30:22+00:00\n"
+"POT-Creation-Date: 2025-11-27T08:06:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -19,19 +19,20 @@ msgstr ""
 msgid "AI Mind"
 msgstr ""
 
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: mind.php
+msgid "https://www.wp-mind.com/"
+msgstr ""
+
 #. Description of the plugin
 #: mind.php
-msgid "AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks."
+msgid "AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks."
 msgstr ""
 
 #. Author of the plugin
 #: mind.php
 msgid "Mind Team"
-msgstr ""
-
-#. Author URI of the plugin
-#: mind.php
-msgid "https://www.wp-mind.com/"
 msgstr ""
 
 #: classes/class-admin.php:59
@@ -55,11 +56,11 @@ msgstr ""
 msgid "Discussions"
 msgstr ""
 
-#: classes/class-ai-api.php:121
+#: classes/class-ai-api.php:128
 msgid "Provide request to receive AI response."
 msgstr ""
 
-#: classes/class-ai-api.php:128
+#: classes/class-ai-api.php:135
 msgid "Select an AI model and provide API key in the plugin settings."
 msgstr ""
 
@@ -72,7 +73,7 @@ msgid "You don't have permissions to request Mind API."
 msgstr ""
 
 #: src/admin/page-settings/index.js:29
-msgid "Claude 3.7 Sonnet"
+msgid "Claude Sonnet 4.5"
 msgstr ""
 
 #: src/admin/page-settings/index.js:31
@@ -80,7 +81,7 @@ msgid "Best quality and recommended"
 msgstr ""
 
 #: src/admin/page-settings/index.js:34
-msgid "Claude 3.5 Haiku"
+msgid "Claude Haiku 4.5"
 msgstr ""
 
 #: src/admin/page-settings/index.js:36
@@ -88,7 +89,7 @@ msgid "Fast and accurate"
 msgstr ""
 
 #: src/admin/page-settings/index.js:39
-msgid "GPT-4o"
+msgid "GPT-5.1"
 msgstr ""
 
 #: src/admin/page-settings/index.js:41
@@ -96,7 +97,7 @@ msgid "Quick and reliable"
 msgstr ""
 
 #: src/admin/page-settings/index.js:44
-msgid "GPT-4o mini"
+msgid "GPT-5 mini"
 msgstr ""
 
 #: src/admin/page-settings/index.js:46
