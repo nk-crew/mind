@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       AI Mind
- * Description:       AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.
+ * Description:       AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks.
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Version:           0.3.0

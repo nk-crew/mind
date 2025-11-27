@@ -25,15 +25,15 @@ Mind is not just an AI writing assistant - it's a full-featured page builder tha
 
 === 🚀 Community-Driven Development ===
 
-This plugin was created as an experiment in the hope that the community will influence the course of its development. Any wishes, feature requests, or bug reports are welcome and will be the motivation for developing the functionality of the plugin in [GitHub Discussions](https://github.com/nk-crew/mind/discussions).
+This plugin was created as an experiment in the hope that the community will influence the course of its development. We welcome any wishes, feature requests, or bug reports. Join the discussion on [GitHub Discussions](https://github.com/nk-crew/mind/discussions) to help shape the future of Mind.
 
 === ✍️ Writing Assistance ===
 
 Mind provides various tools to help with writing content. You can use it to write an entire post, create a catchy post title, or draft a comprehensive post outline. Whether you need assistance in brainstorming ideas or structuring your content, Mind is there to support you.
 
-- Write a post about specific topic
-- Write a post title about specific topic
-- Write a post outline about specific topic
+- Write a post about a specific topic
+- Write a post title about a specific topic
+- Write a post outline about a specific topic
 
 === 📝 Writing Language Improvement ===
 
@@ -95,7 +95,7 @@ There are multiple ways to use Mind in your WordPress site:
 
 With its comprehensive set of features, Mind empowers content creators to build high-quality pages and engaging posts, while saving time and effort in the content creation process.
 
-p.s. this plugin description is created using Mind and OpenAI API.
+P.S. This plugin description was created using Mind and the OpenAI API.
 
 === OpenAI and Anthropic ===
 
@@ -123,25 +123,25 @@ Your choice of AI provider can be configured in the plugin settings.
 
 = Automatic installation =
 
-Install the Mind either via the WordPress plugin directory or by uploading the files to your server at `wp-content/plugins`.
+Install Mind either via the WordPress plugin directory or by uploading the files to your server at `wp-content/plugins`.
 
 = Usage =
 
-To start using the Mind features you have to insert your OpenAI API key in the plugin settings.
+To start using Mind features, you need to insert your OpenAI or Anthropic API key in the plugin settings.
 
-- Create OpenAI API key <https://platform.openai.com/account/api-keys>
+- Get an OpenAI API key at <https://platform.openai.com/account/api-keys>
 - Insert this key in the plugin settings (Admin Menu → Mind → Settings)
-- Open any post or page in WordPress editor (Gutenberg) and you can see the new button in the editor and paragraph toolbars
+- Open any post or page in the WordPress editor (Gutenberg) and you will see the new button in the editor and paragraph toolbars
 
 == Frequently Asked Questions ==
 
 = Website and Documentation =
 
-There is no documentation available yet, but in the future it will be placed here - <https://www.wp-mind.com/>
+Documentation will be available at <https://www.wp-mind.com/>
 
 = Supported page builders =
 
-Mind is developed for the WordPress page builder - Gutenberg. Currently we don't have support for 3rd-party builders.
+Mind is designed for the native WordPress block editor (Gutenberg). Support for 3rd-party page builders is not currently available.
 
 = Can I create entire page layouts with Mind? =
 
