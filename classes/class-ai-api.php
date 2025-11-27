@@ -79,17 +79,24 @@ class Mind_AI_API {
 		$result   = false;
 
 		if ( $ai_model ) {
-			if ( 'gpt-4o' === $ai_model || 'gpt-4o-mini' === $ai_model ) {
-				if ( ! empty( $settings['openai_api_key'] ) ) {
-					$result = [
-						'name' => $ai_model,
-						'key'  => $settings['openai_api_key'],
-					];
-				}
-			} elseif ( ! empty( $settings['anthropic_api_key'] ) ) {
+			if ( strpos( $ai_model, 'gpt-' ) === 0 && ! empty( $settings['openai_api_key'] ) ) {
 				$result = [
-					'name' => 'claude-3-5-haiku' === $ai_model ? 'claude-3-5-haiku' : 'claude-3-7-sonnet',
-					'key'  => $settings['anthropic_api_key'],
+					'provider' => 'openai',
+					'name'     => $ai_model,
+					'key'      => $settings['openai_api_key'],
+				];
+			} elseif ( strpos( $ai_model, 'claude-' ) === 0 && ! empty( $settings['anthropic_api_key'] ) ) {
+				// Convert old model names to correct.
+				if ( $ai_model === 'claude-3-7-sonnet' ) {
+					$ai_model = 'claude-sonnet-3-7';
+				} else if ( $ai_model === 'claude-3-7-haiku' ) {
+					$ai_model = 'claude-haiku-3-7';
+				}
+
+				$result = [
+					'provider' => 'anthropic',
+					'name'     => $ai_model,
+					'key'      => $settings['anthropic_api_key'],
 				];
 			}
 		}
@@ -131,7 +138,7 @@ class Mind_AI_API {
 
 		$messages = $this->prepare_messages( $request, $selected_blocks, $page_blocks, $page_context );
 
-		if ( 'gpt-4o' === $connected_model['name'] || 'gpt-4o-mini' === $connected_model['name'] ) {
+		if ( $connected_model['provider'] === 'openai' ) {
 			$this->request_open_ai( $connected_model, $messages );
 		} else {
 			$this->request_anthropic( $connected_model, $messages );
@@ -224,16 +231,9 @@ class Mind_AI_API {
 	public function request_anthropic( $model, $messages ) {
 		$anthropic_messages = $this->convert_to_anthropic_messages( $messages );
 		$anthropic_version  = '2023-06-01';
-		$model_name         = $model['name'];
-
-		if ( 'claude-3-5-haiku' === $model['name'] ) {
-			$model_name = 'claude-3-5-haiku-20241022';
-		} else {
-			$model_name = 'claude-3-7-sonnet-20250219';
-		}
 
 		$body = [
-			'model'      => $model_name,
+			'model'      => $model['name'],
 			'max_tokens' => 8192,
 			'system'     => $anthropic_messages['system'],
 			'messages'   => $anthropic_messages['messages'],

@@ -26,23 +26,23 @@ import { ReactComponent as LoadingIcon } from '../../icons/loading.svg';
 
 const models = [
 	{
-		title: __('Claude 3.7 Sonnet', 'mind'),
-		name: 'claude-3-7-sonnet',
+		title: __('Claude Sonnet 4.5', 'mind'),
+		name: 'claude-sonnet-4-5',
 		description: __('Best quality and recommended', 'mind'),
 	},
 	{
-		title: __('Claude 3.5 Haiku', 'mind'),
-		name: 'claude-3-5-haiku',
+		title: __('Claude Haiku 4.5', 'mind'),
+		name: 'claude-haiku-4-5',
 		description: __('Fast and accurate', 'mind'),
 	},
 	{
-		title: __('GPT-4o', 'mind'),
-		name: 'gpt-4o',
+		title: __('GPT-5.1', 'mind'),
+		name: 'gpt-5.1',
 		description: __('Quick and reliable', 'mind'),
 	},
 	{
-		title: __('GPT-4o mini', 'mind'),
-		name: 'gpt-4o-mini',
+		title: __('GPT-5 mini', 'mind'),
+		name: 'gpt-5-mini',
 		description: __('Basic and fastest', 'mind'),
 	},
 ];
