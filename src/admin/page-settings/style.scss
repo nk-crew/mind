@@ -11,6 +11,10 @@
 		margin-top: 35px;
 	}
 
+	&:has(.mind-admin-settings-connector) {
+		margin-top: 28px;
+	}
+
 	.mind-admin-settings-card-name {
 		flex: 1;
 		max-width: 250px;
@@ -25,6 +29,62 @@
 		font-size: 12px;
 		margin-top: -10px;
 		color: #646464;
+	}
+
+	.mind-admin-settings-connector {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.mind-admin-settings-connector-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		color: #646464;
+
+		span {
+			display: block;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background-color: #b5b5b5;
+		}
+	}
+
+	.mind-admin-settings-connector-status-connected {
+		color: #087f43;
+
+		span {
+			background-color: #10a65a;
+		}
+	}
+
+	.mind-admin-settings-connector-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 14px;
+		border: 1px solid #d0d0d0;
+		border-radius: 7px;
+		background-color: #fff;
+		color: #000;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 1.2;
+		text-decoration: none;
+		transition: 0.2s background-color, 0.2s border-color;
+
+		&:hover,
+		&:focus-visible {
+			border-color: #000;
+			background-color: #f3f3f3;
+			color: #000;
+			outline: 2px solid transparent;
+		}
 	}
 
 	.mind-admin-settings-card-button-group {
@@ -64,10 +124,25 @@
 				background-color: #000;
 			}
 
+			&:disabled {
+				color: #8f8f8f;
+				cursor: default;
+
+				&:hover,
+				&:focus-visible {
+					background-color: transparent;
+				}
+			}
+
 			span {
 				opacity: 0.5;
 				font-weight: 400;
 				font-size: 12px;
+			}
+
+			.mind-admin-settings-card-button-note {
+				opacity: 0.8;
+				font-size: 11px;
 			}
 		}
 	}
@@ -92,6 +167,44 @@
 	.mind-admin-settings-card-input-error input {
 		border-color: var(--mind-error-color);
 	}
+}
+
+.mind-admin-settings-notice {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 20px;
+	padding: 12px 14px;
+	border: 1px solid #d0d0d0;
+	border-radius: 7px;
+	background-color: #f7f7f7;
+	color: #353535;
+	font-size: 12px;
+	line-height: 1.4;
+
+	button {
+		flex: 0 0 auto;
+		padding: 6px 10px;
+		border: 1px solid #000;
+		border-radius: 6px;
+		background: #fff;
+		color: #000;
+		cursor: pointer;
+		font-size: 12px;
+		font-weight: 500;
+
+		&:hover,
+		&:focus-visible {
+			background-color: #000;
+			color: #fff;
+			outline: 2px solid transparent;
+		}
+	}
+}
+
+.mind-admin-settings-notice-warning {
+	border-color: #e2c37f;
+	background-color: #fff8e8;
 }
 
 .mind-admin-settings-error {

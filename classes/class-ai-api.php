@@ -69,7 +69,6 @@ class Mind_AI_API {
 
 	/**
 	 * Get connected model.
-	 * The same function placed in /utils/is-ai-connected/
 	 *
 	 * @return array|bool
 	 */
@@ -78,30 +77,486 @@ class Mind_AI_API {
 		$ai_model = $settings['ai_model'] ?? '';
 		$result   = false;
 
+		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
+			return $result;
+		}
+
 		if ( $ai_model ) {
-			if ( strpos( $ai_model, 'gpt-' ) === 0 && ! empty( $settings['openai_api_key'] ) ) {
+			$provider = self::get_model_provider( $ai_model );
+
+			if ( 'openai' === $provider && self::is_connector_connected( 'openai' ) ) {
 				$result = [
 					'provider' => 'openai',
 					'name'     => $ai_model,
-					'key'      => $settings['openai_api_key'],
+					'key'      => self::get_connector_api_key( 'openai' ),
 				];
-			} elseif ( strpos( $ai_model, 'claude-' ) === 0 && ! empty( $settings['anthropic_api_key'] ) ) {
-				// Convert old model names to correct.
-				if ( $ai_model === 'claude-3-7-sonnet' ) {
-					$ai_model = 'claude-sonnet-3-7';
-				} else if ( $ai_model === 'claude-3-7-haiku' ) {
-					$ai_model = 'claude-haiku-3-7';
-				}
-
+			} elseif ( 'anthropic' === $provider && self::is_connector_connected( 'anthropic' ) ) {
 				$result = [
 					'provider' => 'anthropic',
 					'name'     => $ai_model,
-					'key'      => $settings['anthropic_api_key'],
+					'key'      => self::get_connector_api_key( 'anthropic' ),
 				];
 			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get AI model slots for settings UI.
+	 *
+	 * @return array
+	 */
+	public static function get_model_slots() {
+		$settings       = get_option( 'mind_settings', array() );
+		$selected_model = $settings['ai_model'] ?? '';
+		$provider_models = array(
+			'anthropic' => self::get_provider_models( 'anthropic' ),
+			'openai'    => self::get_provider_models( 'openai' ),
+		);
+		$slot_configs    = array(
+			array(
+				'family'      => 'sonnet',
+				'provider'    => 'anthropic',
+				'title'       => __( 'Claude Sonnet', 'mind' ),
+				'description' => __( 'Best quality and recommended', 'mind' ),
+			),
+			array(
+				'family'      => 'haiku',
+				'provider'    => 'anthropic',
+				'title'       => __( 'Claude Haiku', 'mind' ),
+				'description' => __( 'Fast and accurate', 'mind' ),
+			),
+			array(
+				'family'      => 'gpt',
+				'provider'    => 'openai',
+				'title'       => __( 'GPT', 'mind' ),
+				'description' => __( 'Quick and reliable', 'mind' ),
+			),
+			array(
+				'family'      => 'gpt-mini',
+				'provider'    => 'openai',
+				'title'       => __( 'GPT mini', 'mind' ),
+				'description' => __( 'Basic and fastest', 'mind' ),
+			),
+		);
+
+		return array_map(
+			static function ( $slot ) use ( $provider_models, $selected_model ) {
+				$models         = $provider_models[ $slot['provider'] ];
+				$current_model  = self::find_slot_model( $models, $slot['provider'], $slot['family'] );
+				$selected_slot  = self::get_model_family( $selected_model ) === $slot['family'];
+				$selected_item  = null;
+
+				if (
+					$selected_slot &&
+					$selected_model &&
+					( ! $current_model || $current_model['name'] !== $selected_model )
+				) {
+					if ( $current_model && self::are_model_names_equivalent( $current_model['name'], $selected_model ) ) {
+						$selected_item         = $current_model;
+						$selected_item['name'] = $selected_model;
+					} else {
+						$selected_item = self::find_model_by_name( $models, $selected_model );
+					}
+
+					if ( ! $selected_item ) {
+						$selected_item = self::create_legacy_model_data(
+							$selected_model,
+							$slot['provider'],
+							$slot['family']
+						);
+					}
+				}
+
+				return array_merge(
+					$slot,
+					array(
+						'model'         => $current_model,
+						'selectedModel' => $selected_item,
+						'registered'    => self::is_provider_registered( $slot['provider'] ),
+						'connected'     => self::is_connector_connected( $slot['provider'] ),
+					)
+				);
+			},
+			$slot_configs
+		);
+	}
+
+	/**
+	 * Get AI Client models for a provider.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return array
+	 */
+	private static function get_provider_models( $provider_id ) {
+		if (
+			! self::is_connector_connected( $provider_id ) ||
+			! class_exists( '\WordPress\AiClient\AiClient' )
+		) {
+			return array();
+		}
+
+		try {
+			$registry       = \WordPress\AiClient\AiClient::defaultRegistry();
+			$provider_class = $registry->getProviderClassName( $provider_id );
+			$model_dir      = $provider_class::modelMetadataDirectory();
+			$models         = array();
+
+			foreach ( $model_dir->listModelMetadata() as $model_metadata ) {
+				$model = self::normalize_model_metadata( $model_metadata, $provider_id );
+
+				if ( $model && self::model_supports_text_generation( $model_metadata ) ) {
+					$models[] = $model;
+				}
+			}
+
+			return $models;
+		} catch ( Throwable $e ) {
+			return array();
+		}
+	}
+
+	/**
+	 * Normalize AI Client model metadata for the admin UI.
+	 *
+	 * @param object $model_metadata Model metadata.
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return array|null
+	 */
+	private static function normalize_model_metadata( $model_metadata, $provider_id ) {
+		if ( ! is_object( $model_metadata ) || ! method_exists( $model_metadata, 'getId' ) ) {
+			return null;
+		}
+
+		$model_id    = (string) $model_metadata->getId();
+		$model_name  = method_exists( $model_metadata, 'getName' ) ? (string) $model_metadata->getName() : $model_id;
+		$deprecated = self::get_model_deprecation_data( $model_metadata );
+
+		return array(
+			'name'            => $model_id,
+			'title'           => self::format_model_title( $model_name ),
+			'provider'        => $provider_id,
+			'family'          => self::get_model_family( $model_id ),
+			'canonicalName'   => self::get_model_canonical_name( $model_id ),
+			'available'       => true,
+			'deprecated'      => $deprecated['deprecated'],
+			'deprecationDate' => $deprecated['date'],
+		);
+	}
+
+	/**
+	 * Check if model supports text generation.
+	 *
+	 * @param object $model_metadata Model metadata.
+	 *
+	 * @return bool
+	 */
+	private static function model_supports_text_generation( $model_metadata ) {
+		if ( ! method_exists( $model_metadata, 'getSupportedCapabilities' ) ) {
+			return true;
+		}
+
+		foreach ( $model_metadata->getSupportedCapabilities() as $capability ) {
+			$value = '';
+
+			if (
+				is_object( $capability ) &&
+				method_exists( $capability, 'isTextGeneration' ) &&
+				$capability->isTextGeneration()
+			) {
+				return true;
+			}
+
+			if ( is_object( $capability ) ) {
+				try {
+					$value = $capability->value;
+				} catch ( Throwable $e ) {
+					$value = '';
+				}
+			} elseif ( is_string( $capability ) ) {
+				$value = $capability;
+			}
+
+			if ( 'text_generation' === $value ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Find the first available model for a slot.
+	 *
+	 * @param array  $models Models.
+	 * @param string $provider_id Provider ID.
+	 * @param string $family Model family.
+	 *
+	 * @return array|null
+	 */
+	private static function find_slot_model( $models, $provider_id, $family ) {
+		foreach ( $models as $model ) {
+			if (
+				$model['provider'] === $provider_id &&
+				$model['family'] === $family
+			) {
+				return $model;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Find a normalized model by name.
+	 *
+	 * @param array  $models Models.
+	 * @param string $model_name Model name.
+	 *
+	 * @return array|null
+	 */
+	private static function find_model_by_name( $models, $model_name ) {
+		foreach ( $models as $model ) {
+			if ( $model['name'] === $model_name ) {
+				return $model;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Create model data for a saved model that is not in the current provider list.
+	 *
+	 * @param string $model_name Model name.
+	 * @param string $provider_id Provider ID.
+	 * @param string $family Model family.
+	 *
+	 * @return array
+	 */
+	private static function create_legacy_model_data( $model_name, $provider_id, $family ) {
+		return array(
+			'name'            => $model_name,
+			'title'           => self::format_model_title( $model_name ),
+			'provider'        => $provider_id,
+			'family'          => $family,
+			'canonicalName'   => self::get_model_canonical_name( $model_name ),
+			'available'       => false,
+			'deprecated'      => false,
+			'deprecationDate' => '',
+		);
+	}
+
+	/**
+	 * Get model provider from model name.
+	 *
+	 * @param string $model_name Model name.
+	 *
+	 * @return string
+	 */
+	private static function get_model_provider( $model_name ) {
+		if ( 0 === strpos( $model_name, 'claude-' ) ) {
+			return 'anthropic';
+		}
+
+		if ( 0 === strpos( $model_name, 'gpt-' ) ) {
+			return 'openai';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get model family from model name.
+	 *
+	 * @param string $model_name Model name.
+	 *
+	 * @return string
+	 */
+	private static function get_model_family( $model_name ) {
+		if ( false !== strpos( $model_name, 'sonnet' ) ) {
+			return 'sonnet';
+		}
+
+		if ( false !== strpos( $model_name, 'haiku' ) ) {
+			return 'haiku';
+		}
+
+		if ( 0 === strpos( $model_name, 'gpt-' ) ) {
+			return false !== strpos( $model_name, 'mini' ) ? 'gpt-mini' : 'gpt';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if two model names point to the same display model.
+	 *
+	 * @param string $first_model First model name.
+	 * @param string $second_model Second model name.
+	 *
+	 * @return bool
+	 */
+	private static function are_model_names_equivalent( $first_model, $second_model ) {
+		return self::get_model_canonical_name( $first_model ) === self::get_model_canonical_name( $second_model );
+	}
+
+	/**
+	 * Get canonical model name for comparing provider aliases.
+	 *
+	 * @param string $model_name Model name.
+	 *
+	 * @return string
+	 */
+	private static function get_model_canonical_name( $model_name ) {
+		$model_name = strtolower( (string) $model_name );
+
+		return preg_replace( '/-[0-9]{8}$/', '', $model_name );
+	}
+
+	/**
+	 * Format model title.
+	 *
+	 * @param string $model_name Model name.
+	 *
+	 * @return string
+	 */
+	private static function format_model_title( $model_name ) {
+		$model_name = preg_replace( '/-[0-9]{8}$/', '', $model_name );
+		$model_name = preg_replace( '/(?<=\d)-(?=\d)/', '.', $model_name );
+		$model_name = str_replace( array( '-', '_' ), ' ', $model_name );
+		$model_name = preg_replace( '/\bgpt\b/i', 'GPT', $model_name );
+		$model_name = ucwords( $model_name );
+		$model_name = preg_replace( '/\bGpt\b/', 'GPT', $model_name );
+
+		return $model_name;
+	}
+
+	/**
+	 * Extract future deprecation metadata if the AI Client exposes it.
+	 *
+	 * @param object $model_metadata Model metadata.
+	 *
+	 * @return array
+	 */
+	private static function get_model_deprecation_data( $model_metadata ) {
+		$deprecated = false;
+		$date       = '';
+		$data       = method_exists( $model_metadata, 'toArray' ) ? (array) $model_metadata->toArray() : array();
+
+		foreach ( array( 'deprecated', 'isDeprecated' ) as $key ) {
+			if ( isset( $data[ $key ] ) ) {
+				$deprecated = (bool) $data[ $key ];
+			}
+		}
+
+		if ( method_exists( $model_metadata, 'isDeprecated' ) ) {
+			$deprecated = (bool) $model_metadata->isDeprecated();
+		}
+
+		foreach ( array( 'deprecationDate', 'deprecation_date', 'sunsetDate', 'sunset_date', 'retirementDate', 'retirement_date' ) as $key ) {
+			if ( ! empty( $data[ $key ] ) ) {
+				$date = self::format_model_deprecation_date( $data[ $key ] );
+				break;
+			}
+		}
+
+		foreach ( array( 'getDeprecationDate', 'getSunsetDate', 'getRetirementDate' ) as $method ) {
+			if ( method_exists( $model_metadata, $method ) ) {
+				$date_value = $model_metadata->$method();
+
+				if ( $date_value ) {
+					$date = self::format_model_deprecation_date( $date_value );
+					break;
+				}
+			}
+		}
+
+		return array(
+			'deprecated' => $deprecated,
+			'date'       => $date,
+		);
+	}
+
+	/**
+	 * Format model deprecation date.
+	 *
+	 * @param mixed $date Date value.
+	 *
+	 * @return string
+	 */
+	private static function format_model_deprecation_date( $date ) {
+		if ( $date instanceof DateTimeInterface ) {
+			return $date->format( 'Y-m-d' );
+		}
+
+		return is_scalar( $date ) ? (string) $date : '';
+	}
+
+	/**
+	 * Get connector API key.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return string
+	 */
+	public static function get_connector_api_key( $provider_id ) {
+		if ( ! function_exists( 'wp_get_connector' ) ) {
+			return '';
+		}
+
+		$connector = wp_get_connector( $provider_id );
+		if (
+			! is_array( $connector ) ||
+			! isset( $connector['authentication']['method'] ) ||
+			'api_key' !== $connector['authentication']['method'] ||
+			empty( $connector['authentication']['setting_name'] )
+		) {
+			return '';
+		}
+
+		return (string) get_option( $connector['authentication']['setting_name'], '' );
+	}
+
+	/**
+	 * Check if provider is registered in the WordPress AI Client.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return bool
+	 */
+	public static function is_provider_registered( $provider_id ) {
+		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
+			return false;
+		}
+
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			return false;
+		}
+
+		try {
+			$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+
+			return $registry->hasProvider( $provider_id );
+		} catch ( Exception $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Check if provider is available and has a configured API key.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return bool
+	 */
+	public static function is_connector_connected( $provider_id ) {
+		return self::is_provider_registered( $provider_id ) && '' !== self::get_connector_api_key( $provider_id );
 	}
 
 	/**
@@ -132,7 +587,7 @@ class Mind_AI_API {
 		$connected_model = $this->get_connected_model();
 
 		if ( ! $connected_model ) {
-			$this->send_stream_error( 'no_model_connected', __( 'Select an AI model and provide API key in the plugin settings.', 'mind' ) );
+			$this->send_stream_error( 'no_model_connected', __( 'Select an AI model and connect its API key in WordPress Connectors.', 'mind' ) );
 			exit;
 		}
 

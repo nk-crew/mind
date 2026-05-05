@@ -1,8 +1,8 @@
 === Mind - AI Page Builder ===
 Contributors:      nko
 Tags:              ai, gpt, ai page builder, ai editor, copilot
-Requires at least: 6.5
-Tested up to:      6.8
+Requires at least: 7.0
+Tested up to:      7.0
 Requires PHP:      7.2
 Stable tag:        0.4.0
 License:           GPL-2.0-or-later
@@ -117,7 +117,7 @@ Both services have their own data handling policies:
 - They offer data handling options for enterprise customers
 - Please review their [Privacy Policy](https://www.anthropic.com/privacy) and [Terms of Service](https://www.anthropic.com/terms) for more information
 
-Your choice of AI provider can be configured in the plugin settings.
+Your choice of AI model can be configured in the plugin settings, and API keys are managed in WordPress Settings → Connectors.
 
 == Installation ==
 
@@ -127,10 +127,10 @@ Install Mind either via the WordPress plugin directory or by uploading the files
 
 = Usage =
 
-To start using Mind features, you need to insert your OpenAI or Anthropic API key in the plugin settings.
+To start using Mind features, you need to connect your OpenAI or Anthropic API key in WordPress Settings → Connectors.
 
 - Get an OpenAI API key at <https://platform.openai.com/account/api-keys>
-- Insert this key in the plugin settings (Admin Menu → Mind → Settings)
+- Insert this key in WordPress Settings → Connectors
 - Open any post or page in the WordPress editor (Gutenberg) and you will see the new button in the editor and paragraph toolbars
 
 == Frequently Asked Questions ==

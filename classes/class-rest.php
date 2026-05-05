@@ -101,7 +101,15 @@ class Mind_Rest extends WP_REST_Controller {
 
 		if ( is_array( $new_settings ) ) {
 			$current_settings = get_option( 'mind_settings', [] );
-			update_option( 'mind_settings', array_merge( $current_settings, $new_settings ) );
+			$settings         = [];
+
+			if ( isset( $new_settings['ai_model'] ) ) {
+				$settings['ai_model'] = sanitize_text_field( $new_settings['ai_model'] );
+			}
+
+			if ( $settings ) {
+				update_option( 'mind_settings', array_merge( $current_settings, $settings ) );
+			}
 		}
 
 		return $this->success( true );

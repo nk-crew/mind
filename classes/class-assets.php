@@ -63,7 +63,7 @@ class Mind_Assets {
 			'mindData',
 			[
 				'connected'       => ! ! $connected_model,
-				'settingsPageURL' => admin_url( 'admin.php?page=mind&sub_page=settings' ),
+				'settingsPageURL' => admin_url( 'options-connectors.php' ),
 			]
 		);
 
@@ -100,7 +100,18 @@ class Mind_Assets {
 			'mind-admin',
 			'mindAdminData',
 			[
-				'settings' => get_option( 'mind_settings', array() ),
+				'settings'          => get_option( 'mind_settings', array() ),
+				'connected'         => ! ! Mind_AI_API::instance()->get_connected_model(),
+				'connectorsPageURL' => admin_url( 'options-connectors.php' ),
+				'modelSlots'        => Mind_AI_API::get_model_slots(),
+				'connectors'        => array(
+					'openai'    => array(
+						'connected' => Mind_AI_API::is_connector_connected( 'openai' ),
+					),
+					'anthropic' => array(
+						'connected' => Mind_AI_API::is_connector_connected( 'anthropic' ),
+					),
+				),
 			]
 		);
 

@@ -32,7 +32,7 @@ export default function NotConnectedScreen() {
 			<div>
 				<p>
 					{__(
-						'In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started.',
+						'In order to use Mind, you will need to connect your Anthropic or OpenAI API key in WordPress Connectors.',
 						'mind'
 					)}
 				</p>
@@ -44,7 +44,7 @@ export default function NotConnectedScreen() {
 					target="_blank"
 					rel="noreferrer"
 				>
-					{__('Go to Settings', 'mind')}
+					{__('Open Connectors', 'mind')}
 				</a>
 			</div>
 		</div>
