@@ -82,10 +82,13 @@ export default function PageSettings() {
 	const selectedProviderName =
 		providerNames[selectedProvider] || selectedProvider;
 	const isProviderConnected = !!connectors?.[selectedProvider]?.connected;
+	const hasValidSelectedModel = selectedModel?.runtimeAvailable !== false;
 	const hasNewerModel =
 		selectedModel?.name &&
 		latestModel?.name &&
-		selectedModel.canonicalName !== latestModel.canonicalName;
+		selectedModel.provider === latestModel.provider &&
+		selectedModel.family === latestModel.family &&
+		selectedModel.name !== latestModel.name;
 
 	return (
 		<>
@@ -152,6 +155,15 @@ export default function PageSettings() {
 					})}
 				</div>
 			</div>
+
+			{selectedModel && !hasValidSelectedModel && (
+				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
+					{__(
+						'The selected model cannot be used with the current WordPress AI provider configuration. Select another model before sending requests.',
+						'mind'
+					)}
+				</div>
+			)}
 
 			{selectedModel?.deprecated && (
 				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
