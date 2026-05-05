@@ -42,3 +42,6 @@ node_modules/
 
 # system files
 .DS_Store
+
+# local planning docs
+.spec/
