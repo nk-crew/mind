@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-05T09:43:14+00:00\n"
+"POT-Creation-Date: 2026-05-05T15:28:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -56,44 +56,52 @@ msgstr ""
 msgid "Discussions"
 msgstr ""
 
-#: classes/class-ai-api.php:121
+#: classes/class-ai-api.php:91
 msgid "Claude Sonnet"
 msgstr ""
 
-#: classes/class-ai-api.php:122
+#: classes/class-ai-api.php:92
 msgid "Best quality and recommended"
 msgstr ""
 
-#: classes/class-ai-api.php:127
+#: classes/class-ai-api.php:97
 msgid "Claude Haiku"
 msgstr ""
 
-#: classes/class-ai-api.php:128
+#: classes/class-ai-api.php:98
 msgid "Fast and accurate"
 msgstr ""
 
-#: classes/class-ai-api.php:133
+#: classes/class-ai-api.php:103
 msgid "GPT"
 msgstr ""
 
-#: classes/class-ai-api.php:134
+#: classes/class-ai-api.php:104
 msgid "Quick and reliable"
 msgstr ""
 
-#: classes/class-ai-api.php:139
+#: classes/class-ai-api.php:109
 msgid "GPT mini"
 msgstr ""
 
-#: classes/class-ai-api.php:140
+#: classes/class-ai-api.php:110
 msgid "Basic and fastest"
 msgstr ""
 
-#: classes/class-ai-api.php:583
+#: classes/class-ai-api.php:603
 msgid "Provide request to receive AI response."
 msgstr ""
 
-#: classes/class-ai-api.php:590
+#: classes/class-ai-api.php:610
 msgid "Select an AI model and connect its API key in WordPress Connectors."
+msgstr ""
+
+#: classes/class-ai-api.php:667
+msgid "The WordPress AI Client is not available in this environment."
+msgstr ""
+
+#: classes/class-ai-api.php:705
+msgid "The AI Client returned an empty response."
 msgstr ""
 
 #: classes/class-rest.php:73

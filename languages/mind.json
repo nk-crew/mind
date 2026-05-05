@@ -59,6 +59,12 @@
          "Select an AI model and connect its API key in WordPress Connectors.": [
             ""
          ],
+         "The WordPress AI Client is not available in this environment.": [
+            ""
+         ],
+         "The AI Client returned an empty response.": [
+            ""
+         ],
          "User don't have permissions to change options.": [
             ""
          ],
