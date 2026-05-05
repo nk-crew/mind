@@ -104,7 +104,13 @@ class Mind_Rest extends WP_REST_Controller {
 			$settings         = [];
 
 			if ( isset( $new_settings['ai_model'] ) ) {
-				$settings['ai_model'] = sanitize_text_field( $new_settings['ai_model'] );
+				$ai_model = sanitize_text_field( $new_settings['ai_model'] );
+
+				if ( '' !== $ai_model && ! Mind_AI_API::is_valid_selected_model( $ai_model ) ) {
+					return $this->error( 'invalid_ai_model', __( 'The selected AI model is not available in the current WordPress AI provider configuration.', 'mind' ), true );
+				}
+
+				$settings['ai_model'] = $ai_model;
 			}
 
 			if ( $settings ) {

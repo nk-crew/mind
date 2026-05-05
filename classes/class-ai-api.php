@@ -45,31 +45,22 @@ class Mind_AI_API {
 	 * @return array|bool
 	 */
 	public function get_connected_model() {
-		$settings = get_option( 'mind_settings', array() );
-		$ai_model = $settings['ai_model'] ?? '';
-		$result   = false;
+		$settings            = get_option( 'mind_settings', array() );
+		$selected_model_name = $settings['ai_model'] ?? '';
+		$selected_model      = self::get_selected_model_state( $selected_model_name );
 
 		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
-			return $result;
+			return false;
 		}
 
-		if ( $ai_model ) {
-			$provider = self::get_model_provider( $ai_model );
-
-			if ( 'openai' === $provider && self::is_connector_connected( 'openai' ) ) {
-				$result = [
-					'provider' => 'openai',
-					'name'     => $ai_model,
-				];
-			} elseif ( 'anthropic' === $provider && self::is_connector_connected( 'anthropic' ) ) {
-				$result = [
-					'provider' => 'anthropic',
-					'name'     => $ai_model,
-				];
-			}
+		if ( ! $selected_model['runtimeAvailable'] ) {
+			return false;
 		}
 
-		return $result;
+		return array(
+			'provider' => $selected_model['provider'],
+			'name'     => $selected_model['name'],
+		);
 	}
 
 	/**
@@ -80,6 +71,7 @@ class Mind_AI_API {
 	public static function get_model_slots() {
 		$settings        = get_option( 'mind_settings', array() );
 		$selected_model  = $settings['ai_model'] ?? '';
+		$selected_state  = self::get_selected_model_state( $selected_model );
 		$provider_models = array(
 			'anthropic' => self::get_provider_models( 'anthropic' ),
 			'openai'    => self::get_provider_models( 'openai' ),
@@ -112,30 +104,21 @@ class Mind_AI_API {
 		);
 
 		return array_map(
-			static function ( $slot ) use ( $provider_models, $selected_model ) {
+			static function ( $slot ) use ( $provider_models, $selected_model, $selected_state ) {
 				$models        = $provider_models[ $slot['provider'] ];
 				$current_model = self::find_slot_model( $models, $slot['provider'], $slot['family'] );
 				$selected_slot = self::get_model_family( $selected_model ) === $slot['family'];
 				$selected_item = null;
 
-				if (
-					$selected_slot &&
-					$selected_model &&
-					( ! $current_model || $current_model['name'] !== $selected_model )
-				) {
-					if ( $current_model && self::are_model_names_equivalent( $current_model['name'], $selected_model ) ) {
-						$selected_item         = $current_model;
-						$selected_item['name'] = $selected_model;
-					} else {
-						$selected_item = self::find_model_by_name( $models, $selected_model );
+				if ( $selected_slot && $selected_model ) {
+					$selected_item = $selected_state['selectedModel'];
+
+					if ( $selected_item ) {
+						$selected_item['runtimeAvailable'] = $selected_state['runtimeAvailable'];
 					}
 
-					if ( ! $selected_item ) {
-						$selected_item = self::create_legacy_model_data(
-							$selected_model,
-							$slot['provider'],
-							$slot['family']
-						);
+					if ( $selected_state['currentModel'] && $selected_state['provider'] === $slot['provider'] && $selected_state['family'] === $slot['family'] ) {
+						$current_model = $selected_state['currentModel'];
 					}
 				}
 
@@ -151,6 +134,105 @@ class Mind_AI_API {
 			},
 			$slot_configs
 		);
+	}
+
+	/**
+	 * Check whether a saved model name can be used for runtime requests.
+	 *
+	 * @param string $model_name Saved model name.
+	 *
+	 * @return bool
+	 */
+	public static function is_valid_selected_model( $model_name ) {
+		$selected_model = self::get_selected_model_state( $model_name );
+
+		return $selected_model['runtimeAvailable'];
+	}
+
+	/**
+	 * Get explicit setup state for editor and admin UI.
+	 *
+	 * @return array
+	 */
+	public static function get_setup_state() {
+		$settings                = get_option( 'mind_settings', array() );
+		$selected_model_name     = $settings['ai_model'] ?? '';
+		$selected_model          = self::get_selected_model_state( $selected_model_name );
+		$has_provider_connection = self::is_connector_connected( 'openai' ) || self::is_connector_connected( 'anthropic' );
+
+		return array(
+			'connected'               => $selected_model['runtimeAvailable'],
+			'hasValidSelectedModel'   => $selected_model['runtimeAvailable'],
+			'needsProviderConnection' => ! $has_provider_connection,
+			'needsModelSelection'     => $has_provider_connection && ! $selected_model['runtimeAvailable'],
+			'selectedModelName'       => $selected_model_name,
+			'selectedProvider'        => $selected_model['provider'],
+			'canManageConnectors'     => current_user_can( 'manage_options' ),
+		);
+	}
+
+	/**
+	 * Resolve the saved model name against the current provider state.
+	 *
+	 * @param string $model_name Saved model name.
+	 *
+	 * @return array
+	 */
+	private static function get_selected_model_state( $model_name ) {
+		$model_name      = is_string( $model_name ) ? $model_name : '';
+		$provider_id     = self::get_model_provider( $model_name );
+		$family          = self::get_model_family( $model_name );
+		$registered      = $provider_id ? self::is_provider_registered( $provider_id ) : false;
+		$connected       = $provider_id ? self::is_connector_connected( $provider_id ) : false;
+		$provider_models = ( $provider_id && $connected ) ? self::get_provider_models( $provider_id ) : array();
+		$current_model   = ( $provider_id && $family ) ? self::find_slot_model( $provider_models, $provider_id, $family ) : null;
+		$selected_model  = null;
+
+		if ( $model_name && $provider_id && $family ) {
+			$selected_model = self::find_model_by_name( $provider_models, $model_name );
+
+			if ( ! $selected_model ) {
+				$selected_model = self::create_legacy_model_data( $model_name, $provider_id, $family );
+			}
+		}
+
+		return array(
+			'name'             => $model_name,
+			'provider'         => $provider_id,
+			'family'           => $family,
+			'registered'       => $registered,
+			'connected'        => $connected,
+			'currentModel'     => $current_model,
+			'selectedModel'    => $selected_model,
+			'runtimeAvailable' => self::can_resolve_runtime_model( $provider_id, $model_name ),
+		);
+	}
+
+	/**
+	 * Check whether the exact saved model can be resolved by the provider registry.
+	 *
+	 * @param string $provider_id Provider ID.
+	 * @param string $model_name Saved model name.
+	 *
+	 * @return bool
+	 */
+	private static function can_resolve_runtime_model( $provider_id, $model_name ) {
+		if ( ! $provider_id || ! $model_name || ! self::is_connector_connected( $provider_id ) ) {
+			return false;
+		}
+
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			return false;
+		}
+
+		try {
+			$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+			$registry->getProviderModel( $provider_id, $model_name );
+
+			return true;
+		} catch ( Throwable $e ) {
+			return false;
+		}
 	}
 
 	/**
@@ -206,14 +288,15 @@ class Mind_AI_API {
 		$deprecated = self::get_model_deprecation_data( $model_metadata );
 
 		return array(
-			'name'            => $model_id,
-			'title'           => self::format_model_title( $model_name ),
-			'provider'        => $provider_id,
-			'family'          => self::get_model_family( $model_id ),
-			'canonicalName'   => self::get_model_canonical_name( $model_id ),
-			'available'       => true,
-			'deprecated'      => $deprecated['deprecated'],
-			'deprecationDate' => $deprecated['date'],
+			'name'             => $model_id,
+			'title'            => self::format_model_title( $model_name ),
+			'provider'         => $provider_id,
+			'family'           => self::get_model_family( $model_id ),
+			'canonicalName'    => self::get_model_canonical_name( $model_id ),
+			'available'        => true,
+			'runtimeAvailable' => true,
+			'deprecated'       => $deprecated['deprecated'],
+			'deprecationDate'  => $deprecated['date'],
 		);
 	}
 
@@ -309,14 +392,15 @@ class Mind_AI_API {
 	 */
 	private static function create_legacy_model_data( $model_name, $provider_id, $family ) {
 		return array(
-			'name'            => $model_name,
-			'title'           => self::format_model_title( $model_name ),
-			'provider'        => $provider_id,
-			'family'          => $family,
-			'canonicalName'   => self::get_model_canonical_name( $model_name ),
-			'available'       => false,
-			'deprecated'      => false,
-			'deprecationDate' => '',
+			'name'             => $model_name,
+			'title'            => self::format_model_title( $model_name ),
+			'provider'         => $provider_id,
+			'family'           => $family,
+			'canonicalName'    => self::get_model_canonical_name( $model_name ),
+			'available'        => false,
+			'runtimeAvailable' => false,
+			'deprecated'       => false,
+			'deprecationDate'  => '',
 		);
 	}
 
