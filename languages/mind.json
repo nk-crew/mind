@@ -8,13 +8,13 @@
          "AI Mind": [
             ""
          ],
-         "AI Page Builder based on Anthropic and OpenAI. Build, design, improve, rewrite your page sections and blocks.": [
+         "https://www.wp-mind.com/": [
+            ""
+         ],
+         "AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks.": [
             ""
          ],
          "Mind Team": [
-            ""
-         ],
-         "https://www.wp-mind.com/": [
             ""
          ],
          "Mind": [
@@ -29,10 +29,34 @@
          "Discussions": [
             ""
          ],
+         "Claude Sonnet": [
+            ""
+         ],
+         "Best quality and recommended": [
+            ""
+         ],
+         "Claude Haiku": [
+            ""
+         ],
+         "Fast and accurate": [
+            ""
+         ],
+         "GPT": [
+            ""
+         ],
+         "Quick and reliable": [
+            ""
+         ],
+         "GPT mini": [
+            ""
+         ],
+         "Basic and fastest": [
+            ""
+         ],
          "Provide request to receive AI response.": [
             ""
          ],
-         "Select an AI model and provide API key in the plugin settings.": [
+         "Select an AI model and connect its API key in WordPress Connectors.": [
             ""
          ],
          "User don't have permissions to change options.": [
@@ -41,52 +65,43 @@
          "You don't have permissions to request Mind API.": [
             ""
          ],
-         "Claude 3.7 Sonnet": [
-            ""
-         ],
-         "Best quality and recommended": [
-            ""
-         ],
-         "Claude 3.5 Haiku": [
-            ""
-         ],
-         "Fast and accurate": [
-            ""
-         ],
-         "GPT-4o": [
-            ""
-         ],
-         "Quick and reliable": [
-            ""
-         ],
-         "GPT-4o mini": [
-            ""
-         ],
-         "Basic and fastest": [
-            ""
-         ],
          "Model": [
             ""
          ],
-         "Anthropic API Key": [
+         "No matching model found": [
             ""
          ],
-         "Enter API key": [
+         "Connect provider to load models": [
             ""
          ],
-         "Please enter a valid API key": [
+         "Saved model": [
             ""
          ],
-         "This setting is required to use Anthropic models.": [
+         "The selected model is deprecated and is scheduled to be disabled on %s.": [
             ""
          ],
-         "Create API key": [
+         "The selected model is marked as deprecated by the provider.": [
             ""
          ],
-         "OpenAI API Key": [
+         "The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it.": [
             ""
          ],
-         "This setting is required to use OpenAI models.": [
+         "A newer model is available: %s.": [
+            ""
+         ],
+         "Use newer model": [
+            ""
+         ],
+         "%s is connected.": [
+            ""
+         ],
+         "%s is not connected yet.": [
+            ""
+         ],
+         "API keys are managed by WordPress Connectors and can be shared across plugins.": [
+            ""
+         ],
+         "Manage in WordPress Connectors": [
             ""
          ],
          "Save Changes": [
@@ -104,7 +119,7 @@
          "To get started,": [
             ""
          ],
-         "select the model and API key →": [
+         "select the model and connect API key →": [
             ""
          ],
          "Something went wrong, please, try again…": [
@@ -320,10 +335,10 @@
          "AI API Key": [
             ""
          ],
-         "In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started.": [
+         "In order to use Mind, you will need to connect your Anthropic or OpenAI API key in WordPress Connectors.": [
             ""
          ],
-         "Go to Settings": [
+         "Open Connectors": [
             ""
          ],
          "Not connected": [

@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Mind Team
+# Copyright (C) 2026 Mind Team
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-27T08:06:36+00:00\n"
+"POT-Creation-Date: 2026-05-05T09:43:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -56,12 +56,44 @@ msgstr ""
 msgid "Discussions"
 msgstr ""
 
+#: classes/class-ai-api.php:121
+msgid "Claude Sonnet"
+msgstr ""
+
+#: classes/class-ai-api.php:122
+msgid "Best quality and recommended"
+msgstr ""
+
+#: classes/class-ai-api.php:127
+msgid "Claude Haiku"
+msgstr ""
+
 #: classes/class-ai-api.php:128
+msgid "Fast and accurate"
+msgstr ""
+
+#: classes/class-ai-api.php:133
+msgid "GPT"
+msgstr ""
+
+#: classes/class-ai-api.php:134
+msgid "Quick and reliable"
+msgstr ""
+
+#: classes/class-ai-api.php:139
+msgid "GPT mini"
+msgstr ""
+
+#: classes/class-ai-api.php:140
+msgid "Basic and fastest"
+msgstr ""
+
+#: classes/class-ai-api.php:583
 msgid "Provide request to receive AI response."
 msgstr ""
 
-#: classes/class-ai-api.php:135
-msgid "Select an AI model and provide API key in the plugin settings."
+#: classes/class-ai-api.php:590
+msgid "Select an AI model and connect its API key in WordPress Connectors."
 msgstr ""
 
 #: classes/class-rest.php:73
@@ -72,96 +104,85 @@ msgstr ""
 msgid "You don't have permissions to request Mind API."
 msgstr ""
 
-#: src/admin/page-settings/index.js:29
-msgid "Claude Sonnet 4.5"
-msgstr ""
-
-#: src/admin/page-settings/index.js:31
-msgid "Best quality and recommended"
-msgstr ""
-
-#: src/admin/page-settings/index.js:34
-msgid "Claude Haiku 4.5"
-msgstr ""
-
-#: src/admin/page-settings/index.js:36
-msgid "Fast and accurate"
-msgstr ""
-
-#: src/admin/page-settings/index.js:39
-msgid "GPT-5.1"
-msgstr ""
-
-#: src/admin/page-settings/index.js:41
-msgid "Quick and reliable"
-msgstr ""
-
-#: src/admin/page-settings/index.js:44
-msgid "GPT-5 mini"
-msgstr ""
-
-#: src/admin/page-settings/index.js:46
-msgid "Basic and fastest"
-msgstr ""
-
-#: src/admin/page-settings/index.js:84
+#: src/admin/page-settings/index.js:95
 msgid "Model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:114
-msgid "Anthropic API Key"
-msgstr ""
-
-#: src/admin/page-settings/index.js:127
-#: src/admin/page-settings/index.js:176
-msgid "Enter API key"
+#: src/admin/page-settings/index.js:135
+msgid "No matching model found"
 msgstr ""
 
 #: src/admin/page-settings/index.js:139
+msgid "Connect provider to load models"
+msgstr ""
+
+#: src/admin/page-settings/index.js:147
+msgid "Saved model"
+msgstr ""
+
+#. translators: %s: deprecation date.
+#: src/admin/page-settings/index.js:161
+msgid "The selected model is deprecated and is scheduled to be disabled on %s."
+msgstr ""
+
+#: src/admin/page-settings/index.js:167
+msgid "The selected model is marked as deprecated by the provider."
+msgstr ""
+
+#: src/admin/page-settings/index.js:176
+msgid "The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it."
+msgstr ""
+
+#. translators: %s: AI model title.
 #: src/admin/page-settings/index.js:188
-msgid "Please enter a valid API key"
+msgid "A newer model is available: %s."
 msgstr ""
 
-#: src/admin/page-settings/index.js:144
-msgid "This setting is required to use Anthropic models."
+#: src/admin/page-settings/index.js:201
+msgid "Use newer model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:153
-#: src/admin/page-settings/index.js:202
-msgid "Create API key"
+#. translators: %s: AI provider name.
+#: src/admin/page-settings/index.js:219
+msgid "%s is connected."
 msgstr ""
 
-#: src/admin/page-settings/index.js:163
-msgid "OpenAI API Key"
+#. translators: %s: AI provider name.
+#: src/admin/page-settings/index.js:224
+msgid "%s is not connected yet."
 msgstr ""
 
-#: src/admin/page-settings/index.js:193
-msgid "This setting is required to use OpenAI models."
+#: src/admin/page-settings/index.js:229
+msgid "API keys are managed by WordPress Connectors and can be shared across plugins."
 msgstr ""
 
-#: src/admin/page-settings/index.js:239
+#: src/admin/page-settings/index.js:238
+msgid "Manage in WordPress Connectors"
+msgstr ""
+
+#: src/admin/page-settings/index.js:252
 msgid "Save Changes"
 msgstr ""
 
 #. translators: %s - Mind logo.
-#: src/admin/page-welcome/index.js:36
+#: src/admin/page-welcome/index.js:27
 msgid "Hello, my name is %s"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:42
+#: src/admin/page-welcome/index.js:33
 msgid "I am an AI assistant designed to help you in writing content for your blog"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:50
+#: src/admin/page-welcome/index.js:41
 msgid "To get started, <em>open the page editor</em> and click on the <br /><span class=\"mind-inline-logo\">Open Mind</span> button in the toolbar"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:58
+#: src/admin/page-welcome/index.js:49
 msgid "To get started,"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:65
-msgid "select the model and API key →"
+#: src/admin/page-welcome/index.js:56
+msgid "select the model and connect API key →"
 msgstr ""
 
 #: src/admin/store/settings/actions.js:35
@@ -400,48 +421,48 @@ msgstr ""
 msgid "Translate to %s"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:42
+#: src/editor/popup/components/footer/index.js:41
 msgid "Page"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:43
+#: src/editor/popup/components/footer/index.js:42
 msgid "Provide page context"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:48
+#: src/editor/popup/components/footer/index.js:47
 msgid "Blocks"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:49
+#: src/editor/popup/components/footer/index.js:48
 msgid "Provide selected blocks context"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:122
+#: src/editor/popup/components/footer/index.js:121
 msgid "Ask AI and get answer"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:129
+#: src/editor/popup/components/footer/index.js:128
 msgid "Get Answer"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:141
+#: src/editor/popup/components/footer/index.js:140
 msgid "Loading"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:152
+#: src/editor/popup/components/footer/index.js:151
 msgid "Regenerate"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:162
+#: src/editor/popup/components/footer/index.js:161
 msgid "Copy"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:167
-#: src/editor/popup/components/footer/index.js:177
+#: src/editor/popup/components/footer/index.js:166
+#: src/editor/popup/components/footer/index.js:176
 msgid "Insert"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:176
+#: src/editor/popup/components/footer/index.js:175
 msgid "Replace Selected Blocks"
 msgstr ""
 
@@ -454,11 +475,11 @@ msgid "AI API Key"
 msgstr ""
 
 #: src/editor/popup/components/not-connected-screen/index.js:34
-msgid "In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started."
+msgid "In order to use Mind, you will need to connect your Anthropic or OpenAI API key in WordPress Connectors."
 msgstr ""
 
 #: src/editor/popup/components/not-connected-screen/index.js:47
-msgid "Go to Settings"
+msgid "Open Connectors"
 msgstr ""
 
 #: src/editor/store/popup/actions.js:93
