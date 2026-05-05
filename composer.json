@@ -10,7 +10,7 @@
 	"scripts": {
 		"phpcs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
 		"phpcbf": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf",
-		"wp": "\"vendor/wp-cli/wp-cli/bin/wp\"",
+		"wp": "./vendor/bin/wp",
 		"test:unit": "./vendor/bin/phpunit"
 	},
 	"config": {
