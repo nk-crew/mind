@@ -14,34 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Mind_AI_API {
 	/**
-	 * Buffer for streaming response.
-	 *
-	 * @var string
-	 */
-	private $buffer = '';
-
-	/**
-	 * Last time the buffer was sent.
-	 *
-	 * @var int
-	 */
-	private $last_send_time = 0;
-
-	/**
-	 * Buffer threshold.
-	 *
-	 * @var int
-	 */
-	private const BUFFER_THRESHOLD = 150;
-
-	/**
-	 * Minimum send interval.
-	 *
-	 * @var float
-	 */
-	private const MIN_SEND_INTERVAL = 0.05;
-
-	/**
 	 * The single class instance.
 	 *
 	 * @var null
@@ -88,13 +60,11 @@ class Mind_AI_API {
 				$result = [
 					'provider' => 'openai',
 					'name'     => $ai_model,
-					'key'      => self::get_connector_api_key( 'openai' ),
 				];
 			} elseif ( 'anthropic' === $provider && self::is_connector_connected( 'anthropic' ) ) {
 				$result = [
 					'provider' => 'anthropic',
 					'name'     => $ai_model,
-					'key'      => self::get_connector_api_key( 'anthropic' ),
 				];
 			}
 		}
@@ -497,6 +467,27 @@ class Mind_AI_API {
 	}
 
 	/**
+	 * Get connector authentication config.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return array
+	 */
+	private static function get_connector_authentication( $provider_id ) {
+		if ( ! function_exists( 'wp_get_connector' ) ) {
+			return array();
+		}
+
+		$connector = wp_get_connector( $provider_id );
+
+		if ( ! is_array( $connector ) || empty( $connector['authentication'] ) || ! is_array( $connector['authentication'] ) ) {
+			return array();
+		}
+
+		return $connector['authentication'];
+	}
+
+	/**
 	 * Get connector API key.
 	 *
 	 * @since 0.4.0
@@ -506,21 +497,34 @@ class Mind_AI_API {
 	 * @return string
 	 */
 	public static function get_connector_api_key( $provider_id ) {
-		if ( ! function_exists( 'wp_get_connector' ) ) {
-			return '';
-		}
+		$authentication = self::get_connector_authentication( $provider_id );
 
-		$connector = wp_get_connector( $provider_id );
 		if (
-			! is_array( $connector ) ||
-			! isset( $connector['authentication']['method'] ) ||
-			'api_key' !== $connector['authentication']['method'] ||
-			empty( $connector['authentication']['setting_name'] )
+			empty( $authentication ) ||
+			! isset( $authentication['method'] ) ||
+			'api_key' !== $authentication['method'] ||
+			empty( $authentication['setting_name'] )
 		) {
 			return '';
 		}
 
-		return (string) get_option( $connector['authentication']['setting_name'], '' );
+		if ( ! empty( $authentication['env_var_name'] ) ) {
+			$env_value = getenv( $authentication['env_var_name'] );
+
+			if ( false !== $env_value && '' !== $env_value ) {
+				return (string) $env_value;
+			}
+		}
+
+		if ( ! empty( $authentication['constant_name'] ) && defined( $authentication['constant_name'] ) ) {
+			$constant_value = constant( $authentication['constant_name'] );
+
+			if ( is_string( $constant_value ) && '' !== $constant_value ) {
+				return $constant_value;
+			}
+		}
+
+		return (string) get_option( $authentication['setting_name'], '' );
 	}
 
 	/**
@@ -556,7 +560,23 @@ class Mind_AI_API {
 	 * @return bool
 	 */
 	public static function is_connector_connected( $provider_id ) {
-		return self::is_provider_registered( $provider_id ) && '' !== self::get_connector_api_key( $provider_id );
+		if ( ! self::is_provider_registered( $provider_id ) ) {
+			return false;
+		}
+
+		if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			try {
+				$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+
+				if ( $registry->hasProvider( $provider_id ) ) {
+					return $registry->isProviderConfigured( $provider_id );
+				}
+			} catch ( Exception $e ) {
+				// Fall back to local connector credential resolution below.
+			}
+		}
+
+		return '' !== self::get_connector_api_key( $provider_id );
 	}
 
 	/**
@@ -593,11 +613,7 @@ class Mind_AI_API {
 
 		$messages = $this->prepare_messages( $request, $selected_blocks, $page_blocks, $page_context );
 
-		if ( $connected_model['provider'] === 'openai' ) {
-			$this->request_open_ai( $connected_model, $messages );
-		} else {
-			$this->request_anthropic( $connected_model, $messages );
-		}
+		$this->request_ai_client( $connected_model, $messages );
 
 		exit;
 	}
@@ -639,314 +655,94 @@ class Mind_AI_API {
 	}
 
 	/**
-	 * Convert OpenAI messages format to Anthropic format.
+	 * Execute the prompt through the WordPress AI Client and preserve the current SSE contract.
 	 *
-	 * @param array $openai_messages Array of messages in OpenAI format.
-	 * @return array Messages in Anthropic format
+	 * @param array $model Connected model data.
+	 * @param array $messages Prepared prompt messages.
+	 *
+	 * @return void
 	 */
-	public function convert_to_anthropic_messages( $openai_messages ) {
-		$system   = [];
-		$messages = [];
-
-		foreach ( $openai_messages as $message ) {
-			if ( 'system' === $message['role'] ) {
-				$allow_cache = strlen( $message['content'] ) > 2100;
-
-				// Convert system message.
-				$system[] = array_merge(
-					array(
-						'type' => 'text',
-						'text' => $message['content'],
-					),
-					$allow_cache ? array(
-						'cache_control' => [ 'type' => 'ephemeral' ],
-					) : array()
-				);
-			} else {
-				// Convert user/assistant messages.
-				$messages[] = [
-					'role'    => 'assistant' === $message['role'] ? 'assistant' : 'user',
-					'content' => $message['content'],
-				];
-			}
+	private function request_ai_client( $model, $messages ) {
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			$this->send_stream_error( 'ai_client_unavailable', __( 'The WordPress AI Client is not available in this environment.', 'mind' ) );
+			return;
 		}
 
-		return array(
-			'system'   => $system,
-			'messages' => $messages,
-		);
+		$prompt_messages = $this->get_ai_client_messages( $messages );
+
+		if ( is_wp_error( $prompt_messages ) ) {
+			$this->send_stream_error( $prompt_messages->get_error_code(), $prompt_messages->get_error_message() );
+			return;
+		}
+
+		$builder = wp_ai_client_prompt( $prompt_messages );
+
+		try {
+			$registry   = \WordPress\AiClient\AiClient::defaultRegistry();
+			$exact_model = $registry->getProviderModel( $model['provider'], $model['name'] );
+		} catch ( Exception $e ) {
+			$this->send_stream_error( 'model_resolution_error', $e->getMessage() );
+			return;
+		}
+
+		if ( ! empty( $messages[0]['role'] ) && 'system' === $messages[0]['role'] && ! empty( $messages[0]['content'] ) ) {
+			$builder->using_system_instruction( $messages[0]['content'] );
+		}
+
+		$builder
+			->using_model( $exact_model )
+			->using_max_tokens( 8192 )
+			->using_temperature( 0.7 );
+
+		$content = $builder->generate_text();
+
+		if ( is_wp_error( $content ) ) {
+			$this->send_stream_error( $content->get_error_code(), $content->get_error_message() );
+			return;
+		}
+
+		if ( '' === trim( $content ) ) {
+			$this->send_stream_error( 'empty_ai_response', __( 'The AI Client returned an empty response.', 'mind' ) );
+			return;
+		}
+
+		$this->send_stream_chunk( [ 'content' => $content ] );
+		$this->send_stream_chunk( [ 'done' => true ] );
 	}
 
 	/**
-	 * Request Anthropic API.
+	 * Convert legacy message format to the shape accepted by wp_ai_client_prompt().
 	 *
-	 * @param array $model model.
-	 * @param array $messages messages.
-	 */
-	public function request_anthropic( $model, $messages ) {
-		$anthropic_messages = $this->convert_to_anthropic_messages( $messages );
-		$anthropic_version  = '2023-06-01';
-
-		$body = [
-			'model'      => $model['name'],
-			'max_tokens' => 8192,
-			'system'     => $anthropic_messages['system'],
-			'messages'   => $anthropic_messages['messages'],
-			'stream'     => true,
-		];
-
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
-
-		$ch = curl_init( 'https://api.anthropic.com/v1/messages' );
-		curl_setopt( $ch, CURLOPT_POST, 1 );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt(
-			$ch,
-			CURLOPT_HTTPHEADER,
-			[
-				'Content-Type: application/json',
-				'x-api-key: ' . $model['key'],
-				'anthropic-version: ' . $anthropic_version,
-			]
-		);
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
-		curl_setopt(
-			$ch,
-			CURLOPT_WRITEFUNCTION,
-			function ( $curl, $data ) {
-				// Response with error message.
-				if ( $data && strpos( $data, '{"type":"error","error":{' ) !== false ) {
-					$error_data = json_decode( $data, true );
-
-					if ( isset( $error_data['error']['message'] ) ) {
-						$this->send_stream_error( 'anthropic_error', $error_data['error']['message'] );
-					}
-
-					return strlen( $data );
-				}
-
-				$this->process_anthropic_stream_chunk( $data );
-
-				return strlen( $data );
-			}
-		);
-
-		curl_exec( $ch );
-
-		if ( curl_errno( $ch ) ) {
-			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
-		}
-
-		curl_close( $ch );
-	}
-
-	/**
-	 * Request OpenAI API.
+	 * @param array $messages Legacy prompt messages.
 	 *
-	 * @param array $model model.
-	 * @param array $messages messages.
+	 * @return array|WP_Error
 	 */
-	public function request_open_ai( $model, $messages ) {
-		$body = [
-			'model'       => $model['name'],
-			'stream'      => true,
-			'top_p'       => 0.9,
-			'temperature' => 0.7,
-			'messages'    => $messages,
-		];
+	private function get_ai_client_messages( $messages ) {
+		$prompt_messages = array();
 
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
-
-		$ch = curl_init( 'https://api.openai.com/v1/chat/completions' );
-		curl_setopt( $ch, CURLOPT_POST, 1 );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt(
-			$ch,
-			CURLOPT_HTTPHEADER,
-			[
-				'Content-Type: application/json',
-				'Authorization: Bearer ' . $model['key'],
-			]
-		);
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
-		curl_setopt(
-			$ch,
-			CURLOPT_WRITEFUNCTION,
-			function ( $curl, $data ) {
-				// Response with error message.
-				if ( $data && strpos( $data, "{\n    \"error\": {\n        \"message\":" ) !== false ) {
-					$error_data = json_decode( $data, true );
-
-					if ( isset( $error_data['error']['message'] ) ) {
-						$this->send_stream_error( 'openai_error', $error_data['error']['message'] );
-					}
-
-					return strlen( $data );
-				}
-
-				$this->process_openai_stream_chunk( $data );
-
-				return strlen( $data );
-			}
-		);
-
-		curl_exec( $ch );
-
-		if ( curl_errno( $ch ) ) {
-			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
-		}
-
-		curl_close( $ch );
-	}
-
-	/**
-	 * Process streaming chunk from OpenAI
-	 *
-	 * @param string $chunk - chunk of data.
-	 */
-	private function process_openai_stream_chunk( $chunk ) {
-		$lines = explode( "\n", $chunk );
-
-		foreach ( $lines as $line ) {
-			if ( strlen( trim( $line ) ) === 0 ) {
-				continue;
-			}
-
-			if ( strpos( $line, 'data: ' ) === 0 ) {
-				$json_data = trim( substr( $line, 6 ) );
-
-				if ( '[DONE]' === $json_data ) {
-					if ( ! empty( $this->buffer ) ) {
-						$this->send_buffered_chunk();
-					}
-					$this->send_stream_chunk( [ 'done' => true ] );
-					return;
-				}
-
-				try {
-					$data = json_decode( $json_data, true );
-
-					if ( isset( $data['choices'][0]['delta']['content'] ) ) {
-						$content = $data['choices'][0]['delta']['content'];
-
-						// Send immediately for JSON markers.
-						if ( strpos( $content, '```json' ) !== false ||
-							strpos( $content, '```' ) !== false ) {
-							if ( ! empty( $this->buffer ) ) {
-								$this->send_buffered_chunk();
-							}
-							$this->send_stream_chunk( [ 'content' => $content ] );
-							$this->last_send_time = microtime( true );
-							continue;
-						}
-
-						$this->buffer        .= $content;
-						$current_time         = microtime( true );
-						$time_since_last_send = $current_time - $this->last_send_time;
-
-						if ( strlen( $this->buffer ) >= self::BUFFER_THRESHOLD ||
-							$time_since_last_send >= self::MIN_SEND_INTERVAL ||
-							strpos( $this->buffer, "\n" ) !== false ) {
-							$this->send_buffered_chunk();
-						}
-					}
-				} catch ( Exception $e ) {
-					$this->send_stream_error( 'json_error', $e->getMessage() );
-				}
-			}
-		}
-	}
-
-	/**
-	 * Process streaming chunk from Anthropic
-	 *
-	 * @param string $chunk - chunk of data.
-	 */
-	private function process_anthropic_stream_chunk( $chunk ) {
-		$lines = explode( "\n", $chunk );
-
-		foreach ( $lines as $line ) {
-			if ( strlen( trim( $line ) ) === 0 ) {
-				continue;
-			}
-
-			// Remove "data: " prefix if exists.
-			if ( strpos( $line, 'data: ' ) === 0 ) {
-				$json_data = trim( substr( $line, 6 ) );
-			} else {
-				$json_data = trim( $line );
-			}
-
-			// Skip empty events.
-			if ( '' === $json_data ) {
+		foreach ( $messages as $message ) {
+			if ( empty( $message['content'] ) || empty( $message['role'] ) || 'system' === $message['role'] ) {
 				continue;
 			}
 
 			try {
-				$data = json_decode( $json_data, true );
-
-				if ( isset( $data['type'] ) ) {
-					if ( 'content_block_delta' === $data['type'] && isset( $data['delta']['text'] ) ) {
-						$content = $data['delta']['text'];
-
-						// Send immediately for JSON markers.
-						if (
-							strpos( $content, '```json' ) !== false ||
-							strpos( $content, '```' ) !== false
-						) {
-							if ( ! empty( $this->buffer ) ) {
-								$this->send_buffered_chunk();
-							}
-
-							$this->send_stream_chunk( [ 'content' => $content ] );
-							$this->last_send_time = microtime( true );
-						} else {
-							$this->buffer .= $content;
-							$current_time  = microtime( true );
-
-							$time_since_last_send = $current_time - $this->last_send_time;
-
-							if (
-								strlen( $this->buffer ) >= self::BUFFER_THRESHOLD ||
-								$time_since_last_send >= self::MIN_SEND_INTERVAL ||
-								strpos( $this->buffer, "\n" ) !== false
-							) {
-								$this->send_buffered_chunk();
-							}
-						}
-					} elseif ( 'message_stop' === $data['type'] ) {
-						if ( ! empty( $this->buffer ) ) {
-							$this->send_buffered_chunk();
-						}
-
-						$this->send_stream_chunk( [ 'done' => true ] );
-
-						return;
-					}
-				}
+				$prompt_messages[] = \WordPress\AiClient\Messages\DTO\Message::fromArray(
+					array(
+						'role'  => 'assistant' === $message['role'] ? 'model' : 'user',
+						'parts' => array(
+							array(
+								'type' => 'text',
+								'text' => $message['content'],
+							),
+						),
+					)
+				);
 			} catch ( Exception $e ) {
-				$this->send_stream_error( 'json_error', $e->getMessage() );
+				return new WP_Error( 'prompt_message_conversion_error', $e->getMessage() );
 			}
 		}
-	}
 
-
-	/**
-	 * Send buffered chunk
-	 */
-	private function send_buffered_chunk() {
-		if ( empty( $this->buffer ) ) {
-			return;
-		}
-
-		$this->send_stream_chunk(
-			[
-				'content' => $this->buffer,
-			]
-		);
-
-		$this->buffer         = '';
-		$this->last_send_time = microtime( true );
+		return $prompt_messages;
 	}
 
 	/**
