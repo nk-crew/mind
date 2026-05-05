@@ -78,8 +78,8 @@ class Mind_AI_API {
 	 * @return array
 	 */
 	public static function get_model_slots() {
-		$settings       = get_option( 'mind_settings', array() );
-		$selected_model = $settings['ai_model'] ?? '';
+		$settings        = get_option( 'mind_settings', array() );
+		$selected_model  = $settings['ai_model'] ?? '';
 		$provider_models = array(
 			'anthropic' => self::get_provider_models( 'anthropic' ),
 			'openai'    => self::get_provider_models( 'openai' ),
@@ -113,10 +113,10 @@ class Mind_AI_API {
 
 		return array_map(
 			static function ( $slot ) use ( $provider_models, $selected_model ) {
-				$models         = $provider_models[ $slot['provider'] ];
-				$current_model  = self::find_slot_model( $models, $slot['provider'], $slot['family'] );
-				$selected_slot  = self::get_model_family( $selected_model ) === $slot['family'];
-				$selected_item  = null;
+				$models        = $provider_models[ $slot['provider'] ];
+				$current_model = self::find_slot_model( $models, $slot['provider'], $slot['family'] );
+				$selected_slot = self::get_model_family( $selected_model ) === $slot['family'];
+				$selected_item = null;
 
 				if (
 					$selected_slot &&
@@ -201,8 +201,8 @@ class Mind_AI_API {
 			return null;
 		}
 
-		$model_id    = (string) $model_metadata->getId();
-		$model_name  = method_exists( $model_metadata, 'getName' ) ? (string) $model_metadata->getName() : $model_id;
+		$model_id   = (string) $model_metadata->getId();
+		$model_name = method_exists( $model_metadata, 'getName' ) ? (string) $model_metadata->getName() : $model_id;
 		$deprecated = self::get_model_deprecation_data( $model_metadata );
 
 		return array(
@@ -573,6 +573,7 @@ class Mind_AI_API {
 				}
 			} catch ( Exception $e ) {
 				// Fall back to local connector credential resolution below.
+				unset( $e );
 			}
 		}
 
@@ -678,7 +679,7 @@ class Mind_AI_API {
 		$builder = wp_ai_client_prompt( $prompt_messages );
 
 		try {
-			$registry   = \WordPress\AiClient\AiClient::defaultRegistry();
+			$registry    = \WordPress\AiClient\AiClient::defaultRegistry();
 			$exact_model = $registry->getProviderModel( $model['provider'], $model['name'] );
 		} catch ( Exception $e ) {
 			$this->send_stream_error( 'model_resolution_error', $e->getMessage() );

@@ -75,7 +75,10 @@ export default class BlocksStreamProcessor {
 							true
 						);
 					} else {
-						await this.parseFallbackContent(this.contentBuffer, true);
+						await this.parseFallbackContent(
+							this.contentBuffer,
+							true
+						);
 					}
 
 					if (!this.hasDispatchedBlocks) {
