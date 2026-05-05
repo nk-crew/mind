@@ -12,7 +12,7 @@ AI-powered WordPress page builder creates sections, redesigns blocks, and builds
 
 == Description ==
 
-Mind is a WordPress plugin that transforms your page building experience. Powered by AI technology, it helps you create and modify entire page sections, layouts, and content directly in the WordPress editor. With support for both Anthropic and OpenAI AI models, Mind seamlessly integrates with the WordPress block editor to enhance your page building workflow.
+Mind is a WordPress plugin that transforms your page building experience. Powered by AI technology, it helps you create and modify entire page sections, layouts, and content directly in the WordPress editor. With support for Anthropic and OpenAI models through WordPress Connectors, Mind seamlessly integrates with the WordPress block editor to enhance your page building workflow.
 
 === 🏗️ Complete Page Building Solution ===
 
@@ -95,13 +95,13 @@ There are multiple ways to use Mind in your WordPress site:
 
 With its comprehensive set of features, Mind empowers content creators to build high-quality pages and engaging posts, while saving time and effort in the content creation process.
 
-P.S. This plugin description was created using Mind and the OpenAI API.
+P.S. This plugin description was created using Mind with an OpenAI connector.
 
-=== OpenAI and Anthropic ===
+=== AI Providers and Connectors ===
 
-The Mind plugin utilizes both [OpenAI](https://platform.openai.com/) and [Anthropic](https://www.anthropic.com/) APIs without collecting any personal information. Data transmitted to these AI providers' servers includes post content and specified context needed to generate responses.
+Mind sends requests through WordPress Connectors to supported AI providers such as [OpenAI](https://platform.openai.com/) and [Anthropic](https://www.anthropic.com/) without collecting any personal information. Data transmitted to these providers' servers includes post content and specified context needed to generate responses.
 
-For the Mind plugin to function correctly, you need an API key from either OpenAI or Anthropic:
+For the Mind plugin to function correctly, you need to configure a supported provider in WordPress Settings → Connectors:
 - Sign up at <https://platform.openai.com/account/api-keys> to obtain an OpenAI API key
 - Sign up at <https://console.anthropic.com/> to obtain an Anthropic API key
 
@@ -117,7 +117,7 @@ Both services have their own data handling policies:
 - They offer data handling options for enterprise customers
 - Please review their [Privacy Policy](https://www.anthropic.com/privacy) and [Terms of Service](https://www.anthropic.com/terms) for more information
 
-Your choice of AI model can be configured in the plugin settings, and API keys are managed in WordPress Settings → Connectors.
+Your choice of AI model can be configured in the plugin settings, and provider credentials are managed in WordPress Settings → Connectors.
 
 == Installation ==
 
@@ -127,10 +127,10 @@ Install Mind either via the WordPress plugin directory or by uploading the files
 
 = Usage =
 
-To start using Mind features, you need to connect your OpenAI or Anthropic API key in WordPress Settings → Connectors.
+To start using Mind features, connect a supported AI provider in WordPress Settings → Connectors.
 
-- Get an OpenAI API key at <https://platform.openai.com/account/api-keys>
-- Insert this key in WordPress Settings → Connectors
+- Get an OpenAI API key at <https://platform.openai.com/account/api-keys> or an Anthropic API key at <https://console.anthropic.com/>
+- Insert the key in WordPress Settings → Connectors
 - Open any post or page in the WordPress editor (Gutenberg) and you will see the new button in the editor and paragraph toolbars
 
 == Frequently Asked Questions ==
