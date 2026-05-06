@@ -68,7 +68,7 @@ export default function Content() {
 		<div className="mind-popup-content">
 			{screen === 'request' && (
 				<div className="mind-popup-request">
-					{response?.length > 0 && (
+					{(loading || response?.length > 0) && (
 						<AIResponse
 							progress={progress}
 							loading={loading}

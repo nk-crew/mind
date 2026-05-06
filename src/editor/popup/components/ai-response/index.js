@@ -10,50 +10,37 @@ import './style.scss';
  * WordPress dependencies
  */
 import { memo, useState, useEffect, useRef } from '@wordpress/element';
-import { BlockPreview } from '@wordpress/block-editor';
+// WordPress does not expose a stable live block preview hook yet. The iframe
+// based BlockPreview renders blank in the WP 7 editor modal, while this hook
+// renders the exact WPBlock objects that will be inserted.
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { __experimentalUseBlockPreview as useBlockPreview } from '@wordpress/block-editor';
+import { __, sprintf } from '@wordpress/i18n';
 
-function RenderPreview({ response }) {
-	return (
-		<div className="mind-popup-response__preview">
-			<BlockPreview
-				// Since the preview does not render properly first block align full, we need to create the wrapper Group block with our custom styles.
-				// Align classes rendered properly only for the inner blocks.
-				blocks={[
-					{
-						name: 'core/group',
-						clientId: 'a9b75f7e-55c7-4f2b-93bb-00cf24181278',
-						isValid: true,
-						attributes: {
-							align: 'full',
-							layout: {
-								type: 'constrained',
-							},
-							className: 'alignfull',
-						},
-						innerBlocks: response,
-					},
-				]}
-				viewportWidth={0}
-				additionalStyles={[
-					{
-						css: `
-							.is-root-container > div {
-								margin-top: 0;
-							}
-						`,
-					},
-				]}
-			/>
-		</div>
-	);
+function RenderPreview({ response, active }) {
+	const previewProps = useBlockPreview({
+		blocks: response,
+		props: {
+			className: clsx('mind-popup-response__preview', {
+				'mind-popup-response__preview--active': active,
+			}),
+		},
+	});
+
+	return <div {...previewProps} />;
 }
 
 const AIResponse = memo(
-	function AIResponse({ response, loading }) {
+	function AIResponse({ response, loading, progress }) {
 		const [activePreview, setActivePreview] = useState(1);
 		const [preview1Data, setPreview1Data] = useState([]);
 		const [preview2Data, setPreview2Data] = useState([]);
 		const transitionTimeoutRef = useRef(null);
+		const activePreviewRef = useRef(activePreview);
+
+		useEffect(() => {
+			activePreviewRef.current = activePreview;
+		}, [activePreview]);
 
 		// This implementation make me cry, but it works for now.
 		// In short, when we have a single preview and update the response,
@@ -70,7 +57,7 @@ const AIResponse = memo(
 			}
 
 			// Update the inactive preview with new data
-			if (activePreview === 1) {
+			if (activePreviewRef.current === 1) {
 				setPreview2Data(response);
 			} else {
 				setPreview1Data(response);
@@ -79,7 +66,9 @@ const AIResponse = memo(
 			// Wait for the next frame to start transition.
 			// Small delay to ensure new content is rendered.
 			transitionTimeoutRef.current = setTimeout(() => {
-				setActivePreview(activePreview === 1 ? 2 : 1);
+				setActivePreview((currentPreview) =>
+					currentPreview === 1 ? 2 : 1
+				);
 			}, 50);
 
 			return () => {
@@ -93,6 +82,8 @@ const AIResponse = memo(
 			return null;
 		}
 
+		const blocksCount = progress?.blocksCount || 0;
+
 		return (
 			<div
 				className={clsx(
@@ -100,10 +91,37 @@ const AIResponse = memo(
 					`mind-popup-response--${activePreview}`
 				)}
 			>
+				{loading && response.length === 0 && (
+					<div className="mind-popup-response__loading">
+						<span />
+						<strong>{__('Generating blocks…', 'mind')}</strong>
+						<small>
+							{__(
+								'The preview will appear as soon as the first blocks are ready.',
+								'mind'
+							)}
+						</small>
+					</div>
+				)}
+				{loading && response.length > 0 && (
+					<div className="mind-popup-response__progress">
+						{sprintf(
+							// translators: %d: number of generated blocks.
+							__('%d blocks generated…', 'mind'),
+							blocksCount || response.length
+						)}
+					</div>
+				)}
 				{(preview1Data.length > 0 || preview2Data.length > 0) && (
 					<>
-						<RenderPreview response={preview1Data} />
-						<RenderPreview response={preview2Data} />
+						<RenderPreview
+							response={preview1Data}
+							active={activePreview === 1}
+						/>
+						<RenderPreview
+							response={preview2Data}
+							active={activePreview === 2}
+						/>
 					</>
 				)}
 			</div>
@@ -112,7 +130,8 @@ const AIResponse = memo(
 	(prevProps, nextProps) => {
 		return (
 			isEqual(prevProps.response, nextProps.response) &&
-			prevProps.loading === nextProps.loading
+			prevProps.loading === nextProps.loading &&
+			isEqual(prevProps.progress, nextProps.progress)
 		);
 	}
 );
