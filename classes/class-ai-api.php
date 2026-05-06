@@ -1201,6 +1201,22 @@ class Mind_AI_API {
 	 * @return void
 	 */
 	private function send_text_as_stream( $content ) {
+		if ( function_exists( 'mb_strcut' ) ) {
+			$content_length = strlen( $content );
+
+			for ( $offset = 0; $offset < $content_length; $offset += strlen( $chunk ) ) {
+				$chunk = mb_strcut( $content, $offset, self::BUFFER_THRESHOLD, 'UTF-8' );
+
+				if ( '' === $chunk ) {
+					$chunk = substr( $content, $offset, self::BUFFER_THRESHOLD );
+				}
+
+				$this->send_stream_chunk( array( 'content' => $chunk ) );
+			}
+
+			return;
+		}
+
 		foreach ( str_split( $content, self::BUFFER_THRESHOLD ) as $chunk ) {
 			$this->send_stream_chunk( array( 'content' => $chunk ) );
 		}
@@ -1261,7 +1277,24 @@ class Mind_AI_API {
 	 * @param array $data - data to send.
 	 */
 	private function send_stream_chunk( $data ) {
-		echo 'data: ' . wp_json_encode( $data ) . "\n\n";
+		$encoded_data = wp_json_encode( $data );
+
+		if ( false === $encoded_data ) {
+			$encoded_data = wp_json_encode(
+				array(
+					'error'   => true,
+					'code'    => 'stream_encoding_error',
+					'message' => 'Unable to encode stream payload.',
+				)
+			);
+
+			if ( false === $encoded_data ) {
+				return;
+			}
+		}
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SSE payload is encoded via wp_json_encode().
+		echo 'data: ' . $encoded_data . "\n\n";
 
 		if ( ob_get_level() > 0 ) {
 			ob_flush();
