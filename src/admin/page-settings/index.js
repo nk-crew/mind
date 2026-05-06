@@ -27,6 +27,10 @@ const providerNames = {
 	openai: 'OpenAI',
 };
 
+function getModelIdentity(model) {
+	return model?.canonicalName || model?.name;
+}
+
 function getModelForSlot(slot, selectedModel) {
 	if (slot.selectedModel?.name === selectedModel) {
 		return slot.selectedModel;
@@ -84,11 +88,11 @@ export default function PageSettings() {
 	const isProviderConnected = !!connectors?.[selectedProvider]?.connected;
 	const hasValidSelectedModel = selectedModel?.runtimeAvailable !== false;
 	const hasNewerModel =
-		selectedModel?.name &&
-		latestModel?.name &&
+		getModelIdentity(selectedModel) &&
+		getModelIdentity(latestModel) &&
 		selectedModel.provider === latestModel.provider &&
 		selectedModel.family === latestModel.family &&
-		selectedModel.name !== latestModel.name;
+		getModelIdentity(selectedModel) !== getModelIdentity(latestModel);
 
 	return (
 		<>
