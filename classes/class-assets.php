@@ -103,7 +103,7 @@ class Mind_Assets {
 			'mind-admin',
 			'mindAdminData',
 			[
-				'settings'          => get_option( 'mind_settings', array() ),
+				'settings'          => Mind::get_supported_settings( get_option( MIND_SETTINGS_OPTION, array() ) ),
 				'connected'         => ! ! Mind_AI_API::instance()->get_connected_model(),
 				'connectorsPageURL' => admin_url( 'options-connectors.php' ),
 				'modelSlots'        => Mind_AI_API::get_model_slots(),

@@ -23,10 +23,32 @@ if ( ! defined( 'MIND_VERSION' ) ) {
 	define( 'MIND_VERSION', '0.4.0' );
 }
 
+if ( ! defined( 'MIND_SETTINGS_OPTION' ) ) {
+	define( 'MIND_SETTINGS_OPTION', 'mind_settings' );
+}
+
+if ( ! defined( 'MIND_DB_VERSION_OPTION' ) ) {
+	define( 'MIND_DB_VERSION_OPTION', 'mind_db_version' );
+}
+
 /**
  * Mind Class
  */
 class Mind {
+	/**
+	 * Settings keys still persisted by the plugin UI.
+	 *
+	 * @var string[]
+	 */
+	private const SUPPORTED_SETTINGS_KEYS = array( 'ai_model' );
+
+	/**
+	 * Legacy credential keys kept only for cleanup.
+	 *
+	 * @var string[]
+	 */
+	private const LEGACY_SECRET_KEYS = array( 'openai_api_key', 'anthropic_api_key' );
+
 	/**
 	 * The single class instance.
 	 *
@@ -76,9 +98,35 @@ class Mind {
 
 		// include helper files.
 		$this->include_dependencies();
+		$this->maybe_upgrade();
 
 		// hooks.
 		add_action( 'init', [ $this, 'init_hook' ] );
+	}
+
+	/**
+	 * Keep stored settings in sync with the current plugin schema.
+	 *
+	 * @return void
+	 */
+	private function maybe_upgrade() {
+		$db_version = get_option( MIND_DB_VERSION_OPTION, '' );
+
+		if ( version_compare( (string) $db_version, MIND_VERSION, '>=' ) ) {
+			return;
+		}
+
+		$settings = get_option( MIND_SETTINGS_OPTION, array() );
+
+		if ( is_array( $settings ) ) {
+			$clean_settings = self::remove_legacy_secret_settings( $settings );
+
+			if ( $clean_settings !== $settings ) {
+				update_option( MIND_SETTINGS_OPTION, $clean_settings );
+			}
+		}
+
+		update_option( MIND_DB_VERSION_OPTION, MIND_VERSION );
 	}
 
 	/**
@@ -104,8 +152,44 @@ class Mind {
 	 * Activation Hook
 	 */
 	public function activation_hook() {
+		$this->maybe_upgrade();
+
 		// Welcome Page Flag.
 		set_transient( '_mind_welcome_screen_activation_redirect', true, 30 );
+	}
+
+	/**
+	 * Get settings that are still part of the public plugin contract.
+	 *
+	 * @param mixed $settings Raw settings option value.
+	 *
+	 * @return array
+	 */
+	public static function get_supported_settings( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
+
+		return array_intersect_key( $settings, array_flip( self::SUPPORTED_SETTINGS_KEYS ) );
+	}
+
+	/**
+	 * Remove stale credential keys left from pre-connector versions.
+	 *
+	 * @param mixed $settings Raw settings option value.
+	 *
+	 * @return array
+	 */
+	public static function remove_legacy_secret_settings( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
+
+		foreach ( self::LEGACY_SECRET_KEYS as $legacy_key ) {
+			unset( $settings[ $legacy_key ] );
+		}
+
+		return $settings;
 	}
 
 	/**

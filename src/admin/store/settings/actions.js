@@ -6,13 +6,19 @@ import apiFetch from '@wordpress/api-fetch';
 
 export function updateSettings(settings) {
 	return ({ dispatch }) => {
-		if (!settings || !Object.keys(settings).length) {
+		const persistedSettings = {};
+
+		if (settings?.ai_model !== undefined) {
+			persistedSettings.ai_model = settings.ai_model;
+		}
+
+		if (!Object.keys(persistedSettings).length) {
 			return;
 		}
 
 		dispatch({ type: 'UPDATE_SETTINGS_PENDING' });
 
-		const data = { settings };
+		const data = { settings: persistedSettings };
 
 		apiFetch({
 			path: '/mind/v1/update_settings',
@@ -22,7 +28,7 @@ export function updateSettings(settings) {
 			.then((res) => {
 				dispatch({
 					type: 'UPDATE_SETTINGS_SUCCESS',
-					settings,
+					settings: persistedSettings,
 				});
 				return res.response;
 			})

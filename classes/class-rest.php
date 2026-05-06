@@ -100,7 +100,7 @@ class Mind_Rest extends WP_REST_Controller {
 		$new_settings = $req->get_param( 'settings' );
 
 		if ( is_array( $new_settings ) ) {
-			$current_settings = get_option( 'mind_settings', [] );
+			$current_settings = Mind::remove_legacy_secret_settings( get_option( MIND_SETTINGS_OPTION, array() ) );
 			$settings         = [];
 
 			if ( isset( $new_settings['ai_model'] ) ) {
@@ -114,7 +114,7 @@ class Mind_Rest extends WP_REST_Controller {
 			}
 
 			if ( $settings ) {
-				update_option( 'mind_settings', array_merge( $current_settings, $settings ) );
+				update_option( MIND_SETTINGS_OPTION, array_merge( $current_settings, $settings ) );
 			}
 		}
 
