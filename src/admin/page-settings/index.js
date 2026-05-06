@@ -81,18 +81,18 @@ export default function PageSettings() {
 	const selectedModel = selectedSlot
 		? getModelForSlot(selectedSlot, pendingSettings.ai_model)
 		: null;
-	const latestModel = selectedSlot?.model;
+	const currentSlotModel = selectedSlot?.model;
 	const selectedProvider = selectedSlot?.provider || 'openai';
 	const selectedProviderName =
 		providerNames[selectedProvider] || selectedProvider;
 	const isProviderConnected = !!connectors?.[selectedProvider]?.connected;
 	const hasValidSelectedModel = selectedModel?.runtimeAvailable !== false;
-	const hasNewerModel =
+	const hasCurrentSlotAlternative =
 		getModelIdentity(selectedModel) &&
-		getModelIdentity(latestModel) &&
-		selectedModel.provider === latestModel.provider &&
-		selectedModel.family === latestModel.family &&
-		getModelIdentity(selectedModel) !== getModelIdentity(latestModel);
+		getModelIdentity(currentSlotModel) &&
+		selectedModel.provider === currentSlotModel.provider &&
+		selectedModel.family === currentSlotModel.family &&
+		getModelIdentity(selectedModel) !== getModelIdentity(currentSlotModel);
 
 	return (
 		<>
@@ -196,13 +196,16 @@ export default function PageSettings() {
 				</div>
 			)}
 
-			{hasNewerModel && (
+			{hasCurrentSlotAlternative && (
 				<div className="mind-admin-settings-notice">
 					<span>
 						{sprintf(
 							// translators: %s: AI model title.
-							__('A newer model is available: %s.', 'mind'),
-							latestModel.title
+							__(
+								'A different current model is available for this slot: %s. You can keep the saved model or switch to this one.',
+								'mind'
+							),
+							currentSlotModel.title
 						)}
 					</span>
 					<button
@@ -210,11 +213,11 @@ export default function PageSettings() {
 							e.preventDefault();
 							setPendingSettings({
 								...pendingSettings,
-								ai_model: latestModel.name,
+								ai_model: currentSlotModel.name,
 							});
 						}}
 					>
-						{__('Use newer model', 'mind')}
+						{__('Use current model', 'mind')}
 					</button>
 				</div>
 			)}

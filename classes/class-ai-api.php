@@ -224,6 +224,7 @@ class Mind_AI_API {
 		$model_name      = is_string( $model_name ) ? $model_name : '';
 		$provider_id     = self::get_model_provider( $model_name );
 		$family          = self::get_model_family( $model_name );
+		$runtime_name    = self::get_runtime_model_name( $model_name );
 		$registered      = $provider_id ? self::is_provider_registered( $provider_id ) : false;
 		$connected       = $provider_id ? self::is_connector_connected( $provider_id ) : false;
 		$provider_models = ( $provider_id && $connected ) ? self::get_provider_models( $provider_id ) : array();
@@ -240,21 +241,22 @@ class Mind_AI_API {
 
 		return array(
 			'name'             => $model_name,
+			'runtimeName'      => $runtime_name,
 			'provider'         => $provider_id,
 			'family'           => $family,
 			'registered'       => $registered,
 			'connected'        => $connected,
 			'currentModel'     => $current_model,
 			'selectedModel'    => $selected_model,
-			'runtimeAvailable' => self::can_resolve_runtime_model( $provider_id, $model_name ),
+			'runtimeAvailable' => self::can_resolve_runtime_model( $provider_id, $runtime_name ),
 		);
 	}
 
 	/**
-	 * Check whether the exact saved model can be resolved by the provider registry.
+	 * Check whether a model can be resolved by the provider registry.
 	 *
 	 * @param string $provider_id Provider ID.
-	 * @param string $model_name Saved model name.
+	 * @param string $model_name Runtime model name.
 	 *
 	 * @return bool
 	 */
@@ -275,6 +277,28 @@ class Mind_AI_API {
 		} catch ( Throwable $e ) {
 			return false;
 		}
+	}
+
+	/**
+	 * Resolve a saved model name to the provider runtime model ID.
+	 *
+	 * @param string $model_name Saved model name.
+	 *
+	 * @return string
+	 */
+	private static function get_runtime_model_name( $model_name ) {
+		$model_name = is_string( $model_name ) ? $model_name : '';
+
+		if ( '' === $model_name ) {
+			return '';
+		}
+
+		$legacy_model_names = array(
+			'claude-3-7-sonnet' => 'claude-sonnet-3-7',
+			'claude-3-7-haiku'  => 'claude-haiku-3-7',
+		);
+
+		return $legacy_model_names[ $model_name ] ?? $model_name;
 	}
 
 	/**
@@ -802,11 +826,12 @@ class Mind_AI_API {
 			return;
 		}
 
-		$builder = wp_ai_client_prompt( $prompt_messages );
+		$builder            = wp_ai_client_prompt( $prompt_messages );
+		$runtime_model_name = self::get_runtime_model_name( $model['name'] );
 
 		try {
 			$registry    = \WordPress\AiClient\AiClient::defaultRegistry();
-			$exact_model = $registry->getProviderModel( $model['provider'], $model['name'] );
+			$exact_model = $registry->getProviderModel( $model['provider'], $runtime_model_name );
 		} catch ( Exception $e ) {
 			$this->send_stream_error( 'model_resolution_error', $e->getMessage() );
 			return;
@@ -1217,9 +1242,49 @@ class Mind_AI_API {
 			return;
 		}
 
-		foreach ( str_split( $content, self::BUFFER_THRESHOLD ) as $chunk ) {
+		foreach ( $this->get_utf8_safe_chunks( $content ) as $chunk ) {
 			$this->send_stream_chunk( array( 'content' => $chunk ) );
 		}
+	}
+
+	/**
+	 * Split UTF-8 content into SSE-safe chunks without relying on mbstring.
+	 *
+	 * @param string $content UTF-8 content.
+	 *
+	 * @return array
+	 */
+	private function get_utf8_safe_chunks( $content ) {
+		if ( '' === $content ) {
+			return array();
+		}
+
+		if ( ! preg_match_all( '/./us', $content, $matches ) ) {
+			return str_split( $content, self::BUFFER_THRESHOLD );
+		}
+
+		$chunks        = array();
+		$current_chunk = '';
+		$current_bytes = 0;
+
+		foreach ( $matches[0] as $character ) {
+			$character_bytes = strlen( $character );
+
+			if ( '' !== $current_chunk && $current_bytes + $character_bytes > self::BUFFER_THRESHOLD ) {
+				$chunks[]      = $current_chunk;
+				$current_chunk = '';
+				$current_bytes = 0;
+			}
+
+			$current_chunk .= $character;
+			$current_bytes += $character_bytes;
+		}
+
+		if ( '' !== $current_chunk ) {
+			$chunks[] = $current_chunk;
+		}
+
+		return $chunks;
 	}
 
 	/**
