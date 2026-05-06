@@ -14,6 +14,48 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Mind_AI_API {
 	/**
+	 * Buffer for provider streaming response.
+	 *
+	 * @var string
+	 */
+	private $buffer = '';
+
+	/**
+	 * Buffer for partial provider SSE lines.
+	 *
+	 * @var string
+	 */
+	private $provider_stream_buffer = '';
+
+	/**
+	 * Last time the buffer was sent.
+	 *
+	 * @var float
+	 */
+	private $last_send_time = 0;
+
+	/**
+	 * Whether the provider stream has already sent the final event.
+	 *
+	 * @var bool
+	 */
+	private $stream_done = false;
+
+	/**
+	 * Buffer threshold.
+	 *
+	 * @var int
+	 */
+	private const BUFFER_THRESHOLD = 150;
+
+	/**
+	 * Minimum send interval.
+	 *
+	 * @var float
+	 */
+	private const MIN_SEND_INTERVAL = 0.05;
+
+	/**
 	 * The single class instance.
 	 *
 	 * @var null
@@ -779,6 +821,10 @@ class Mind_AI_API {
 			->using_max_tokens( 8192 )
 			->using_temperature( 0.7 );
 
+		if ( $this->request_ai_client_stream( $model, $messages, $registry ) ) {
+			return;
+		}
+
 		$content = $builder->generate_text();
 
 		if ( is_wp_error( $content ) ) {
@@ -791,14 +837,393 @@ class Mind_AI_API {
 			return;
 		}
 
-		$this->send_stream_chunk( [ 'content' => $content ] );
-		$this->send_stream_chunk( [ 'done' => true ] );
+		$this->send_text_as_stream( $content );
+		$this->send_stream_done();
 	}
 
 	/**
-	 * Convert legacy message format to the shape accepted by wp_ai_client_prompt().
+	 * Stream through provider APIs using credentials from WordPress Connectors.
 	 *
-	 * @param array $messages Legacy prompt messages.
+	 * @param array  $model Connected model data.
+	 * @param array  $messages Prepared prompt messages.
+	 * @param object $registry AI Client provider registry.
+	 *
+	 * @return bool Whether the request was handled.
+	 */
+	private function request_ai_client_stream( $model, $messages, $registry ) {
+		if ( ! function_exists( 'curl_init' ) ) {
+			return false;
+		}
+
+		$api_key = $this->get_provider_api_key( $model['provider'], $registry );
+
+		if ( ! $api_key ) {
+			return false;
+		}
+
+		$this->reset_stream_state();
+
+		if ( 'openai' === $model['provider'] ) {
+			$this->request_openai_stream( $model, $messages, $api_key );
+			return true;
+		}
+
+		if ( 'anthropic' === $model['provider'] ) {
+			$this->request_anthropic_stream( $model, $messages, $api_key );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get provider API key from the WordPress AI Client registry.
+	 *
+	 * @param string $provider_id Provider ID.
+	 * @param object $registry AI Client provider registry.
+	 *
+	 * @return string
+	 */
+	private function get_provider_api_key( $provider_id, $registry ) {
+		if ( ! method_exists( $registry, 'getProviderRequestAuthentication' ) ) {
+			return self::get_connector_api_key( $provider_id );
+		}
+
+		try {
+			$authentication = $registry->getProviderRequestAuthentication( $provider_id );
+		} catch ( Throwable $e ) {
+			return self::get_connector_api_key( $provider_id );
+		}
+
+		if ( ! $authentication || ! method_exists( $authentication, 'getApiKey' ) ) {
+			return self::get_connector_api_key( $provider_id );
+		}
+
+		$api_key = (string) $authentication->getApiKey();
+
+		return $api_key ? $api_key : self::get_connector_api_key( $provider_id );
+	}
+
+	/**
+	 * Reset streaming state before a provider request.
+	 *
+	 * @return void
+	 */
+	private function reset_stream_state() {
+		$this->buffer                 = '';
+		$this->provider_stream_buffer = '';
+		$this->last_send_time         = microtime( true );
+		$this->stream_done            = false;
+	}
+
+	/**
+	 * Request OpenAI-compatible streaming API.
+	 *
+	 * @param array  $model Connected model data.
+	 * @param array  $messages Prepared prompt messages.
+	 * @param string $api_key Provider API key.
+	 *
+	 * @return void
+	 */
+	private function request_openai_stream( $model, $messages, $api_key ) {
+		$body = array(
+			'model'       => $model['name'],
+			'stream'      => true,
+			'max_tokens'  => 8192,
+			'temperature' => 0.7,
+			'messages'    => $messages,
+		);
+
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
+		$ch = curl_init( 'https://api.openai.com/v1/chat/completions' );
+		curl_setopt( $ch, CURLOPT_POST, 1 );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $api_key,
+			)
+		);
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+		curl_setopt(
+			$ch,
+			CURLOPT_WRITEFUNCTION,
+			function ( $curl, $data ) {
+				$this->process_openai_stream_chunk( $data );
+				return strlen( $data );
+			}
+		);
+
+		curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
+		} elseif ( ! $this->stream_done ) {
+			$this->send_buffered_chunk();
+			$this->send_stream_done();
+		}
+
+		curl_close( $ch );
+		/* phpcs:enable */
+	}
+
+	/**
+	 * Request Anthropic streaming API.
+	 *
+	 * @param array  $model Connected model data.
+	 * @param array  $messages Prepared prompt messages.
+	 * @param string $api_key Provider API key.
+	 *
+	 * @return void
+	 */
+	private function request_anthropic_stream( $model, $messages, $api_key ) {
+		$anthropic_messages = $this->convert_to_anthropic_messages( $messages );
+		$body               = array(
+			'model'       => $model['name'],
+			'max_tokens'  => 8192,
+			'temperature' => 0.7,
+			'system'      => $anthropic_messages['system'],
+			'messages'    => $anthropic_messages['messages'],
+			'stream'      => true,
+		);
+
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
+		$ch = curl_init( 'https://api.anthropic.com/v1/messages' );
+		curl_setopt( $ch, CURLOPT_POST, 1 );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Content-Type: application/json',
+				'x-api-key: ' . $api_key,
+				'anthropic-version: 2023-06-01',
+			)
+		);
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+		curl_setopt(
+			$ch,
+			CURLOPT_WRITEFUNCTION,
+			function ( $curl, $data ) {
+				$this->process_anthropic_stream_chunk( $data );
+				return strlen( $data );
+			}
+		);
+
+		curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
+		} elseif ( ! $this->stream_done ) {
+			$this->send_buffered_chunk();
+			$this->send_stream_done();
+		}
+
+		curl_close( $ch );
+		/* phpcs:enable */
+	}
+
+	/**
+	 * Convert OpenAI messages format to Anthropic format.
+	 *
+	 * @param array $openai_messages OpenAI-style messages.
+	 *
+	 * @return array
+	 */
+	private function convert_to_anthropic_messages( $openai_messages ) {
+		$system   = array();
+		$messages = array();
+
+		foreach ( $openai_messages as $message ) {
+			if ( 'system' === $message['role'] ) {
+				$system[] = array(
+					'type' => 'text',
+					'text' => $message['content'],
+				);
+			} else {
+				$messages[] = array(
+					'role'    => 'assistant' === $message['role'] ? 'assistant' : 'user',
+					'content' => $message['content'],
+				);
+			}
+		}
+
+		return array(
+			'system'   => $system,
+			'messages' => $messages,
+		);
+	}
+
+	/**
+	 * Process streaming chunk from OpenAI.
+	 *
+	 * @param string $chunk Chunk of provider data.
+	 *
+	 * @return void
+	 */
+	private function process_openai_stream_chunk( $chunk ) {
+		$this->process_provider_stream_lines(
+			$chunk,
+			function ( $json_data ) {
+				if ( '[DONE]' === $json_data ) {
+					$this->send_buffered_chunk();
+					$this->send_stream_done();
+					return;
+				}
+
+				$data = json_decode( $json_data, true );
+
+				if ( isset( $data['error']['message'] ) ) {
+					$this->send_stream_error( 'openai_error', $data['error']['message'] );
+					return;
+				}
+
+				if ( isset( $data['choices'][0]['delta']['content'] ) ) {
+					$this->buffer_provider_content( $data['choices'][0]['delta']['content'] );
+				}
+			}
+		);
+	}
+
+	/**
+	 * Process streaming chunk from Anthropic.
+	 *
+	 * @param string $chunk Chunk of provider data.
+	 *
+	 * @return void
+	 */
+	private function process_anthropic_stream_chunk( $chunk ) {
+		$this->process_provider_stream_lines(
+			$chunk,
+			function ( $json_data ) {
+				$data = json_decode( $json_data, true );
+
+				if ( isset( $data['error']['message'] ) ) {
+					$this->send_stream_error( 'anthropic_error', $data['error']['message'] );
+					return;
+				}
+
+				if ( isset( $data['type'] ) && 'content_block_delta' === $data['type'] && isset( $data['delta']['text'] ) ) {
+					$this->buffer_provider_content( $data['delta']['text'] );
+				} elseif ( isset( $data['type'] ) && 'message_stop' === $data['type'] ) {
+					$this->send_buffered_chunk();
+					$this->send_stream_done();
+				}
+			}
+		);
+	}
+
+	/**
+	 * Process provider SSE lines with buffering for partial chunks.
+	 *
+	 * @param string   $chunk Chunk of provider data.
+	 * @param callable $callback Callback for each JSON payload.
+	 *
+	 * @return void
+	 */
+	private function process_provider_stream_lines( $chunk, $callback ) {
+		$this->provider_stream_buffer .= $chunk;
+		$lines                         = explode( "\n", $this->provider_stream_buffer );
+		$this->provider_stream_buffer  = array_pop( $lines );
+
+		foreach ( $lines as $line ) {
+			$line = trim( $line );
+
+			if ( '' === $line ) {
+				continue;
+			}
+
+			$json_data = 0 === strpos( $line, 'data: ' ) ? trim( substr( $line, 6 ) ) : $line;
+
+			if ( '[DONE]' !== $json_data && '{' !== substr( $json_data, 0, 1 ) ) {
+				continue;
+			}
+
+			if ( '' === $json_data ) {
+				continue;
+			}
+
+			$callback( $json_data );
+		}
+	}
+
+	/**
+	 * Buffer provider content and flush it periodically.
+	 *
+	 * @param string $content Content delta.
+	 *
+	 * @return void
+	 */
+	private function buffer_provider_content( $content ) {
+		if (
+			false !== strpos( $content, '```json' ) ||
+			false !== strpos( $content, '```' )
+		) {
+			$this->send_buffered_chunk();
+			$this->send_stream_chunk( array( 'content' => $content ) );
+			$this->last_send_time = microtime( true );
+			return;
+		}
+
+		$this->buffer .= $content;
+
+		if (
+			strlen( $this->buffer ) >= self::BUFFER_THRESHOLD ||
+			microtime( true ) - $this->last_send_time >= self::MIN_SEND_INTERVAL ||
+			false !== strpos( $this->buffer, "\n" )
+		) {
+			$this->send_buffered_chunk();
+		}
+	}
+
+	/**
+	 * Send buffered provider content.
+	 *
+	 * @return void
+	 */
+	private function send_buffered_chunk() {
+		if ( '' === $this->buffer ) {
+			return;
+		}
+
+		$this->send_stream_chunk( array( 'content' => $this->buffer ) );
+		$this->buffer         = '';
+		$this->last_send_time = microtime( true );
+	}
+
+	/**
+	 * Send non-streaming content in smaller SSE chunks.
+	 *
+	 * @param string $content AI response content.
+	 *
+	 * @return void
+	 */
+	private function send_text_as_stream( $content ) {
+		foreach ( str_split( $content, self::BUFFER_THRESHOLD ) as $chunk ) {
+			$this->send_stream_chunk( array( 'content' => $chunk ) );
+		}
+	}
+
+	/**
+	 * Send final stream event.
+	 *
+	 * @return void
+	 */
+	private function send_stream_done() {
+		if ( $this->stream_done ) {
+			return;
+		}
+
+		$this->stream_done = true;
+		$this->send_stream_chunk( array( 'done' => true ) );
+	}
+
+	/**
+	 * Convert prompt messages to the shape accepted by wp_ai_client_prompt().
+	 *
+	 * @param array $messages Prompt messages.
 	 *
 	 * @return array|WP_Error
 	 */
