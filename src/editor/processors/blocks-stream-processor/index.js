@@ -11,6 +11,7 @@ export default class BlocksStreamProcessor {
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
 		this.hasDispatchedBlocks = false;
+		this.hasFinalDispatched = false;
 
 		// Add throttled dispatch
 		this.throttledDispatch = this.throttle(
@@ -69,6 +70,10 @@ export default class BlocksStreamProcessor {
 					this.handleError(data);
 					break;
 				} else if (data.done === true) {
+					if (this.hasFinalDispatched) {
+						return;
+					}
+
 					if (this.jsonBuffer) {
 						await this.parseAndDispatchBlocks(
 							this.jsonBuffer,
@@ -136,6 +141,8 @@ export default class BlocksStreamProcessor {
 
 	async tryParseIncomplete(jsonContent) {
 		try {
+			jsonContent = this.normalizeJsonContent(jsonContent);
+
 			// If empty or not starting with [, return minimal valid JSON
 			if (!jsonContent || !jsonContent.trim().startsWith('[')) {
 				return;
@@ -165,6 +172,8 @@ export default class BlocksStreamProcessor {
 
 	async parseAndDispatchBlocks(jsonContent, isFinal = false) {
 		try {
+			jsonContent = this.normalizeJsonContent(jsonContent);
+
 			const blocks = JSON.parse(jsonContent);
 
 			const transformedBlocks = Array.isArray(blocks)
@@ -184,6 +193,10 @@ export default class BlocksStreamProcessor {
 		}
 
 		return false;
+	}
+
+	normalizeJsonContent(jsonContent) {
+		return jsonContent.replace(/^\s*json\s*/i, '');
 	}
 
 	async parseFallbackContent(content, isFinal = false) {
@@ -239,6 +252,7 @@ export default class BlocksStreamProcessor {
 		this.hasDispatchedBlocks = true;
 
 		if (isFinal) {
+			this.hasFinalDispatched = true;
 			// Final dispatch should always happen immediately
 			this.performDispatch(blocks, true);
 		} else {
