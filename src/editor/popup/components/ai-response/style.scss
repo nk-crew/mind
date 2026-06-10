@@ -1,7 +1,6 @@
 .mind-popup-response {
 	position: relative;
 	width: 100%;
-	min-height: 160px;
 
 	/* GPU acceleration */
 	transform: translateZ(0);
@@ -14,52 +13,6 @@
 	.block-editor-block-preview__content iframe {
 		max-height: none !important;
 	}
-}
-
-.mind-popup-response__loading {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 8px;
-	min-height: 220px;
-	color: rgba(0, 0, 0, 55%);
-	text-align: center;
-
-	span {
-		display: block;
-		width: 28px;
-		height: 28px;
-		border: 2px solid rgba(0, 0, 0, 12%);
-		border-top-color: #000;
-		border-radius: 50%;
-		animation: mind-response-loading-spin 0.8s linear infinite;
-	}
-
-	strong {
-		color: #000;
-		font-size: 14px;
-		font-weight: 600;
-	}
-
-	small {
-		max-width: 280px;
-		font-size: 12px;
-		line-height: 1.4;
-	}
-}
-
-.mind-popup-response__progress {
-	position: sticky;
-	top: 0;
-	z-index: 3;
-	padding: 8px 12px;
-	margin-bottom: 10px;
-	color: rgba(0, 0, 0, 65%);
-	background-color: rgba(255, 255, 255, 92%);
-	border-bottom: 1px solid rgba(0, 0, 0, 8%);
-	font-size: 12px;
-	font-weight: 600;
 }
 
 .mind-popup-response__preview {
@@ -95,12 +48,6 @@
 	}
 	50% {
 		opacity: 0;
-	}
-}
-
-@keyframes mind-response-loading-spin {
-	to {
-		transform: rotate(360deg);
 	}
 }
 

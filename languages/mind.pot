@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Mind 1.0.0\n"
+"Project-Id-Version: AI Mind 0.4.0\n"
 "Report-Msgid-Bugs-To: https://github.com/nk-crew/mind/issues\n"
 "Last-Translator: Lazy Blocks Team\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-10T10:49:00+00:00\n"
+"POT-Creation-Date: 2026-06-10T11:12:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -77,8 +77,16 @@ msgstr ""
 msgid "The WordPress AI Client is not available in this environment."
 msgstr ""
 
-#: classes/class-ai-stream.php:104
+#: classes/class-ai-stream.php:101
+msgid "Mind could not stream through the Vercel AI Gateway. Check your AI Gateway API key in Settings → Connectors."
+msgstr ""
+
+#: classes/class-ai-stream.php:117
 msgid "The AI Client returned an empty response."
+msgstr ""
+
+#: classes/class-ai-stream.php:228
+msgid "Could not resolve an AI Gateway model ID."
 msgstr ""
 
 #: classes/class-rest.php:73
@@ -384,19 +392,6 @@ msgstr ""
 #. translators: %s - tone.
 #: src/editor/extensions/block-toolbar/index.js:244
 msgid "Translate to %s"
-msgstr ""
-
-#: src/editor/popup/components/ai-response/index.js:97
-msgid "Generating blocks…"
-msgstr ""
-
-#: src/editor/popup/components/ai-response/index.js:99
-msgid "The preview will appear as soon as the first blocks are ready."
-msgstr ""
-
-#. translators: %d: number of generated blocks.
-#: src/editor/popup/components/ai-response/index.js:110
-msgid "%d blocks generated…"
 msgstr ""
 
 #: src/editor/popup/components/footer/index.js:41

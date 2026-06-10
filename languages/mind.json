@@ -44,7 +44,13 @@
          "The WordPress AI Client is not available in this environment.": [
             ""
          ],
+         "Mind could not stream through the Vercel AI Gateway. Check your AI Gateway API key in Settings → Connectors.": [
+            ""
+         ],
          "The AI Client returned an empty response.": [
+            ""
+         ],
+         "Could not resolve an AI Gateway model ID.": [
             ""
          ],
          "User don't have permissions to change options.": [
@@ -270,15 +276,6 @@
             ""
          ],
          "Translate to %s": [
-            ""
-         ],
-         "Generating blocks…": [
-            ""
-         ],
-         "The preview will appear as soon as the first blocks are ready.": [
-            ""
-         ],
-         "%d blocks generated…": [
             ""
          ],
          "Page": [

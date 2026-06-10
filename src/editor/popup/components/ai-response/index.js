@@ -15,7 +15,6 @@ import { memo, useState, useEffect, useRef } from '@wordpress/element';
 // renders the exact WPBlock objects that will be inserted.
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __experimentalUseBlockPreview as useBlockPreview } from '@wordpress/block-editor';
-import { __, sprintf } from '@wordpress/i18n';
 
 function RenderPreview({ response, active }) {
 	const previewProps = useBlockPreview({
@@ -31,7 +30,7 @@ function RenderPreview({ response, active }) {
 }
 
 const AIResponse = memo(
-	function AIResponse({ response, loading, progress }) {
+	function AIResponse({ response, loading }) {
 		const [activePreview, setActivePreview] = useState(1);
 		const [preview1Data, setPreview1Data] = useState([]);
 		const [preview2Data, setPreview2Data] = useState([]);
@@ -82,8 +81,6 @@ const AIResponse = memo(
 			return null;
 		}
 
-		const blocksCount = progress?.blocksCount || 0;
-
 		return (
 			<div
 				className={clsx(
@@ -91,27 +88,6 @@ const AIResponse = memo(
 					`mind-popup-response--${activePreview}`
 				)}
 			>
-				{loading && response.length === 0 && (
-					<div className="mind-popup-response__loading">
-						<span />
-						<strong>{__('Generating blocks…', 'mind')}</strong>
-						<small>
-							{__(
-								'The preview will appear as soon as the first blocks are ready.',
-								'mind'
-							)}
-						</small>
-					</div>
-				)}
-				{loading && response.length > 0 && (
-					<div className="mind-popup-response__progress">
-						{sprintf(
-							// translators: %d: number of generated blocks.
-							__('%d blocks generated…', 'mind'),
-							blocksCount || response.length
-						)}
-					</div>
-				)}
 				{(preview1Data.length > 0 || preview2Data.length > 0) && (
 					<>
 						<RenderPreview
@@ -130,8 +106,7 @@ const AIResponse = memo(
 	(prevProps, nextProps) => {
 		return (
 			isEqual(prevProps.response, nextProps.response) &&
-			prevProps.loading === nextProps.loading &&
-			isEqual(prevProps.progress, nextProps.progress)
+			prevProps.loading === nextProps.loading
 		);
 	}
 );
