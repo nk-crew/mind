@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       AI Mind
- * Description:       AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks.
- * Requires at least: 6.5
- * Requires PHP:      7.2
+ * Description:       AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks.
+ * Requires at least: 7.0
+ * Requires PHP:      7.4
  * Version:           0.4.0
  * Plugin URI:        https://www.wp-mind.com/
  * Author:            Mind Team
@@ -23,10 +23,21 @@ if ( ! defined( 'MIND_VERSION' ) ) {
 	define( 'MIND_VERSION', '0.4.0' );
 }
 
+if ( ! defined( 'MIND_SETTINGS_OPTION' ) ) {
+	define( 'MIND_SETTINGS_OPTION', 'mind_settings' );
+}
+
 /**
  * Mind Class
  */
 class Mind {
+	/**
+	 * Settings keys still persisted by the plugin UI.
+	 *
+	 * @var string[]
+	 */
+	private const SUPPORTED_SETTINGS_KEYS = array( 'ai_provider', 'ai_model' );
+
 	/**
 	 * The single class instance.
 	 *
@@ -86,7 +97,9 @@ class Mind {
 	 */
 	private function include_dependencies() {
 		require_once $this->plugin_path . 'classes/class-prompts.php';
-		require_once $this->plugin_path . 'classes/class-ai-api.php';
+		require_once $this->plugin_path . 'classes/class-ai-settings.php';
+		require_once $this->plugin_path . 'classes/class-ai-stream.php';
+		require_once $this->plugin_path . 'classes/class-ai-request.php';
 		require_once $this->plugin_path . 'classes/class-admin.php';
 		require_once $this->plugin_path . 'classes/class-assets.php';
 		require_once $this->plugin_path . 'classes/class-rest.php';
@@ -104,8 +117,33 @@ class Mind {
 	 * Activation Hook
 	 */
 	public function activation_hook() {
-		// Welcome Page Flag.
+		// Full settings reset — intentional breaking change on upgrade.
+		update_option(
+			MIND_SETTINGS_OPTION,
+			array(
+				'ai_provider' => '',
+				'ai_model'    => '',
+			)
+		);
+
+		delete_option( 'mind_db_version' );
+
 		set_transient( '_mind_welcome_screen_activation_redirect', true, 30 );
+	}
+
+	/**
+	 * Get settings that are still part of the public plugin contract.
+	 *
+	 * @param mixed $settings Raw settings option value.
+	 *
+	 * @return array
+	 */
+	public static function get_supported_settings( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
+
+		return array_intersect_key( $settings, array_flip( self::SUPPORTED_SETTINGS_KEYS ) );
 	}
 
 	/**

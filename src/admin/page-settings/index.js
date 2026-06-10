@@ -13,48 +13,29 @@ import clsx from 'clsx';
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { isEqual } from 'lodash';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import isValidOpenAIApiKey from '../../utils/is-valid-openai-api-key';
-import isValidAnthropicApiKey from '../../utils/is-valid-anthropic-api-key';
 import { ReactComponent as LoadingIcon } from '../../icons/loading.svg';
 
-const models = [
-	{
-		title: __('Claude Sonnet 4.5', 'mind'),
-		name: 'claude-sonnet-4-5',
-		description: __('Best quality and recommended', 'mind'),
-	},
-	{
-		title: __('Claude Haiku 4.5', 'mind'),
-		name: 'claude-haiku-4-5',
-		description: __('Fast and accurate', 'mind'),
-	},
-	{
-		title: __('GPT-5.1', 'mind'),
-		name: 'gpt-5.1',
-		description: __('Quick and reliable', 'mind'),
-	},
-	{
-		title: __('GPT-5 mini', 'mind'),
-		name: 'gpt-5-mini',
-		description: __('Basic and fastest', 'mind'),
-	},
-];
+function getModelOptions(aiOptions, providerId) {
+	return aiOptions?.models?.[providerId] || aiOptions?.models?.[''] || [];
+}
 
 export default function PageSettings() {
 	const [pendingSettings, setPendingSettings] = useState({});
 	const [settingsChanged, setSettingsChanged] = useState(false);
-	const [isInvalidAnthropicAPIKey, setIsInvalidAnthropicAPIKey] =
-		useState(false);
-	const [isInvalidOpenAIAPIKey, setIsInvalidOpenAIAPIKey] = useState(false);
 
 	const { updateSettings } = useDispatch('mind/settings');
+	const {
+		connectorsPageURL,
+		aiOptions = { providers: [], models: { '': [] } },
+		setupState = {},
+	} = window.mindAdminData;
 
 	const { settings, updating, error } = useSelect((select) => {
 		const settingsSelect = select('mind/settings');
@@ -66,144 +47,144 @@ export default function PageSettings() {
 		};
 	});
 
-	// Update pending settings from actual settings object.
 	useEffect(() => {
-		setPendingSettings(settings);
+		setPendingSettings({
+			ai_provider: settings.ai_provider || '',
+			ai_model: settings.ai_model || '',
+		});
 	}, [settings]);
 
-	// Check if settings changed.
 	useEffect(() => {
 		setSettingsChanged(!isEqual(settings, pendingSettings));
 	}, [settings, pendingSettings]);
 
+	const providerId = pendingSettings.ai_provider || '';
+	const modelOptions = useMemo(
+		() => getModelOptions(aiOptions, providerId),
+		[aiOptions, providerId]
+	);
+	const hasConnectedProviders = (aiOptions.providers || []).length > 1;
+	const needsProviderConnection = setupState.needsProviderConnection;
+	const needsModelSelection = setupState.needsModelSelection;
+
+	function onProviderChange(event) {
+		const nextProvider = event.target.value;
+
+		setPendingSettings({
+			...pendingSettings,
+			ai_provider: nextProvider,
+			ai_model: '',
+		});
+	}
+
+	function onModelChange(event) {
+		setPendingSettings({
+			...pendingSettings,
+			ai_model: event.target.value,
+		});
+	}
+
 	return (
 		<>
+			<div className="mind-admin-settings-card">
+				<div className="mind-admin-settings-card-name">
+					<label htmlFor="mind-settings-ai-provider">
+						{__('Provider', 'mind')}
+					</label>
+				</div>
+				<div className="mind-admin-settings-card-input">
+					<select
+						id="mind-settings-ai-provider"
+						value={providerId}
+						onChange={onProviderChange}
+						disabled={!hasConnectedProviders}
+					>
+						{(aiOptions.providers || []).map((provider) => (
+							<option
+								key={provider.id || 'default'}
+								value={provider.id}
+							>
+								{provider.title}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+
 			<div className="mind-admin-settings-card">
 				<div className="mind-admin-settings-card-name">
 					<label htmlFor="mind-settings-ai-model">
 						{__('Model', 'mind')}
 					</label>
 				</div>
-				<div className="mind-admin-settings-card-button-group">
-					{models.map((model) => (
-						<button
-							key={model.title}
-							onClick={(e) => {
-								e.preventDefault();
-								setPendingSettings({
-									...pendingSettings,
-									ai_model: model.name,
-								});
-							}}
-							className={clsx(
-								'mind-admin-settings-card-button',
-								pendingSettings.ai_model === model.name &&
-									'mind-admin-settings-card-button-active'
-							)}
-						>
-							{model.title}
-							<span>{model.description}</span>
-						</button>
-					))}
+				<div className="mind-admin-settings-card-input">
+					<select
+						id="mind-settings-ai-model"
+						value={pendingSettings.ai_model || ''}
+						onChange={onModelChange}
+						disabled={!hasConnectedProviders}
+					>
+						{modelOptions.map((model) => (
+							<option
+								key={model.id || 'default'}
+								value={model.id}
+							>
+								{model.title}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
-			{pendingSettings.ai_model?.includes('claude') && (
-				<div className="mind-admin-settings-card">
-					<div className="mind-admin-settings-card-name">
-						<label htmlFor="mind-settings-anthropic-api-key">
-							{__('Anthropic API Key', 'mind')}
-						</label>
-					</div>
-					<div
-						className={clsx(
-							'mind-admin-settings-card-input',
-							isInvalidAnthropicAPIKey &&
-								'mind-admin-settings-card-input-error'
-						)}
-					>
-						<input
-							id="mind-settings-anthropic-api-key"
-							type="text"
-							placeholder={__('Enter API key', 'mind')}
-							value={pendingSettings.anthropic_api_key || ''}
-							onChange={(e) => {
-								e.preventDefault();
-								setPendingSettings({
-									...pendingSettings,
-									anthropic_api_key: e.target.value,
-								});
-							}}
-						/>
-						{isInvalidAnthropicAPIKey && (
-							<div className="mind-admin-setting-error">
-								{__('Please enter a valid API key', 'mind')}
-							</div>
-						)}
-					</div>
-					<div className="mind-admin-settings-card-description">
-						{__(
-							'This setting is required to use Anthropic models.',
-							'mind'
-						)}{' '}
-						<a
-							href="https://console.anthropic.com/settings/keys"
-							target="_blank"
-							rel="noreferrer"
-						>
-							{__('Create API key', 'mind')}
-						</a>
-					</div>
+
+			{needsProviderConnection && (
+				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
+					{__(
+						'Connect an AI provider in WordPress Connectors before Mind can send requests.',
+						'mind'
+					)}
 				</div>
 			)}
 
-			{pendingSettings.ai_model?.includes('gpt') && (
-				<div className="mind-admin-settings-card">
-					<div className="mind-admin-settings-card-name">
-						<label htmlFor="mind-settings-openai-api-key">
-							{__('OpenAI API Key', 'mind')}
-						</label>
-					</div>
+			{needsModelSelection && (
+				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
+					{__(
+						'The selected provider and model are not available. Choose another option or switch back to Default.',
+						'mind'
+					)}
+				</div>
+			)}
+
+			<div className="mind-admin-settings-card">
+				<div className="mind-admin-settings-connector">
 					<div
 						className={clsx(
-							'mind-admin-settings-card-input',
-							isInvalidOpenAIAPIKey &&
-								'mind-admin-settings-card-input-error'
+							'mind-admin-settings-connector-status',
+							hasConnectedProviders &&
+								'mind-admin-settings-connector-status-connected'
 						)}
 					>
-						<input
-							id="mind-settings-openai-api-key"
-							type="text"
-							placeholder={__('Enter API key', 'mind')}
-							value={pendingSettings.openai_api_key || ''}
-							onChange={(e) => {
-								e.preventDefault();
-								setPendingSettings({
-									...pendingSettings,
-									openai_api_key: e.target.value,
-								});
-							}}
-						/>
-						{isInvalidOpenAIAPIKey && (
-							<div className="mind-admin-setting-error">
-								{__('Please enter a valid API key', 'mind')}
-							</div>
-						)}
+						<span />
+						{hasConnectedProviders
+							? __(
+									'At least one AI provider is connected.',
+									'mind'
+							  )
+							: __('No AI providers are connected yet.', 'mind')}
 					</div>
 					<div className="mind-admin-settings-card-description">
 						{__(
-							'This setting is required to use OpenAI models.',
+							'Mind works through WordPress Connectors. API keys are managed there and can be shared across plugins.',
 							'mind'
-						)}{' '}
-						<a
-							href="https://platform.openai.com/account/api-keys"
-							target="_blank"
-							rel="noreferrer"
-						>
-							{__('Create API key', 'mind')}
-						</a>
+						)}
 					</div>
+					<a
+						className="mind-admin-settings-connector-link"
+						href={connectorsPageURL}
+					>
+						{__('Manage in WordPress Connectors', 'mind')}
+					</a>
 				</div>
-			)}
+			</div>
 
 			{error && <div className="mind-admin-settings-error">{error}</div>}
 			<div className="mind-admin-settings-actions">
@@ -211,29 +192,7 @@ export default function PageSettings() {
 					disabled={!settingsChanged}
 					onClick={(e) => {
 						e.preventDefault();
-
-						// Check if Anthropic API key is valid.
-						if (
-							pendingSettings.anthropic_api_key &&
-							!isValidAnthropicApiKey(
-								pendingSettings.anthropic_api_key
-							)
-						) {
-							setIsInvalidAnthropicAPIKey(true);
-
-							// Check if OpenAI API key is valid.
-						} else if (
-							pendingSettings.openai_api_key &&
-							!isValidOpenAIApiKey(pendingSettings.openai_api_key)
-						) {
-							setIsInvalidOpenAIAPIKey(true);
-
-							// Update settings.
-						} else {
-							setIsInvalidOpenAIAPIKey(false);
-							setIsInvalidAnthropicAPIKey(false);
-							updateSettings(pendingSettings);
-						}
+						updateSettings(pendingSettings);
 					}}
 				>
 					{__('Save Changes', 'mind')}

@@ -38,6 +38,12 @@
 	-->
 	<ini name="memory_limit" value="256M" />
 
+	<!--
+	Prevent errors caused by WordPress Coding Standards not supporting newer PHP deprecation notices well.
+	See https://github.com/WordPress/WordPress-Coding-Standards/issues/2035
+	-->
+	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED" />
+
 
 	<!--
 	#############################################################################
@@ -48,13 +54,19 @@
 	-->
 
 	<!-- Include sniffs for PHP cross-version compatibility. -->
-	<config name="testVersion" value="7.2-"/>
+	<config name="testVersion" value="7.4-"/>
 	<rule ref="PHPCompatibilityWP">
 		<include-pattern>*\.php$</include-pattern>
 	</rule>
 
 	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
+	<rule ref="WordPress-Docs">
+		<exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag" />
+		<exclude name="Squiz.Commenting.FileComment.MissingAuthorTag" />
+		<exclude name="Squiz.Commenting.FileComment.IncorrectAuthor" />
+		<exclude name="Squiz.Commenting.FileComment.MissingCopyrightTag" />
+		<exclude name="Generic.Commenting.DocComment.TagValueIndent" />
+	</rule>
 	<rule ref="WordPress.WP.I18n" />
 	<config name="text_domain" value="mind" />
 
@@ -72,8 +84,8 @@
 	#############################################################################
 	-->
 
-	<!-- Set the minimum supported WP version to WP 6.0. -->
-	<config name="minimum_supported_wp_version" value="6.0"/>
+	<!-- Set the minimum supported WP version to WP 7.0. -->
+	<config name="minimum_supported_wp_version" value="7.0"/>
 
 	<!-- Prevent error about filename with Class -->
 	<rule ref="WordPress.Files.FileName">

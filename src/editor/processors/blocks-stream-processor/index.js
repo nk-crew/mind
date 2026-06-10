@@ -1,14 +1,18 @@
 import untruncateJson from 'untruncate-json';
 
 import { createBlock } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 
 export default class BlocksStreamProcessor {
 	constructor(dispatch) {
 		this.dispatch = dispatch;
 		this.contentBuffer = '';
+		this.sseBuffer = '';
 		this.decoder = new TextDecoder();
 		this.isJsonStarted = false;
 		this.jsonBuffer = '';
+		this.hasDispatchedBlocks = false;
+		this.hasFinalDispatched = false;
 
 		// Add throttled dispatch
 		this.throttledDispatch = this.throttle(
@@ -36,6 +40,11 @@ export default class BlocksStreamProcessor {
 
 				await this.processChunk(value);
 			}
+
+			const tail = this.decoder.decode();
+			if (tail) {
+				await this.processChunkText(tail);
+			}
 		} catch (error) {
 			this.handleError(error);
 		}
@@ -43,7 +52,13 @@ export default class BlocksStreamProcessor {
 
 	async processChunk(value) {
 		const text = this.decoder.decode(value, { stream: true });
-		const lines = text.split('\n');
+		await this.processChunkText(text);
+	}
+
+	async processChunkText(text) {
+		this.sseBuffer += text;
+		const lines = this.sseBuffer.split('\n');
+		this.sseBuffer = lines.pop() || '';
 
 		for (const line of lines) {
 			if (!line.startsWith('data: ')) continue;
@@ -56,11 +71,27 @@ export default class BlocksStreamProcessor {
 					this.handleError(data);
 					break;
 				} else if (data.done === true) {
+					if (this.hasFinalDispatched) {
+						return;
+					}
+
 					if (this.jsonBuffer) {
 						await this.parseAndDispatchBlocks(
 							this.jsonBuffer,
 							true
 						);
+					} else {
+						await this.parseFallbackContent(
+							this.contentBuffer,
+							true
+						);
+					}
+
+					if (!this.hasDispatchedBlocks) {
+						this.handleError({
+							message:
+								'AI response did not contain valid block JSON.',
+						});
 					}
 					return;
 				}
@@ -78,25 +109,41 @@ export default class BlocksStreamProcessor {
 		this.contentBuffer += content;
 
 		if (!this.isJsonStarted) {
-			if (this.contentBuffer.includes('```json')) {
-				this.isJsonStarted = true;
-				const [, json] = this.contentBuffer.split('```json');
-				this.jsonBuffer = json || '';
+			const fenceMatch = this.contentBuffer.match(
+				/```(?:json)?\s*([\s\S]*)/i
+			);
+
+			if (!fenceMatch) {
+				await this.parseFallbackContent(this.contentBuffer, false);
+				return;
 			}
-		} else if (content.includes('```')) {
+
+			this.isJsonStarted = true;
+			await this.processJsonChunk(fenceMatch[1] || '');
+			return;
+		}
+
+		await this.processJsonChunk(content);
+	}
+
+	async processJsonChunk(content) {
+		if (content.includes('```')) {
 			const endIndex = content.indexOf('```');
 			this.jsonBuffer += content.substring(0, endIndex);
 			await this.parseAndDispatchBlocks(this.jsonBuffer, true);
 			this.isJsonStarted = false;
 			this.jsonBuffer = '';
-		} else {
-			this.jsonBuffer += content;
-			await this.tryParseIncomplete(this.jsonBuffer);
+			return;
 		}
+
+		this.jsonBuffer += content;
+		await this.tryParseIncomplete(this.jsonBuffer);
 	}
 
 	async tryParseIncomplete(jsonContent) {
 		try {
+			jsonContent = this.normalizeJsonContent(jsonContent);
+
 			// If empty or not starting with [, return minimal valid JSON
 			if (!jsonContent || !jsonContent.trim().startsWith('[')) {
 				return;
@@ -126,6 +173,8 @@ export default class BlocksStreamProcessor {
 
 	async parseAndDispatchBlocks(jsonContent, isFinal = false) {
 		try {
+			jsonContent = this.normalizeJsonContent(jsonContent);
+
 			const blocks = JSON.parse(jsonContent);
 
 			const transformedBlocks = Array.isArray(blocks)
@@ -136,12 +185,35 @@ export default class BlocksStreamProcessor {
 
 			if (transformedBlocks.length > 0) {
 				await this.dispatchBlocks(transformedBlocks, isFinal);
+				return true;
 			}
 		} catch (e) {
 			if (!isFinal) {
 				await this.tryParseIncomplete(jsonContent);
 			}
 		}
+
+		return false;
+	}
+
+	normalizeJsonContent(jsonContent) {
+		return jsonContent.replace(/^\s*json\s*/i, '');
+	}
+
+	async parseFallbackContent(content, isFinal = false) {
+		if (!content) {
+			return false;
+		}
+
+		const start = content.indexOf('[');
+		const end = content.lastIndexOf(']');
+
+		if (start < 0 || end < start) {
+			return false;
+		}
+
+		const candidate = content.slice(start, end + 1);
+		return this.parseAndDispatchBlocks(candidate, isFinal);
 	}
 
 	transformToBlock(blockData) {
@@ -178,7 +250,10 @@ export default class BlocksStreamProcessor {
 	}
 
 	async dispatchBlocks(blocks, isFinal = false) {
+		this.hasDispatchedBlocks = true;
+
 		if (isFinal) {
+			this.hasFinalDispatched = true;
 			// Final dispatch should always happen immediately
 			this.performDispatch(blocks, true);
 		} else {
@@ -188,10 +263,18 @@ export default class BlocksStreamProcessor {
 	}
 
 	handleError(error) {
-		// console.error('Stream processor error:', error);
+		let message = error?.message || '';
+
+		if (error?.code === 'wpai_connector_not_approved') {
+			message = __(
+				'Mind needs connector approval before it can use this AI provider. Ask an administrator to review Connector Approvals.',
+				'mind'
+			);
+		}
+
 		this.dispatch({
 			type: 'REQUEST_AI_ERROR',
-			payload: error.message,
+			payload: message,
 		});
 	}
 }

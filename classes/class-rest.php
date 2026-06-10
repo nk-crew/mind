@@ -100,8 +100,28 @@ class Mind_Rest extends WP_REST_Controller {
 		$new_settings = $req->get_param( 'settings' );
 
 		if ( is_array( $new_settings ) ) {
-			$current_settings = get_option( 'mind_settings', [] );
-			update_option( 'mind_settings', array_merge( $current_settings, $new_settings ) );
+			$current_settings = Mind::get_supported_settings( get_option( MIND_SETTINGS_OPTION, array() ) );
+			$settings         = [];
+
+			$ai_provider = isset( $new_settings['ai_provider'] )
+				? sanitize_text_field( $new_settings['ai_provider'] )
+				: ( $current_settings['ai_provider'] ?? '' );
+			$ai_model    = isset( $new_settings['ai_model'] )
+				? sanitize_text_field( $new_settings['ai_model'] )
+				: ( $current_settings['ai_model'] ?? '' );
+
+			if ( isset( $new_settings['ai_provider'] ) || isset( $new_settings['ai_model'] ) ) {
+				if ( ! Mind_AI_Settings::is_valid_selection( $ai_provider, $ai_model ) ) {
+					return $this->error( 'invalid_ai_model', __( 'The selected AI provider and model are not available in the current WordPress AI provider configuration.', 'mind' ), true );
+				}
+
+				$settings['ai_provider'] = $ai_provider;
+				$settings['ai_model']    = $ai_model;
+			}
+
+			if ( $settings ) {
+				update_option( MIND_SETTINGS_OPTION, array_merge( $current_settings, $settings ) );
+			}
 		}
 
 		return $this->success( true );
@@ -120,7 +140,7 @@ class Mind_Rest extends WP_REST_Controller {
 		$page_blocks     = $req->get_param( 'page_blocks' ) ?? '';
 		$page_context    = $req->get_param( 'page_context' ) ?? '';
 
-		Mind_AI_API::instance()->request( $request, $selected_blocks, $page_blocks, $page_context );
+		( new Mind_AI_Request() )->handle( $request, $selected_blocks, $page_blocks, $page_context );
 	}
 
 	/**

@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Mind Team
+# Copyright (C) 2026 Mind Team
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-27T08:06:36+00:00\n"
+"POT-Creation-Date: 2026-06-10T11:12:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Description of the plugin
 #: mind.php
-msgid "AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks."
+msgid "AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks."
 msgstr ""
 
 #. Author of the plugin
@@ -56,12 +56,37 @@ msgstr ""
 msgid "Discussions"
 msgstr ""
 
-#: classes/class-ai-api.php:128
+#: classes/class-ai-request.php:41
 msgid "Provide request to receive AI response."
 msgstr ""
 
-#: classes/class-ai-api.php:135
-msgid "Select an AI model and provide API key in the plugin settings."
+#: classes/class-ai-request.php:50
+msgid "Mind could not resolve an AI provider and model. Connect a provider in WordPress Connectors or choose one in Mind settings."
+msgstr ""
+
+#: classes/class-ai-settings.php:166
+msgid "Default"
+msgstr ""
+
+#. translators: %s: resolved provider or model title.
+#: classes/class-ai-settings.php:171
+msgid "Default (%s)"
+msgstr ""
+
+#: classes/class-ai-stream.php:62
+msgid "The WordPress AI Client is not available in this environment."
+msgstr ""
+
+#: classes/class-ai-stream.php:101
+msgid "Mind could not stream through the Vercel AI Gateway. Check your AI Gateway API key in Settings → Connectors."
+msgstr ""
+
+#: classes/class-ai-stream.php:117
+msgid "The AI Client returned an empty response."
+msgstr ""
+
+#: classes/class-ai-stream.php:228
+msgid "Could not resolve an AI Gateway model ID."
 msgstr ""
 
 #: classes/class-rest.php:73
@@ -72,99 +97,68 @@ msgstr ""
 msgid "You don't have permissions to request Mind API."
 msgstr ""
 
-#: src/admin/page-settings/index.js:29
-msgid "Claude Sonnet 4.5"
+#: classes/class-rest.php:115
+msgid "The selected AI provider and model are not available in the current WordPress AI provider configuration."
 msgstr ""
 
-#: src/admin/page-settings/index.js:31
-msgid "Best quality and recommended"
+#: src/admin/page-settings/index.js:92
+msgid "Provider"
 msgstr ""
 
-#: src/admin/page-settings/index.js:34
-msgid "Claude Haiku 4.5"
-msgstr ""
-
-#: src/admin/page-settings/index.js:36
-msgid "Fast and accurate"
-msgstr ""
-
-#: src/admin/page-settings/index.js:39
-msgid "GPT-5.1"
-msgstr ""
-
-#: src/admin/page-settings/index.js:41
-msgid "Quick and reliable"
-msgstr ""
-
-#: src/admin/page-settings/index.js:44
-msgid "GPT-5 mini"
-msgstr ""
-
-#: src/admin/page-settings/index.js:46
-msgid "Basic and fastest"
-msgstr ""
-
-#: src/admin/page-settings/index.js:84
+#: src/admin/page-settings/index.js:117
 msgid "Model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:114
-msgid "Anthropic API Key"
+#: src/admin/page-settings/index.js:141
+msgid "Connect an AI provider in WordPress Connectors before Mind can send requests."
 msgstr ""
 
-#: src/admin/page-settings/index.js:127
-#: src/admin/page-settings/index.js:176
-msgid "Enter API key"
+#: src/admin/page-settings/index.js:150
+msgid "The selected provider and model are not available. Choose another option or switch back to Default."
 msgstr ""
 
-#: src/admin/page-settings/index.js:139
-#: src/admin/page-settings/index.js:188
-msgid "Please enter a valid API key"
+#: src/admin/page-settings/index.js:168
+msgid "At least one AI provider is connected."
 msgstr ""
 
-#: src/admin/page-settings/index.js:144
-msgid "This setting is required to use Anthropic models."
+#: src/admin/page-settings/index.js:172
+msgid "No AI providers are connected yet."
 msgstr ""
 
-#: src/admin/page-settings/index.js:153
-#: src/admin/page-settings/index.js:202
-msgid "Create API key"
+#: src/admin/page-settings/index.js:175
+msgid "Mind works through WordPress Connectors. API keys are managed there and can be shared across plugins."
 msgstr ""
 
-#: src/admin/page-settings/index.js:163
-msgid "OpenAI API Key"
+#: src/admin/page-settings/index.js:184
+msgid "Manage in WordPress Connectors"
 msgstr ""
 
-#: src/admin/page-settings/index.js:193
-msgid "This setting is required to use OpenAI models."
-msgstr ""
-
-#: src/admin/page-settings/index.js:239
+#: src/admin/page-settings/index.js:198
 msgid "Save Changes"
 msgstr ""
 
 #. translators: %s - Mind logo.
-#: src/admin/page-welcome/index.js:36
+#: src/admin/page-welcome/index.js:27
 msgid "Hello, my name is %s"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:42
+#: src/admin/page-welcome/index.js:33
 msgid "I am an AI assistant designed to help you in writing content for your blog"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:50
+#: src/admin/page-welcome/index.js:41
 msgid "To get started, <em>open the page editor</em> and click on the <br /><span class=\"mind-inline-logo\">Open Mind</span> button in the toolbar"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:58
+#: src/admin/page-welcome/index.js:49
 msgid "To get started,"
 msgstr ""
 
-#: src/admin/page-welcome/index.js:65
-msgid "select the model and API key →"
+#: src/admin/page-welcome/index.js:56
+msgid "configure the AI provider and model →"
 msgstr ""
 
-#: src/admin/store/settings/actions.js:35
+#: src/admin/store/settings/actions.js:45
 msgid "Something went wrong, please, try again…"
 msgstr ""
 
@@ -400,48 +394,48 @@ msgstr ""
 msgid "Translate to %s"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:42
+#: src/editor/popup/components/footer/index.js:41
 msgid "Page"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:43
+#: src/editor/popup/components/footer/index.js:42
 msgid "Provide page context"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:48
+#: src/editor/popup/components/footer/index.js:47
 msgid "Blocks"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:49
+#: src/editor/popup/components/footer/index.js:48
 msgid "Provide selected blocks context"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:122
+#: src/editor/popup/components/footer/index.js:121
 msgid "Ask AI and get answer"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:129
+#: src/editor/popup/components/footer/index.js:128
 msgid "Get Answer"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:141
+#: src/editor/popup/components/footer/index.js:140
 msgid "Loading"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:152
+#: src/editor/popup/components/footer/index.js:151
 msgid "Regenerate"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:162
+#: src/editor/popup/components/footer/index.js:161
 msgid "Copy"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:167
-#: src/editor/popup/components/footer/index.js:177
+#: src/editor/popup/components/footer/index.js:166
+#: src/editor/popup/components/footer/index.js:176
 msgid "Insert"
 msgstr ""
 
-#: src/editor/popup/components/footer/index.js:176
+#: src/editor/popup/components/footer/index.js:175
 msgid "Replace Selected Blocks"
 msgstr ""
 
@@ -449,23 +443,47 @@ msgstr ""
 msgid "Ask AI to build or change blocks…"
 msgstr ""
 
-#: src/editor/popup/components/not-connected-screen/index.js:30
-msgid "AI API Key"
+#: src/editor/popup/components/not-connected-screen/index.js:42
+msgid "Mind is not ready to send requests yet. Ask an administrator to finish the AI setup."
 msgstr ""
 
-#: src/editor/popup/components/not-connected-screen/index.js:34
-msgid "In order to use Mind, you will need to provide your Anthropic or OpenAI API key. Please insert your API key in the plugin settings to get started."
+#: src/editor/popup/components/not-connected-screen/index.js:51
+msgid "Connect an AI provider in WordPress Connectors before using Mind."
 msgstr ""
 
-#: src/editor/popup/components/not-connected-screen/index.js:47
-msgid "Go to Settings"
+#: src/editor/popup/components/not-connected-screen/index.js:55
+msgid "Mind is not ready yet. Ask an administrator to connect an AI provider in WordPress Connectors."
 msgstr ""
 
-#: src/editor/store/popup/actions.js:93
-msgid "Not connected"
+#: src/editor/popup/components/not-connected-screen/index.js:60
+msgid "Open Connectors"
 msgstr ""
 
-#: src/editor/store/popup/actions.js:139
-#: src/editor/store/popup/actions.js:149
+#: src/editor/popup/components/not-connected-screen/index.js:63
+msgid "Choose a valid provider and model in Mind settings, or switch back to Default."
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:67
+msgid "Mind is not ready yet. Ask an administrator to configure a valid provider and model in Mind settings."
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:72
+msgid "Open Mind settings"
+msgstr ""
+
+#: src/editor/popup/components/not-connected-screen/index.js:79
+msgid "Mind setup required"
+msgstr ""
+
+#: src/editor/processors/blocks-stream-processor/index.js:269
+msgid "Mind needs connector approval before it can use this AI provider. Ask an administrator to review Connector Approvals."
+msgstr ""
+
+#: src/editor/store/popup/actions.js:95
+msgid "Mind is not configured yet. Connect a provider or update Mind settings."
+msgstr ""
+
+#: src/editor/store/popup/actions.js:146
+#: src/editor/store/popup/actions.js:156
 msgid "Failed to fetch AI response"
 msgstr ""

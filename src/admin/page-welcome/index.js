@@ -7,25 +7,16 @@ import './style.scss';
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import FirstLoadingAnimation from './first-loading-animation';
-import isAIConnected from '../../utils/is-ai-connected';
 
 export default function PageWelcome() {
 	const { setActivePage } = useDispatch('mind/admin');
-
-	const { settings } = useSelect((select) => {
-		const { getSettings } = select('mind/settings');
-
-		return {
-			settings: getSettings(),
-		};
-	});
-	const isConnected = isAIConnected(settings);
+	const isConnected = !!window.mindAdminData.connected;
 
 	return (
 		<>
@@ -62,7 +53,7 @@ export default function PageWelcome() {
 							setActivePage('settings');
 						}}
 					>
-						{__('select the model and API key →', 'mind')}
+						{__('configure the AI provider and model →', 'mind')}
 					</button>
 				</div>
 			)}

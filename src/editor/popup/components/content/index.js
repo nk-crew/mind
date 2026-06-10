@@ -17,15 +17,14 @@ export default function Content() {
 
 	const { setScreen } = useDispatch('mind/popup');
 
-	const { isOpen, input, screen, loading, response, progress, error } =
-		useSelect((select) => {
+	const { isOpen, input, screen, loading, response, error } = useSelect(
+		(select) => {
 			const {
 				isOpen: checkIsOpen,
 				getInput,
 				getScreen,
 				getLoading,
 				getResponse,
-				getProgress,
 				getError,
 			} = select('mind/popup');
 
@@ -35,10 +34,10 @@ export default function Content() {
 				screen: getScreen(),
 				loading: getLoading(),
 				response: getResponse(),
-				progress: getProgress(),
 				error: getError(),
 			};
-		});
+		}
+	);
 
 	function focusInput() {
 		if (ref?.current) {
@@ -68,12 +67,8 @@ export default function Content() {
 		<div className="mind-popup-content">
 			{screen === 'request' && (
 				<div className="mind-popup-request">
-					{response?.length > 0 && (
-						<AIResponse
-							progress={progress}
-							loading={loading}
-							response={response}
-						/>
+					{(loading || response?.length > 0) && (
+						<AIResponse loading={loading} response={response} />
 					)}
 					{!loading && error && <Notice type="error">{error}</Notice>}
 				</div>

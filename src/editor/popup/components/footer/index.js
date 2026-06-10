@@ -14,8 +14,7 @@ import LoadingText from '../loading-text';
 export default function Input(props) {
 	const { onInsert } = props;
 
-	const { close, reset, setContext, setError, requestAI } =
-		useDispatch('mind/popup');
+	const { setContext, setError, requestAI } = useDispatch('mind/popup');
 
 	const { input, context, loading, response, insertionPlace } = useSelect(
 		(select) => {

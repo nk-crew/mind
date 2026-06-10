@@ -46,9 +46,10 @@ class Mind_Assets {
 	 * Enqueue editor assets
 	 */
 	public function enqueue_block_editor_assets() {
-		$connected_model = Mind_AI_API::instance()->get_connected_model();
-
-		$asset_data = $this->get_asset_file( 'build/editor' );
+		$setup_state            = Mind_AI_Settings::get_setup_state();
+		$asset_data             = $this->get_asset_file( 'build/editor' );
+		$connectors_page_url    = admin_url( 'options-connectors.php' );
+		$mind_settings_page_url = admin_url( 'admin.php?page=mind&sub_page=settings' );
 
 		wp_enqueue_script(
 			'mind-editor',
@@ -62,8 +63,11 @@ class Mind_Assets {
 			'mind-editor',
 			'mindData',
 			[
-				'connected'       => ! ! $connected_model,
-				'settingsPageURL' => admin_url( 'admin.php?page=mind&sub_page=settings' ),
+				'connected'             => $setup_state['connected'],
+				'setupState'            => $setup_state,
+				'connectorsPageURL'     => $connectors_page_url,
+				'mindSettingsPageURL'   => $mind_settings_page_url,
+				'connectorApprovalsURL' => $setup_state['connectorApprovalsURL'],
 			]
 		);
 
@@ -96,11 +100,17 @@ class Mind_Assets {
 			true
 		);
 
+		$setup_state = Mind_AI_Settings::get_setup_state();
+
 		wp_localize_script(
 			'mind-admin',
 			'mindAdminData',
 			[
-				'settings' => get_option( 'mind_settings', array() ),
+				'settings'          => Mind::get_supported_settings( get_option( MIND_SETTINGS_OPTION, array() ) ),
+				'connected'         => $setup_state['connected'],
+				'setupState'        => $setup_state,
+				'connectorsPageURL' => admin_url( 'options-connectors.php' ),
+				'aiOptions'         => Mind_AI_Settings::get_settings_options(),
 			]
 		);
 
