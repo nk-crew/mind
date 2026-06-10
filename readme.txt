@@ -4,7 +4,7 @@ Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 7.0
 Tested up to:      7.0
 Requires PHP:      7.4
-Stable tag:        0.4.0
+Stable tag:        1.0.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,13 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 1.0.0 - Jun 10, 2026 =
+
+- migrated AI provider setup to WordPress Connectors; API keys are now managed in Settings → Connectors
+- requires WordPress 7.0+ and PHP 7.4+
+- breaking change: Mind settings are reset on upgrade; reconnect your AI provider in WordPress Connectors
+- Mind settings now only store provider and model selection with Default auto-resolution
 
 = 0.4.0 - Nov 27, 2025 =
 

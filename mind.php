@@ -4,7 +4,7 @@
  * Description:       AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks.
  * Requires at least: 7.0
  * Requires PHP:      7.4
- * Version:           0.4.0
+ * Version:           1.0.0
  * Plugin URI:        https://www.wp-mind.com/
  * Author:            Mind Team
  * Author URI:        https://www.wp-mind.com/
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'MIND_VERSION' ) ) {
-	define( 'MIND_VERSION', '0.4.0' );
+	define( 'MIND_VERSION', '1.0.0' );
 }
 
 if ( ! defined( 'MIND_SETTINGS_OPTION' ) ) {
