@@ -11,7 +11,7 @@
          "https://www.wp-mind.com/": [
             ""
          ],
-         "AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks.": [
+         "AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks.": [
             ""
          ],
          "Mind Team": [
@@ -29,34 +29,16 @@
          "Discussions": [
             ""
          ],
-         "Claude Sonnet": [
-            ""
-         ],
-         "Best quality and recommended": [
-            ""
-         ],
-         "Claude Haiku": [
-            ""
-         ],
-         "Fast and accurate": [
-            ""
-         ],
-         "GPT": [
-            ""
-         ],
-         "Quick and reliable": [
-            ""
-         ],
-         "GPT mini": [
-            ""
-         ],
-         "Basic and fastest": [
-            ""
-         ],
          "Provide request to receive AI response.": [
             ""
          ],
-         "Select an AI model and connect its API key in WordPress Connectors.": [
+         "Mind could not resolve an AI provider and model. Connect a provider in WordPress Connectors or choose one in Mind settings.": [
+            ""
+         ],
+         "Default": [
+            ""
+         ],
+         "Default (%s)": [
             ""
          ],
          "The WordPress AI Client is not available in this environment.": [
@@ -71,46 +53,28 @@
          "You don't have permissions to request Mind API.": [
             ""
          ],
-         "The selected AI model is not available in the current WordPress AI provider configuration.": [
+         "The selected AI provider and model are not available in the current WordPress AI provider configuration.": [
+            ""
+         ],
+         "Provider": [
             ""
          ],
          "Model": [
             ""
          ],
-         "No matching model found": [
+         "Connect an AI provider in WordPress Connectors before Mind can send requests.": [
             ""
          ],
-         "Connect provider to load models": [
+         "The selected provider and model are not available. Choose another option or switch back to Default.": [
             ""
          ],
-         "Saved model": [
+         "At least one AI provider is connected.": [
             ""
          ],
-         "The selected model cannot be used with the current WordPress AI provider configuration. Select another model before sending requests.": [
+         "No AI providers are connected yet.": [
             ""
          ],
-         "The selected model is deprecated and is scheduled to be disabled on %s.": [
-            ""
-         ],
-         "The selected model is marked as deprecated by the provider.": [
-            ""
-         ],
-         "The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it.": [
-            ""
-         ],
-         "A different current model is available for this slot: %s. You can keep the saved model or switch to this one.": [
-            ""
-         ],
-         "Use current model": [
-            ""
-         ],
-         "%s is connected.": [
-            ""
-         ],
-         "%s is not connected yet.": [
-            ""
-         ],
-         "API keys are managed by WordPress Connectors and can be shared across plugins.": [
+         "Mind works through WordPress Connectors. API keys are managed there and can be shared across plugins.": [
             ""
          ],
          "Manage in WordPress Connectors": [
@@ -131,7 +95,7 @@
          "To get started,": [
             ""
          ],
-         "select the model and connect API key →": [
+         "configure the AI provider and model →": [
             ""
          ],
          "Something went wrong, please, try again…": [
@@ -356,19 +320,19 @@
          "Mind is not ready to send requests yet. Ask an administrator to finish the AI setup.": [
             ""
          ],
-         "In order to use Mind, connect an Anthropic or OpenAI provider in WordPress Connectors.": [
+         "Connect an AI provider in WordPress Connectors before using Mind.": [
             ""
          ],
-         "Mind is not ready yet. Ask an administrator to connect an Anthropic or OpenAI provider in WordPress Connectors.": [
+         "Mind is not ready yet. Ask an administrator to connect an AI provider in WordPress Connectors.": [
             ""
          ],
          "Open Connectors": [
             ""
          ],
-         "A valid AI model is not selected for Mind yet. Open Mind settings and choose one before sending requests.": [
+         "Choose a valid provider and model in Mind settings, or switch back to Default.": [
             ""
          ],
-         "Mind is not ready yet. Ask an administrator to select a valid AI model in Mind settings.": [
+         "Mind is not ready yet. Ask an administrator to configure a valid provider and model in Mind settings.": [
             ""
          ],
          "Open Mind settings": [
@@ -377,7 +341,10 @@
          "Mind setup required": [
             ""
          ],
-         "Not connected": [
+         "Mind needs connector approval before it can use this AI provider. Ask an administrator to review Connector Approvals.": [
+            ""
+         ],
+         "Mind is not configured yet. Connect a provider or update Mind settings.": [
             ""
          ],
          "Failed to fetch AI response": [

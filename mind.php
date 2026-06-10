@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       AI Mind
- * Description:       AI Page Builder powered by Anthropic and OpenAI. Build, design, improve, and rewrite your page sections and blocks.
+ * Description:       AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks.
  * Requires at least: 7.0
- * Requires PHP:      7.2
+ * Requires PHP:      7.4
  * Version:           0.4.0
  * Plugin URI:        https://www.wp-mind.com/
  * Author:            Mind Team
@@ -27,10 +27,6 @@ if ( ! defined( 'MIND_SETTINGS_OPTION' ) ) {
 	define( 'MIND_SETTINGS_OPTION', 'mind_settings' );
 }
 
-if ( ! defined( 'MIND_DB_VERSION_OPTION' ) ) {
-	define( 'MIND_DB_VERSION_OPTION', 'mind_db_version' );
-}
-
 /**
  * Mind Class
  */
@@ -41,13 +37,6 @@ class Mind {
 	 * @var string[]
 	 */
 	private const SUPPORTED_SETTINGS_KEYS = array( 'ai_provider', 'ai_model' );
-
-	/**
-	 * Legacy credential keys kept only for cleanup.
-	 *
-	 * @var string[]
-	 */
-	private const LEGACY_SECRET_KEYS = array( 'openai_api_key', 'anthropic_api_key' );
 
 	/**
 	 * The single class instance.
@@ -98,38 +87,9 @@ class Mind {
 
 		// include helper files.
 		$this->include_dependencies();
-		$this->maybe_upgrade();
 
 		// hooks.
 		add_action( 'init', [ $this, 'init_hook' ] );
-	}
-
-	/**
-	 * Keep stored settings in sync with the current plugin schema.
-	 *
-	 * @return void
-	 */
-	private function maybe_upgrade() {
-		$db_version = get_option( MIND_DB_VERSION_OPTION, '' );
-
-		if ( version_compare( (string) $db_version, MIND_VERSION, '>=' ) ) {
-			return;
-		}
-
-		$settings = get_option( MIND_SETTINGS_OPTION, array() );
-
-		if ( is_array( $settings ) ) {
-			$clean_settings = self::remove_legacy_secret_settings( $settings );
-			$migrated       = Mind_AI_API::migrate_legacy_settings( $clean_settings );
-
-			if ( $migrated !== $settings ) {
-				update_option( MIND_SETTINGS_OPTION, $migrated );
-			} elseif ( $clean_settings !== $settings ) {
-				update_option( MIND_SETTINGS_OPTION, $clean_settings );
-			}
-		}
-
-		update_option( MIND_DB_VERSION_OPTION, MIND_VERSION );
 	}
 
 	/**
@@ -137,7 +97,9 @@ class Mind {
 	 */
 	private function include_dependencies() {
 		require_once $this->plugin_path . 'classes/class-prompts.php';
-		require_once $this->plugin_path . 'classes/class-ai-api.php';
+		require_once $this->plugin_path . 'classes/class-ai-settings.php';
+		require_once $this->plugin_path . 'classes/class-ai-stream.php';
+		require_once $this->plugin_path . 'classes/class-ai-request.php';
 		require_once $this->plugin_path . 'classes/class-admin.php';
 		require_once $this->plugin_path . 'classes/class-assets.php';
 		require_once $this->plugin_path . 'classes/class-rest.php';
@@ -155,9 +117,17 @@ class Mind {
 	 * Activation Hook
 	 */
 	public function activation_hook() {
-		$this->maybe_upgrade();
+		// Full settings reset — intentional breaking change on upgrade.
+		update_option(
+			MIND_SETTINGS_OPTION,
+			array(
+				'ai_provider' => '',
+				'ai_model'    => '',
+			)
+		);
 
-		// Welcome Page Flag.
+		delete_option( 'mind_db_version' );
+
 		set_transient( '_mind_welcome_screen_activation_redirect', true, 30 );
 	}
 
@@ -174,25 +144,6 @@ class Mind {
 		}
 
 		return array_intersect_key( $settings, array_flip( self::SUPPORTED_SETTINGS_KEYS ) );
-	}
-
-	/**
-	 * Remove stale credential keys left from pre-connector versions.
-	 *
-	 * @param mixed $settings Raw settings option value.
-	 *
-	 * @return array
-	 */
-	public static function remove_legacy_secret_settings( $settings ) {
-		if ( ! is_array( $settings ) ) {
-			return array();
-		}
-
-		foreach ( self::LEGACY_SECRET_KEYS as $legacy_key ) {
-			unset( $settings[ $legacy_key ] );
-		}
-
-		return $settings;
 	}
 
 	/**

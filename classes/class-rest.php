@@ -100,7 +100,7 @@ class Mind_Rest extends WP_REST_Controller {
 		$new_settings = $req->get_param( 'settings' );
 
 		if ( is_array( $new_settings ) ) {
-			$current_settings = Mind::remove_legacy_secret_settings( get_option( MIND_SETTINGS_OPTION, array() ) );
+			$current_settings = Mind::get_supported_settings( get_option( MIND_SETTINGS_OPTION, array() ) );
 			$settings         = [];
 
 			$ai_provider = isset( $new_settings['ai_provider'] )
@@ -111,7 +111,7 @@ class Mind_Rest extends WP_REST_Controller {
 				: ( $current_settings['ai_model'] ?? '' );
 
 			if ( isset( $new_settings['ai_provider'] ) || isset( $new_settings['ai_model'] ) ) {
-				if ( ! Mind_AI_API::is_valid_selection( $ai_provider, $ai_model ) ) {
+				if ( ! Mind_AI_Settings::is_valid_selection( $ai_provider, $ai_model ) ) {
 					return $this->error( 'invalid_ai_model', __( 'The selected AI provider and model are not available in the current WordPress AI provider configuration.', 'mind' ), true );
 				}
 
@@ -140,7 +140,7 @@ class Mind_Rest extends WP_REST_Controller {
 		$page_blocks     = $req->get_param( 'page_blocks' ) ?? '';
 		$page_context    = $req->get_param( 'page_context' ) ?? '';
 
-		Mind_AI_API::instance()->request( $request, $selected_blocks, $page_blocks, $page_context );
+		( new Mind_AI_Request() )->handle( $request, $selected_blocks, $page_blocks, $page_context );
 	}
 
 	/**

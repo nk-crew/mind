@@ -46,7 +46,7 @@ class Mind_Assets {
 	 * Enqueue editor assets
 	 */
 	public function enqueue_block_editor_assets() {
-		$setup_state            = Mind_AI_API::get_setup_state();
+		$setup_state            = Mind_AI_Settings::get_setup_state();
 		$asset_data             = $this->get_asset_file( 'build/editor' );
 		$connectors_page_url    = admin_url( 'options-connectors.php' );
 		$mind_settings_page_url = admin_url( 'admin.php?page=mind&sub_page=settings' );
@@ -100,7 +100,7 @@ class Mind_Assets {
 			true
 		);
 
-		$setup_state = Mind_AI_API::get_setup_state();
+		$setup_state = Mind_AI_Settings::get_setup_state();
 
 		wp_localize_script(
 			'mind-admin',
@@ -110,7 +110,7 @@ class Mind_Assets {
 				'connected'         => $setup_state['connected'],
 				'setupState'        => $setup_state,
 				'connectorsPageURL' => admin_url( 'options-connectors.php' ),
-				'aiOptions'         => Mind_AI_API::get_settings_options(),
+				'aiOptions'         => Mind_AI_Settings::get_settings_options(),
 			]
 		);
 
