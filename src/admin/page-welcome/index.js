@@ -53,7 +53,7 @@ export default function PageWelcome() {
 							setActivePage('settings');
 						}}
 					>
-						{__('select the model and connect API key →', 'mind')}
+						{__('configure the AI provider and model →', 'mind')}
 					</button>
 				</div>
 			)}

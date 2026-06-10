@@ -63,10 +63,11 @@ class Mind_Assets {
 			'mind-editor',
 			'mindData',
 			[
-				'connected'           => $setup_state['connected'],
-				'setupState'          => $setup_state,
-				'connectorsPageURL'   => $connectors_page_url,
-				'mindSettingsPageURL' => $mind_settings_page_url,
+				'connected'             => $setup_state['connected'],
+				'setupState'            => $setup_state,
+				'connectorsPageURL'     => $connectors_page_url,
+				'mindSettingsPageURL'   => $mind_settings_page_url,
+				'connectorApprovalsURL' => $setup_state['connectorApprovalsURL'],
 			]
 		);
 
@@ -99,22 +100,17 @@ class Mind_Assets {
 			true
 		);
 
+		$setup_state = Mind_AI_API::get_setup_state();
+
 		wp_localize_script(
 			'mind-admin',
 			'mindAdminData',
 			[
 				'settings'          => Mind::get_supported_settings( get_option( MIND_SETTINGS_OPTION, array() ) ),
-				'connected'         => ! ! Mind_AI_API::instance()->get_connected_model(),
+				'connected'         => $setup_state['connected'],
+				'setupState'        => $setup_state,
 				'connectorsPageURL' => admin_url( 'options-connectors.php' ),
-				'modelSlots'        => Mind_AI_API::get_model_slots(),
-				'connectors'        => array(
-					'openai'    => array(
-						'connected' => Mind_AI_API::is_connector_connected( 'openai' ),
-					),
-					'anthropic' => array(
-						'connected' => Mind_AI_API::is_connector_connected( 'anthropic' ),
-					),
-				),
+				'aiOptions'         => Mind_AI_API::get_settings_options(),
 			]
 		);
 

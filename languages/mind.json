@@ -98,10 +98,10 @@
          "The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it.": [
             ""
          ],
-         "A newer model is available: %s.": [
+         "A different current model is available for this slot: %s. You can keep the saved model or switch to this one.": [
             ""
          ],
-         "Use newer model": [
+         "Use current model": [
             ""
          ],
          "%s is connected.": [
@@ -306,6 +306,15 @@
             ""
          ],
          "Translate to %s": [
+            ""
+         ],
+         "Generating blocks…": [
+            ""
+         ],
+         "The preview will appear as soon as the first blocks are ready.": [
+            ""
+         ],
+         "%d blocks generated…": [
             ""
          ],
          "Page": [

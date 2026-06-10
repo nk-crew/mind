@@ -31,9 +31,9 @@ export default function Popup() {
 	const [fullScreenTransitionStyles, setFullScreenTransitionStyles] =
 		useState(null);
 
-	const { connected, isOpen, insertionPlace, loading, response } = useSelect(
+	const { blocked, isOpen, insertionPlace, loading, response } = useSelect(
 		(select) => {
-			const { isConnected } = select('mind');
+			const { isMindBlocked } = select('mind');
 			const {
 				isOpen: checkIsOpen,
 				getInsertionPlace,
@@ -42,7 +42,7 @@ export default function Popup() {
 			} = select('mind/popup');
 
 			return {
-				connected: isConnected(),
+				blocked: isMindBlocked(),
 				isOpen: checkIsOpen(),
 				insertionPlace: getInsertionPlace(),
 				loading: getLoading(),
@@ -137,7 +137,7 @@ export default function Popup() {
 			title={false}
 			className={clsx(
 				'mind-popup',
-				!connected && 'mind-popup-not-connected'
+				blocked && 'mind-popup-not-connected'
 			)}
 			overlayClassName="mind-popup-overlay"
 			onRequestClose={() => {
@@ -149,7 +149,7 @@ export default function Popup() {
 			style={fullScreenTransitionStyles}
 			__experimentalHideHeader
 		>
-			{connected ? (
+			{!blocked ? (
 				<>
 					<Input onInsert={onInsert} isFullscreen={isFullscreen} />
 					{loading && <LoadingLine />}

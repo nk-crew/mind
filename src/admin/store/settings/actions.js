@@ -8,6 +8,10 @@ export function updateSettings(settings) {
 	return ({ dispatch }) => {
 		const persistedSettings = {};
 
+		if (settings?.ai_provider !== undefined) {
+			persistedSettings.ai_provider = settings.ai_provider;
+		}
+
 		if (settings?.ai_model !== undefined) {
 			persistedSettings.ai_model = settings.ai_model;
 		}

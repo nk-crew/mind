@@ -12,7 +12,7 @@ import getPageBlocksJSON from '../../../utils/get-page-blocks-json';
 import getPageContextJSON from '../../../utils/get-page-context-json';
 import getSelectedBlocksJSON from '../../../utils/get-selected-blocks-json';
 import hasNonEmptySelectedBlocks from '../../../utils/has-non-empty-selected-blocks';
-import { isConnected } from '../core/selectors';
+import { isMindBlocked } from '../core/selectors';
 
 export function open() {
 	return {
@@ -89,8 +89,15 @@ export function reset() {
 
 export function requestAI() {
 	return async ({ dispatch, select }) => {
-		if (!isConnected) {
-			dispatch(setError(__('Not connected', 'mind')));
+		if (isMindBlocked()) {
+			dispatch(
+				setError(
+					__(
+						'Mind is not configured yet. Connect a provider or update Mind settings.',
+						'mind'
+					)
+				)
+			);
 			return;
 		}
 

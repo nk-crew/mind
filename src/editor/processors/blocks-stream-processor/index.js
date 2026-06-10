@@ -1,6 +1,7 @@
 import untruncateJson from 'untruncate-json';
 
 import { createBlock } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 
 export default class BlocksStreamProcessor {
 	constructor(dispatch) {
@@ -262,10 +263,18 @@ export default class BlocksStreamProcessor {
 	}
 
 	handleError(error) {
-		// console.error('Stream processor error:', error);
+		let message = error?.message || '';
+
+		if (error?.code === 'wpai_connector_not_approved') {
+			message = __(
+				'Mind needs connector approval before it can use this AI provider. Ask an administrator to review Connector Approvals.',
+				'mind'
+			);
+		}
+
 		this.dispatch({
 			type: 'REQUEST_AI_ERROR',
-			payload: error.message,
+			payload: message,
 		});
 	}
 }

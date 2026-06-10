@@ -103,14 +103,20 @@ class Mind_Rest extends WP_REST_Controller {
 			$current_settings = Mind::remove_legacy_secret_settings( get_option( MIND_SETTINGS_OPTION, array() ) );
 			$settings         = [];
 
-			if ( isset( $new_settings['ai_model'] ) ) {
-				$ai_model = sanitize_text_field( $new_settings['ai_model'] );
+			$ai_provider = isset( $new_settings['ai_provider'] )
+				? sanitize_text_field( $new_settings['ai_provider'] )
+				: ( $current_settings['ai_provider'] ?? '' );
+			$ai_model    = isset( $new_settings['ai_model'] )
+				? sanitize_text_field( $new_settings['ai_model'] )
+				: ( $current_settings['ai_model'] ?? '' );
 
-				if ( '' !== $ai_model && ! Mind_AI_API::is_valid_selected_model( $ai_model ) ) {
-					return $this->error( 'invalid_ai_model', __( 'The selected AI model is not available in the current WordPress AI provider configuration.', 'mind' ), true );
+			if ( isset( $new_settings['ai_provider'] ) || isset( $new_settings['ai_model'] ) ) {
+				if ( ! Mind_AI_API::is_valid_selection( $ai_provider, $ai_model ) ) {
+					return $this->error( 'invalid_ai_model', __( 'The selected AI provider and model are not available in the current WordPress AI provider configuration.', 'mind' ), true );
 				}
 
-				$settings['ai_model'] = $ai_model;
+				$settings['ai_provider'] = $ai_provider;
+				$settings['ai_model']    = $ai_model;
 			}
 
 			if ( $settings ) {

@@ -49,11 +49,11 @@ export default function NotConnectedScreen() {
 	if (showConnectors) {
 		message = canManage
 			? __(
-					'In order to use Mind, connect an Anthropic or OpenAI provider in WordPress Connectors.',
+					'Connect an AI provider in WordPress Connectors before using Mind.',
 					'mind'
 			  )
 			: __(
-					'Mind is not ready yet. Ask an administrator to connect an Anthropic or OpenAI provider in WordPress Connectors.',
+					'Mind is not ready yet. Ask an administrator to connect an AI provider in WordPress Connectors.',
 					'mind'
 			  );
 		actionURL = connectorsPageURL;
@@ -61,11 +61,11 @@ export default function NotConnectedScreen() {
 	} else if (showMindSettings) {
 		message = canManage
 			? __(
-					'A valid AI model is not selected for Mind yet. Open Mind settings and choose one before sending requests.',
+					'Choose a valid provider and model in Mind settings, or switch back to Default.',
 					'mind'
 			  )
 			: __(
-					'Mind is not ready yet. Ask an administrator to select a valid AI model in Mind settings.',
+					'Mind is not ready yet. Ask an administrator to configure a valid provider and model in Mind settings.',
 					'mind'
 			  );
 		actionURL = mindSettingsPageURL;

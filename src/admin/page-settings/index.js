@@ -13,36 +13,17 @@ import clsx from 'clsx';
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { isEqual } from 'lodash';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { ReactComponent as LoadingIcon } from '../../icons/loading.svg';
 
-const providerNames = {
-	anthropic: 'Anthropic',
-	openai: 'OpenAI',
-};
-
-function getModelIdentity(model) {
-	return model?.canonicalName || model?.name;
-}
-
-function getModelForSlot(slot, selectedModel) {
-	if (slot.selectedModel?.name === selectedModel) {
-		return slot.selectedModel;
-	}
-
-	return slot.model || slot.selectedModel;
-}
-
-function getSelectedSlot(modelSlots, selectedModel) {
-	return modelSlots.find((slot) =>
-		[slot.model?.name, slot.selectedModel?.name].includes(selectedModel)
-	);
+function getModelOptions(aiOptions, providerId) {
+	return aiOptions?.models?.[providerId] || aiOptions?.models?.[''] || [];
 }
 
 export default function PageSettings() {
@@ -51,9 +32,9 @@ export default function PageSettings() {
 
 	const { updateSettings } = useDispatch('mind/settings');
 	const {
-		connectors = {},
 		connectorsPageURL,
-		modelSlots = [],
+		aiOptions = { providers: [], models: { '': [] } },
+		setupState = {},
 	} = window.mindAdminData;
 
 	const { settings, updating, error } = useSelect((select) => {
@@ -66,159 +47,110 @@ export default function PageSettings() {
 		};
 	});
 
-	// Update pending settings from actual settings object.
 	useEffect(() => {
-		setPendingSettings(settings);
+		setPendingSettings({
+			ai_provider: settings.ai_provider || '',
+			ai_model: settings.ai_model || '',
+		});
 	}, [settings]);
 
-	// Check if settings changed.
 	useEffect(() => {
 		setSettingsChanged(!isEqual(settings, pendingSettings));
 	}, [settings, pendingSettings]);
 
-	const selectedSlot =
-		getSelectedSlot(modelSlots, pendingSettings.ai_model) || modelSlots[0];
-	const selectedModel = selectedSlot
-		? getModelForSlot(selectedSlot, pendingSettings.ai_model)
-		: null;
-	const currentSlotModel = selectedSlot?.model;
-	const selectedProvider = selectedSlot?.provider || 'openai';
-	const selectedProviderName =
-		providerNames[selectedProvider] || selectedProvider;
-	const isProviderConnected = !!connectors?.[selectedProvider]?.connected;
-	const hasValidSelectedModel = selectedModel?.runtimeAvailable !== false;
-	const hasCurrentSlotAlternative =
-		getModelIdentity(selectedModel) &&
-		getModelIdentity(currentSlotModel) &&
-		selectedModel.provider === currentSlotModel.provider &&
-		selectedModel.family === currentSlotModel.family &&
-		getModelIdentity(selectedModel) !== getModelIdentity(currentSlotModel);
+	const providerId = pendingSettings.ai_provider || '';
+	const modelOptions = useMemo(
+		() => getModelOptions(aiOptions, providerId),
+		[aiOptions, providerId]
+	);
+	const hasConnectedProviders = (aiOptions.providers || []).length > 1;
+	const needsProviderConnection = setupState.needsProviderConnection;
+	const needsModelSelection = setupState.needsModelSelection;
+
+	function onProviderChange(event) {
+		const nextProvider = event.target.value;
+
+		setPendingSettings({
+			...pendingSettings,
+			ai_provider: nextProvider,
+			ai_model: '',
+		});
+	}
+
+	function onModelChange(event) {
+		setPendingSettings({
+			...pendingSettings,
+			ai_model: event.target.value,
+		});
+	}
 
 	return (
 		<>
+			<div className="mind-admin-settings-card">
+				<div className="mind-admin-settings-card-name">
+					<label htmlFor="mind-settings-ai-provider">
+						{__('Provider', 'mind')}
+					</label>
+				</div>
+				<div className="mind-admin-settings-card-input">
+					<select
+						id="mind-settings-ai-provider"
+						value={providerId}
+						onChange={onProviderChange}
+						disabled={!hasConnectedProviders}
+					>
+						{(aiOptions.providers || []).map((provider) => (
+							<option
+								key={provider.id || 'default'}
+								value={provider.id}
+							>
+								{provider.title}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+
 			<div className="mind-admin-settings-card">
 				<div className="mind-admin-settings-card-name">
 					<label htmlFor="mind-settings-ai-model">
 						{__('Model', 'mind')}
 					</label>
 				</div>
-				<div className="mind-admin-settings-card-button-group">
-					{modelSlots.map((slot) => {
-						const model = getModelForSlot(
-							slot,
-							pendingSettings.ai_model
-						);
-						const isSelected =
-							model?.name === pendingSettings.ai_model;
-						const isDisabled = !model?.name;
-
-						return (
-							<button
-								key={`${slot.provider}-${slot.family}`}
-								disabled={isDisabled}
-								onClick={(e) => {
-									e.preventDefault();
-
-									if (!model?.name) {
-										return;
-									}
-
-									setPendingSettings({
-										...pendingSettings,
-										ai_model: model.name,
-									});
-								}}
-								className={clsx(
-									'mind-admin-settings-card-button',
-									isSelected &&
-										'mind-admin-settings-card-button-active'
-								)}
+				<div className="mind-admin-settings-card-input">
+					<select
+						id="mind-settings-ai-model"
+						value={pendingSettings.ai_model || ''}
+						onChange={onModelChange}
+						disabled={!hasConnectedProviders}
+					>
+						{modelOptions.map((model) => (
+							<option
+								key={model.id || 'default'}
+								value={model.id}
 							>
-								{model?.title || slot.title}
-								<span>{slot.description}</span>
-								{!model && (
-									<span className="mind-admin-settings-card-button-note">
-										{slot.connected
-											? __(
-													'No matching model found',
-													'mind'
-											  )
-											: __(
-													'Connect provider to load models',
-													'mind'
-											  )}
-									</span>
-								)}
-								{model && !model.available && (
-									<span className="mind-admin-settings-card-button-note">
-										{__('Saved model', 'mind')}
-									</span>
-								)}
-							</button>
-						);
-					})}
+								{model.title}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 
-			{selectedModel && !hasValidSelectedModel && (
+			{needsProviderConnection && (
 				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
 					{__(
-						'The selected model cannot be used with the current WordPress AI provider configuration. Select another model before sending requests.',
+						'Connect an AI provider in WordPress Connectors before Mind can send requests.',
 						'mind'
 					)}
 				</div>
 			)}
 
-			{selectedModel?.deprecated && (
-				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
-					{selectedModel.deprecationDate
-						? sprintf(
-								// translators: %s: deprecation date.
-								__(
-									'The selected model is deprecated and is scheduled to be disabled on %s.',
-									'mind'
-								),
-								selectedModel.deprecationDate
-						  )
-						: __(
-								'The selected model is marked as deprecated by the provider.',
-								'mind'
-						  )}
-				</div>
-			)}
-
-			{selectedModel && !selectedModel.available && (
+			{needsModelSelection && (
 				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
 					{__(
-						'The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it.',
+						'The selected provider and model are not available. Choose another option or switch back to Default.',
 						'mind'
 					)}
-				</div>
-			)}
-
-			{hasCurrentSlotAlternative && (
-				<div className="mind-admin-settings-notice">
-					<span>
-						{sprintf(
-							// translators: %s: AI model title.
-							__(
-								'A different current model is available for this slot: %s. You can keep the saved model or switch to this one.',
-								'mind'
-							),
-							currentSlotModel.title
-						)}
-					</span>
-					<button
-						onClick={(e) => {
-							e.preventDefault();
-							setPendingSettings({
-								...pendingSettings,
-								ai_model: currentSlotModel.name,
-							});
-						}}
-					>
-						{__('Use current model', 'mind')}
-					</button>
 				</div>
 			)}
 
@@ -227,26 +159,21 @@ export default function PageSettings() {
 					<div
 						className={clsx(
 							'mind-admin-settings-connector-status',
-							isProviderConnected &&
+							hasConnectedProviders &&
 								'mind-admin-settings-connector-status-connected'
 						)}
 					>
 						<span />
-						{isProviderConnected
-							? sprintf(
-									// translators: %s: AI provider name.
-									__('%s is connected.', 'mind'),
-									selectedProviderName
+						{hasConnectedProviders
+							? __(
+									'At least one AI provider is connected.',
+									'mind'
 							  )
-							: sprintf(
-									// translators: %s: AI provider name.
-									__('%s is not connected yet.', 'mind'),
-									selectedProviderName
-							  )}
+							: __('No AI providers are connected yet.', 'mind')}
 					</div>
 					<div className="mind-admin-settings-card-description">
 						{__(
-							'API keys are managed by WordPress Connectors and can be shared across plugins.',
+							'Mind works through WordPress Connectors. API keys are managed there and can be shared across plugins.',
 							'mind'
 						)}
 					</div>

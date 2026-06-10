@@ -82,113 +82,210 @@ class Mind_AI_API {
 	}
 
 	/**
-	 * Get connected model.
+	 * Get connected model for runtime API requests.
 	 *
-	 * @return array|bool
+	 * @return array{provider: string, name: string}|false
 	 */
 	public function get_connected_model() {
-		$settings            = get_option( 'mind_settings', array() );
-		$selected_model_name = $settings['ai_model'] ?? '';
-		$selected_model      = self::get_selected_model_state( $selected_model_name );
+		$resolved = self::resolve_model_selection();
 
-		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
-			return false;
-		}
-
-		if ( ! $selected_model['runtimeAvailable'] ) {
+		if ( ! $resolved ) {
 			return false;
 		}
 
 		return array(
-			'provider' => $selected_model['provider'],
-			'name'     => $selected_model['name'],
+			'provider' => $resolved['provider'],
+			'name'     => $resolved['name'],
 		);
 	}
 
 	/**
-	 * Get AI model slots for settings UI.
+	 * Migrate legacy slot-based settings to provider + model fields.
+	 *
+	 * @param array $settings Raw settings.
 	 *
 	 * @return array
 	 */
-	public static function get_model_slots() {
-		$settings        = get_option( 'mind_settings', array() );
-		$selected_model  = $settings['ai_model'] ?? '';
-		$selected_state  = self::get_selected_model_state( $selected_model );
-		$provider_models = array(
-			'anthropic' => self::get_provider_models( 'anthropic' ),
-			'openai'    => self::get_provider_models( 'openai' ),
-		);
-		$slot_configs    = array(
-			array(
-				'family'      => 'sonnet',
-				'provider'    => 'anthropic',
-				'title'       => __( 'Claude Sonnet', 'mind' ),
-				'description' => __( 'Best quality and recommended', 'mind' ),
-			),
-			array(
-				'family'      => 'haiku',
-				'provider'    => 'anthropic',
-				'title'       => __( 'Claude Haiku', 'mind' ),
-				'description' => __( 'Fast and accurate', 'mind' ),
-			),
-			array(
-				'family'      => 'gpt',
-				'provider'    => 'openai',
-				'title'       => __( 'GPT', 'mind' ),
-				'description' => __( 'Quick and reliable', 'mind' ),
-			),
-			array(
-				'family'      => 'gpt-mini',
-				'provider'    => 'openai',
-				'title'       => __( 'GPT mini', 'mind' ),
-				'description' => __( 'Basic and fastest', 'mind' ),
-			),
-		);
+	public static function migrate_legacy_settings( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
 
-		return array_map(
-			static function ( $slot ) use ( $provider_models, $selected_model, $selected_state ) {
-				$models        = $provider_models[ $slot['provider'] ];
-				$current_model = self::find_slot_model( $models, $slot['provider'], $slot['family'] );
-				$selected_slot = self::get_model_family( $selected_model ) === $slot['family'];
-				$selected_item = null;
+		if ( ! array_key_exists( 'ai_provider', $settings ) && ! empty( $settings['ai_model'] ) ) {
+			$settings['ai_provider'] = self::infer_provider_from_model( (string) $settings['ai_model'] );
+		}
 
-				if ( $selected_slot && $selected_model ) {
-					$selected_item = $selected_state['selectedModel'];
+		if ( ! array_key_exists( 'ai_provider', $settings ) ) {
+			$settings['ai_provider'] = '';
+		}
 
-					if ( $selected_item ) {
-						$selected_item['runtimeAvailable'] = $selected_state['runtimeAvailable'];
-					}
+		return $settings;
+	}
 
-					if ( $selected_state['currentModel'] && $selected_state['provider'] === $slot['provider'] && $selected_state['family'] === $slot['family'] ) {
-						$current_model = $selected_state['currentModel'];
-					}
-				}
+	/**
+	 * Get saved provider and model selection from options.
+	 *
+	 * @return array{provider: string, model: string}
+	 */
+	public static function get_saved_selection() {
+		$settings = get_option( 'mind_settings', array() );
 
-				return array_merge(
-					$slot,
-					array(
-						'model'         => $current_model,
-						'selectedModel' => $selected_item,
-						'registered'    => self::is_provider_registered( $slot['provider'] ),
-						'connected'     => self::is_connector_connected( $slot['provider'] ),
-					)
-				);
-			},
-			$slot_configs
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
+
+		return array(
+			'provider' => isset( $settings['ai_provider'] ) ? (string) $settings['ai_provider'] : '',
+			'model'    => isset( $settings['ai_model'] ) ? (string) $settings['ai_model'] : '',
 		);
 	}
 
 	/**
-	 * Check whether a saved model name can be used for runtime requests.
+	 * Preferred text models used when provider/model are set to Default.
 	 *
-	 * @param string $model_name Saved model name.
+	 * @return array<int, array{0: string, 1: string}>
+	 */
+	public static function get_preferred_models_for_text_generation() {
+		$preferred_models = array(
+			array( 'anthropic', 'claude-sonnet-4-6' ),
+			array( 'google', 'gemini-3-flash-preview' ),
+			array( 'google', 'gemini-2.5-flash' ),
+			array( 'openai', 'gpt-5.4-mini' ),
+			array( 'openai', 'gpt-4.1-mini' ),
+		);
+
+		/**
+		 * Filters the preferred models Mind uses when Default is selected.
+		 *
+		 * @param array<int, array{0: string, 1: string}> $preferred_models Preferred provider/model pairs.
+		 */
+		return (array) apply_filters( 'mind_preferred_text_models', $preferred_models );
+	}
+
+	/**
+	 * Get registered AI provider connectors.
+	 *
+	 * @return array<string, array>
+	 */
+	public static function get_ai_connectors() {
+		if ( ! function_exists( 'wp_get_connectors' ) ) {
+			return array();
+		}
+
+		$connectors = array();
+
+		foreach ( (array) wp_get_connectors() as $connector_id => $data ) {
+			if ( ! is_string( $connector_id ) || ! is_array( $data ) ) {
+				continue;
+			}
+
+			$connector_type = $data['type'] ?? '';
+
+			if ( 'ai_provider' !== $connector_type && ! self::is_provider_registered( $connector_id ) ) {
+				continue;
+			}
+
+			$connectors[ $connector_id ] = $data;
+		}
+
+		return $connectors;
+	}
+
+	/**
+	 * Get provider and model options for the settings UI.
+	 *
+	 * @return array
+	 */
+	public static function get_settings_options() {
+		$resolved_default = self::resolve_model_selection( '', '' );
+		$providers        = array(
+			array(
+				'id'    => '',
+				'title' => self::format_default_option_title(
+					$resolved_default ? self::get_provider_title( $resolved_default['provider'] ) : ''
+				),
+			),
+		);
+		$models           = array(
+			'' => array(
+				array(
+					'id'    => '',
+					'title' => self::format_default_option_title(
+						$resolved_default ? self::format_model_title( $resolved_default['name'] ) : ''
+					),
+				),
+			),
+		);
+
+		foreach ( self::get_connected_providers() as $provider ) {
+			$providers[]       = array(
+				'id'    => $provider['id'],
+				'title' => $provider['title'],
+			);
+			$resolved_provider = self::resolve_provider_default_model( $provider['id'] );
+			$provider_models   = array(
+				array(
+					'id'    => '',
+					'title' => self::format_default_option_title(
+						$resolved_provider ? self::format_model_title( $resolved_provider['name'] ) : ''
+					),
+				),
+			);
+
+			foreach ( $provider['models'] as $model ) {
+				$provider_models[] = array(
+					'id'    => $model['name'],
+					'title' => $model['title'],
+				);
+			}
+
+			$models[ $provider['id'] ] = $provider_models;
+		}
+
+		return array(
+			'providers' => $providers,
+			'models'    => $models,
+		);
+	}
+
+	/**
+	 * Format a Default option label with the resolved value in parentheses.
+	 *
+	 * @param string $resolved_title Resolved provider or model title.
+	 *
+	 * @return string
+	 */
+	private static function format_default_option_title( $resolved_title ) {
+		$resolved_title = is_string( $resolved_title ) ? trim( $resolved_title ) : '';
+
+		if ( '' === $resolved_title ) {
+			return __( 'Default', 'mind' );
+		}
+
+		return sprintf(
+			/* translators: %s: resolved provider or model title. */
+			__( 'Default (%s)', 'mind' ),
+			$resolved_title
+		);
+	}
+
+	/**
+	 * Check whether a saved provider/model pair can be used for runtime requests.
+	 *
+	 * @param string $provider_id Provider ID.
+	 * @param string $model_name Model ID.
 	 *
 	 * @return bool
 	 */
-	public static function is_valid_selected_model( $model_name ) {
-		$selected_model = self::get_selected_model_state( $model_name );
+	public static function is_valid_selection( $provider_id, $model_name ) {
+		$provider_id = is_string( $provider_id ) ? $provider_id : '';
+		$model_name  = is_string( $model_name ) ? $model_name : '';
 
-		return $selected_model['runtimeAvailable'];
+		if ( '' === $provider_id && '' === $model_name ) {
+			return true;
+		}
+
+		return false !== self::resolve_model_selection( $provider_id, $model_name );
 	}
 
 	/**
@@ -197,59 +294,356 @@ class Mind_AI_API {
 	 * @return array
 	 */
 	public static function get_setup_state() {
-		$settings                = get_option( 'mind_settings', array() );
-		$selected_model_name     = $settings['ai_model'] ?? '';
-		$selected_model          = self::get_selected_model_state( $selected_model_name );
-		$has_provider_connection = self::is_connector_connected( 'openai' ) || self::is_connector_connected( 'anthropic' );
+		$selection      = self::get_saved_selection();
+		$resolved       = self::resolve_model_selection();
+		$has_providers  = self::has_any_connected_provider();
+		$uses_default   = '' === $selection['provider'] && '' === $selection['model'];
+		$is_explicit    = ! $uses_default;
+		$approvals_page = 'tools.php?page=ai-connector-approval';
 
 		return array(
-			'connected'               => $selected_model['runtimeAvailable'],
-			'hasValidSelectedModel'   => $selected_model['runtimeAvailable'],
-			'needsProviderConnection' => ! $has_provider_connection,
-			'needsModelSelection'     => $has_provider_connection && ! $selected_model['runtimeAvailable'],
-			'selectedModelName'       => $selected_model_name,
-			'selectedProvider'        => $selected_model['provider'],
+			'connected'               => false !== $resolved,
+			'hasValidSelectedModel'   => false !== $resolved,
+			'needsProviderConnection' => ! $has_providers,
+			'needsModelSelection'     => $has_providers && $is_explicit && false === $resolved,
+			'usesDefault'             => $uses_default,
+			'selectedProvider'        => $selection['provider'],
+			'selectedModelName'       => $selection['model'],
+			'resolvedProvider'        => $resolved['provider'] ?? '',
+			'resolvedModelName'       => $resolved['name'] ?? '',
+			'resolvedProviderTitle'   => $resolved ? self::get_provider_title( $resolved['provider'] ) : '',
+			'resolvedModelTitle'      => $resolved ? self::format_model_title( $resolved['name'] ) : '',
 			'canManageConnectors'     => current_user_can( 'manage_options' ),
+			'connectorApprovalsURL'   => admin_url( $approvals_page ),
 		);
 	}
 
 	/**
-	 * Resolve the saved model name against the current provider state.
+	 * Resolve the runtime provider/model for the current or supplied selection.
 	 *
-	 * @param string $model_name Saved model name.
+	 * @param string|null $provider_id Provider ID.
+	 * @param string|null $model_name Model ID.
 	 *
-	 * @return array
+	 * @return array{provider: string, name: string, isDefault: bool}|false
 	 */
-	private static function get_selected_model_state( $model_name ) {
-		$model_name      = is_string( $model_name ) ? $model_name : '';
-		$provider_id     = self::get_model_provider( $model_name );
-		$family          = self::get_model_family( $model_name );
-		$runtime_name    = self::get_runtime_model_name( $model_name );
-		$registered      = $provider_id ? self::is_provider_registered( $provider_id ) : false;
-		$connected       = $provider_id ? self::is_connector_connected( $provider_id ) : false;
-		$provider_models = ( $provider_id && $connected ) ? self::get_provider_models( $provider_id ) : array();
-		$current_model   = ( $provider_id && $family ) ? self::find_slot_model( $provider_models, $provider_id, $family ) : null;
-		$selected_model  = null;
+	public static function resolve_model_selection( $provider_id = null, $model_name = null ) {
+		$selection = self::get_saved_selection();
 
-		if ( $model_name && $provider_id && $family ) {
-			$selected_model = self::find_model_by_name( $provider_models, $model_name );
+		if ( null === $provider_id ) {
+			$provider_id = $selection['provider'];
+		}
 
-			if ( ! $selected_model ) {
-				$selected_model = self::create_legacy_model_data( $model_name, $provider_id, $family );
+		if ( null === $model_name ) {
+			$model_name = $selection['model'];
+		}
+
+		$provider_id = is_string( $provider_id ) ? $provider_id : '';
+		$model_name  = is_string( $model_name ) ? $model_name : '';
+
+		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
+			return false;
+		}
+
+		if ( '' === $provider_id && '' === $model_name ) {
+			return self::resolve_default_model();
+		}
+
+		if ( '' !== $provider_id && '' === $model_name ) {
+			return self::resolve_provider_default_model( $provider_id );
+		}
+
+		if ( '' === $provider_id && '' !== $model_name ) {
+			$runtime_name = self::get_runtime_model_name( $model_name );
+
+			foreach ( self::get_connected_providers() as $provider ) {
+				foreach ( $provider['models'] as $model ) {
+					if ( $model['name'] !== $model_name && self::get_runtime_model_name( $model['name'] ) !== $runtime_name ) {
+						continue;
+					}
+
+					$resolved = self::resolve_model_selection( $provider['id'], $model['name'] );
+
+					if ( $resolved ) {
+						return $resolved;
+					}
+				}
 			}
+
+			$inferred_provider = self::infer_provider_from_model( $model_name );
+
+			if ( $inferred_provider ) {
+				return self::resolve_model_selection( $inferred_provider, $model_name );
+			}
+
+			return false;
+		}
+
+		$runtime_name = self::get_runtime_model_name( $model_name );
+
+		if ( ! self::can_resolve_runtime_model( $provider_id, $runtime_name ) ) {
+			return false;
 		}
 
 		return array(
-			'name'             => $model_name,
-			'runtimeName'      => $runtime_name,
-			'provider'         => $provider_id,
-			'family'           => $family,
-			'registered'       => $registered,
-			'connected'        => $connected,
-			'currentModel'     => $current_model,
-			'selectedModel'    => $selected_model,
-			'runtimeAvailable' => self::can_resolve_runtime_model( $provider_id, $runtime_name ),
+			'provider'  => $provider_id,
+			'name'      => $runtime_name,
+			'isDefault' => false,
 		);
+	}
+
+	/**
+	 * Resolve the default preferred model from connected providers.
+	 *
+	 * @return array{provider: string, name: string, isDefault: bool}|false
+	 */
+	private static function resolve_default_model() {
+		foreach ( self::get_preferred_models_for_text_generation() as $preferred_model ) {
+			$resolved = self::resolve_preferred_model_pair( $preferred_model );
+
+			if ( $resolved ) {
+				return $resolved;
+			}
+		}
+
+		foreach ( self::get_connected_providers() as $provider ) {
+			$resolved = self::resolve_provider_default_model( $provider['id'] );
+
+			if ( $resolved ) {
+				return $resolved;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve a preferred provider/model pair when available.
+	 *
+	 * @param mixed $preferred_model Preferred provider/model pair.
+	 *
+	 * @return array{provider: string, name: string, isDefault: bool}|false
+	 */
+	private static function resolve_preferred_model_pair( $preferred_model ) {
+		if ( ! is_array( $preferred_model ) || count( $preferred_model ) < 2 ) {
+			return false;
+		}
+
+		$provider_id  = (string) $preferred_model[0];
+		$runtime_name = self::get_runtime_model_name( (string) $preferred_model[1] );
+
+		if ( ! self::can_resolve_runtime_model( $provider_id, $runtime_name ) ) {
+			return false;
+		}
+
+		return array(
+			'provider'  => $provider_id,
+			'name'      => $runtime_name,
+			'isDefault' => true,
+		);
+	}
+
+	/**
+	 * Resolve the default model for a specific provider.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return array{provider: string, name: string, isDefault: bool}|false
+	 */
+	private static function resolve_provider_default_model( $provider_id ) {
+		$provider_id = is_string( $provider_id ) ? $provider_id : '';
+
+		if ( '' === $provider_id || ! self::is_connector_connected( $provider_id ) ) {
+			return false;
+		}
+
+		foreach ( self::get_preferred_models_for_text_generation() as $preferred_model ) {
+			if ( ! is_array( $preferred_model ) || count( $preferred_model ) < 2 ) {
+				continue;
+			}
+
+			if ( $preferred_model[0] !== $provider_id ) {
+				continue;
+			}
+
+			$resolved = self::resolve_preferred_model_pair( $preferred_model );
+
+			if ( $resolved ) {
+				return $resolved;
+			}
+		}
+
+		return self::resolve_first_available_model( $provider_id );
+	}
+
+	/**
+	 * Resolve the first runtime-available text model for a provider.
+	 *
+	 * @param string $provider_id Provider ID.
+	 *
+	 * @return array{provider: string, name: string, isDefault: bool}|false
+	 */
+	private static function resolve_first_available_model( $provider_id ) {
+		foreach ( self::get_provider_models( $provider_id ) as $model ) {
+			$runtime_name = self::get_runtime_model_name( $model['name'] );
+
+			if ( ! self::can_resolve_runtime_model( $provider_id, $runtime_name ) ) {
+				continue;
+			}
+
+			return array(
+				'provider'  => $provider_id,
+				'name'      => $runtime_name,
+				'isDefault' => true,
+			);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check whether any AI provider connector is configured.
+	 *
+	 * @return bool
+	 */
+	public static function has_any_connected_provider() {
+		if ( ! empty( self::get_connected_providers() ) ) {
+			return true;
+		}
+
+		foreach ( self::get_registered_provider_ids() as $provider_id ) {
+			if ( self::is_connector_connected( $provider_id ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get connected providers and their models for the settings UI.
+	 *
+	 * @return array<int, array{id: string, title: string, models: array}>
+	 */
+	public static function get_connected_providers() {
+		$providers = array();
+		$seen      = array();
+
+		foreach ( self::get_ai_connectors() as $connector_id => $connector_data ) {
+			if ( ! self::is_connector_connected( $connector_id ) ) {
+				continue;
+			}
+
+			$models = self::get_provider_models( $connector_id );
+
+			if ( empty( $models ) ) {
+				continue;
+			}
+
+			$seen[ $connector_id ] = true;
+			$providers[]           = array(
+				'id'     => $connector_id,
+				'title'  => self::get_provider_title( $connector_id, $connector_data ),
+				'models' => $models,
+			);
+		}
+
+		foreach ( self::get_registered_provider_ids() as $provider_id ) {
+			if ( isset( $seen[ $provider_id ] ) || ! self::is_connector_connected( $provider_id ) ) {
+				continue;
+			}
+
+			$models = self::get_provider_models( $provider_id );
+
+			if ( empty( $models ) ) {
+				continue;
+			}
+
+			$providers[] = array(
+				'id'     => $provider_id,
+				'title'  => self::get_provider_title( $provider_id ),
+				'models' => $models,
+			);
+		}
+
+		return $providers;
+	}
+
+	/**
+	 * Get provider IDs registered in the WordPress AI Client.
+	 *
+	 * @return string[]
+	 */
+	private static function get_registered_provider_ids() {
+		if ( ! class_exists( '\WordPress\AiClient\AiClient' ) ) {
+			return array();
+		}
+
+		try {
+			$registry = \WordPress\AiClient\AiClient::defaultRegistry();
+
+			if ( method_exists( $registry, 'getRegisteredProviderIds' ) ) {
+				return array_map( 'strval', $registry->getRegisteredProviderIds() );
+			}
+		} catch ( Throwable $e ) {
+			unset( $e );
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get a human-readable provider title.
+	 *
+	 * @param string     $provider_id Provider ID.
+	 * @param array|null $connector_data Connector metadata.
+	 *
+	 * @return string
+	 */
+	private static function get_provider_title( $provider_id, $connector_data = null ) {
+		if ( is_array( $connector_data ) ) {
+			foreach ( array( 'title', 'label', 'name' ) as $key ) {
+				if ( ! empty( $connector_data[ $key ] ) && is_string( $connector_data[ $key ] ) ) {
+					return $connector_data[ $key ];
+				}
+			}
+		}
+
+		if ( function_exists( 'wp_get_connector' ) ) {
+			$connector = wp_get_connector( $provider_id );
+
+			if ( is_array( $connector ) ) {
+				foreach ( array( 'title', 'label', 'name' ) as $key ) {
+					if ( ! empty( $connector[ $key ] ) && is_string( $connector[ $key ] ) ) {
+						return $connector[ $key ];
+					}
+				}
+			}
+		}
+
+		return self::format_model_title( $provider_id );
+	}
+
+	/**
+	 * Infer provider ID from a legacy model name.
+	 *
+	 * @param string $model_name Model ID.
+	 *
+	 * @return string
+	 */
+	private static function infer_provider_from_model( $model_name ) {
+		if ( 0 === strpos( $model_name, 'claude-' ) ) {
+			return 'anthropic';
+		}
+
+		if ( 0 === strpos( $model_name, 'gpt-' ) ) {
+			return 'openai';
+		}
+
+		if ( 0 === strpos( $model_name, 'gemini-' ) ) {
+			return 'google';
+		}
+
+		return '';
 	}
 
 	/**
@@ -357,8 +751,6 @@ class Mind_AI_API {
 			'name'             => $model_id,
 			'title'            => self::format_model_title( $model_name ),
 			'provider'         => $provider_id,
-			'family'           => self::get_model_family( $model_id ),
-			'canonicalName'    => self::get_model_canonical_name( $model_id ),
 			'available'        => true,
 			'runtimeAvailable' => true,
 			'deprecated'       => $deprecated['deprecated'],
@@ -405,136 +797,6 @@ class Mind_AI_API {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Find the first available model for a slot.
-	 *
-	 * @param array  $models Models.
-	 * @param string $provider_id Provider ID.
-	 * @param string $family Model family.
-	 *
-	 * @return array|null
-	 */
-	private static function find_slot_model( $models, $provider_id, $family ) {
-		foreach ( $models as $model ) {
-			if (
-				$model['provider'] === $provider_id &&
-				$model['family'] === $family
-			) {
-				return $model;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Find a normalized model by name.
-	 *
-	 * @param array  $models Models.
-	 * @param string $model_name Model name.
-	 *
-	 * @return array|null
-	 */
-	private static function find_model_by_name( $models, $model_name ) {
-		foreach ( $models as $model ) {
-			if ( $model['name'] === $model_name ) {
-				return $model;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Create model data for a saved model that is not in the current provider list.
-	 *
-	 * @param string $model_name Model name.
-	 * @param string $provider_id Provider ID.
-	 * @param string $family Model family.
-	 *
-	 * @return array
-	 */
-	private static function create_legacy_model_data( $model_name, $provider_id, $family ) {
-		return array(
-			'name'             => $model_name,
-			'title'            => self::format_model_title( $model_name ),
-			'provider'         => $provider_id,
-			'family'           => $family,
-			'canonicalName'    => self::get_model_canonical_name( $model_name ),
-			'available'        => false,
-			'runtimeAvailable' => false,
-			'deprecated'       => false,
-			'deprecationDate'  => '',
-		);
-	}
-
-	/**
-	 * Get model provider from model name.
-	 *
-	 * @param string $model_name Model name.
-	 *
-	 * @return string
-	 */
-	private static function get_model_provider( $model_name ) {
-		if ( 0 === strpos( $model_name, 'claude-' ) ) {
-			return 'anthropic';
-		}
-
-		if ( 0 === strpos( $model_name, 'gpt-' ) ) {
-			return 'openai';
-		}
-
-		return '';
-	}
-
-	/**
-	 * Get model family from model name.
-	 *
-	 * @param string $model_name Model name.
-	 *
-	 * @return string
-	 */
-	private static function get_model_family( $model_name ) {
-		if ( false !== strpos( $model_name, 'sonnet' ) ) {
-			return 'sonnet';
-		}
-
-		if ( false !== strpos( $model_name, 'haiku' ) ) {
-			return 'haiku';
-		}
-
-		if ( 0 === strpos( $model_name, 'gpt-' ) ) {
-			return false !== strpos( $model_name, 'mini' ) ? 'gpt-mini' : 'gpt';
-		}
-
-		return '';
-	}
-
-	/**
-	 * Check if two model names point to the same display model.
-	 *
-	 * @param string $first_model First model name.
-	 * @param string $second_model Second model name.
-	 *
-	 * @return bool
-	 */
-	private static function are_model_names_equivalent( $first_model, $second_model ) {
-		return self::get_model_canonical_name( $first_model ) === self::get_model_canonical_name( $second_model );
-	}
-
-	/**
-	 * Get canonical model name for comparing provider aliases.
-	 *
-	 * @param string $model_name Model name.
-	 *
-	 * @return string
-	 */
-	private static function get_model_canonical_name( $model_name ) {
-		$model_name = strtolower( (string) $model_name );
-
-		return preg_replace( '/-[0-9]{8}$/', '', $model_name );
 	}
 
 	/**
@@ -748,7 +1010,10 @@ class Mind_AI_API {
 		header( 'X-Accel-Buffering: no' );
 
 		ob_implicit_flush( true );
-		ob_end_flush();
+
+		while ( ob_get_level() > 0 ) {
+			ob_end_flush();
+		}
 
 		if ( ! $request ) {
 			$this->send_stream_error( 'no_request', __( 'Provide request to receive AI response.', 'mind' ) );
@@ -758,7 +1023,13 @@ class Mind_AI_API {
 		$connected_model = $this->get_connected_model();
 
 		if ( ! $connected_model ) {
-			$this->send_stream_error( 'no_model_connected', __( 'Select an AI model and connect its API key in WordPress Connectors.', 'mind' ) );
+			$this->send_stream_error(
+				'no_model_connected',
+				__(
+					'Mind could not resolve an AI provider and model. Connect a provider in WordPress Connectors or choose one in Mind settings.',
+					'mind'
+				)
+			);
 			exit;
 		}
 
@@ -826,12 +1097,11 @@ class Mind_AI_API {
 			return;
 		}
 
-		$builder            = wp_ai_client_prompt( $prompt_messages );
-		$runtime_model_name = self::get_runtime_model_name( $model['name'] );
+		$builder = wp_ai_client_prompt( $prompt_messages );
 
 		try {
 			$registry    = \WordPress\AiClient\AiClient::defaultRegistry();
-			$exact_model = $registry->getProviderModel( $model['provider'], $runtime_model_name );
+			$exact_model = $registry->getProviderModel( $model['provider'], $model['name'] );
 		} catch ( Exception $e ) {
 			$this->send_stream_error( 'model_resolution_error', $e->getMessage() );
 			return;

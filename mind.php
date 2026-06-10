@@ -40,7 +40,7 @@ class Mind {
 	 *
 	 * @var string[]
 	 */
-	private const SUPPORTED_SETTINGS_KEYS = array( 'ai_model' );
+	private const SUPPORTED_SETTINGS_KEYS = array( 'ai_provider', 'ai_model' );
 
 	/**
 	 * Legacy credential keys kept only for cleanup.
@@ -120,8 +120,11 @@ class Mind {
 
 		if ( is_array( $settings ) ) {
 			$clean_settings = self::remove_legacy_secret_settings( $settings );
+			$migrated       = Mind_AI_API::migrate_legacy_settings( $clean_settings );
 
-			if ( $clean_settings !== $settings ) {
+			if ( $migrated !== $settings ) {
+				update_option( MIND_SETTINGS_OPTION, $migrated );
+			} elseif ( $clean_settings !== $settings ) {
 				update_option( MIND_SETTINGS_OPTION, $clean_settings );
 			}
 		}

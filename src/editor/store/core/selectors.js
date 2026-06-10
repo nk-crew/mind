@@ -3,6 +3,7 @@ const {
 	setupState = {},
 	connectorsPageURL,
 	mindSettingsPageURL,
+	connectorApprovalsURL,
 } = window.mindData;
 
 export function isConnected() {
@@ -25,10 +26,18 @@ export function needsModelSelection() {
 	return setupState.needsModelSelection === true;
 }
 
+export function isMindBlocked() {
+	return needsProviderConnection() || needsModelSelection();
+}
+
 export function getConnectorsPageURL() {
 	return connectorsPageURL;
 }
 
 export function getMindSettingsPageURL() {
 	return mindSettingsPageURL;
+}
+
+export function getConnectorApprovalsURL() {
+	return connectorApprovalsURL;
 }

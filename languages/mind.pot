@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-05T16:16:25+00:00\n"
+"POT-Creation-Date: 2026-06-10T09:42:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mind\n"
@@ -56,51 +56,51 @@ msgstr ""
 msgid "Discussions"
 msgstr ""
 
-#: classes/class-ai-api.php:83
+#: classes/class-ai-api.php:125
 msgid "Claude Sonnet"
 msgstr ""
 
-#: classes/class-ai-api.php:84
+#: classes/class-ai-api.php:126
 msgid "Best quality and recommended"
 msgstr ""
 
-#: classes/class-ai-api.php:89
+#: classes/class-ai-api.php:131
 msgid "Claude Haiku"
 msgstr ""
 
-#: classes/class-ai-api.php:90
+#: classes/class-ai-api.php:132
 msgid "Fast and accurate"
 msgstr ""
 
-#: classes/class-ai-api.php:95
+#: classes/class-ai-api.php:137
 msgid "GPT"
 msgstr ""
 
-#: classes/class-ai-api.php:96
+#: classes/class-ai-api.php:138
 msgid "Quick and reliable"
 msgstr ""
 
-#: classes/class-ai-api.php:101
+#: classes/class-ai-api.php:143
 msgid "GPT mini"
 msgstr ""
 
-#: classes/class-ai-api.php:102
+#: classes/class-ai-api.php:144
 msgid "Basic and fastest"
 msgstr ""
 
-#: classes/class-ai-api.php:688
+#: classes/class-ai-api.php:757
 msgid "Provide request to receive AI response."
 msgstr ""
 
-#: classes/class-ai-api.php:695
+#: classes/class-ai-api.php:764
 msgid "Select an AI model and connect its API key in WordPress Connectors."
 msgstr ""
 
-#: classes/class-ai-api.php:752
+#: classes/class-ai-api.php:821
 msgid "The WordPress AI Client is not available in this environment."
 msgstr ""
 
-#: classes/class-ai-api.php:790
+#: classes/class-ai-api.php:863
 msgid "The AI Client returned an empty response."
 msgstr ""
 
@@ -116,67 +116,67 @@ msgstr ""
 msgid "The selected AI model is not available in the current WordPress AI provider configuration."
 msgstr ""
 
-#: src/admin/page-settings/index.js:98
+#: src/admin/page-settings/index.js:102
 msgid "Model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:138
+#: src/admin/page-settings/index.js:142
 msgid "No matching model found"
 msgstr ""
 
-#: src/admin/page-settings/index.js:142
+#: src/admin/page-settings/index.js:146
 msgid "Connect provider to load models"
 msgstr ""
 
-#: src/admin/page-settings/index.js:150
+#: src/admin/page-settings/index.js:154
 msgid "Saved model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:161
+#: src/admin/page-settings/index.js:165
 msgid "The selected model cannot be used with the current WordPress AI provider configuration. Select another model before sending requests."
 msgstr ""
 
 #. translators: %s: deprecation date.
-#: src/admin/page-settings/index.js:173
+#: src/admin/page-settings/index.js:177
 msgid "The selected model is deprecated and is scheduled to be disabled on %s."
 msgstr ""
 
-#: src/admin/page-settings/index.js:179
+#: src/admin/page-settings/index.js:183
 msgid "The selected model is marked as deprecated by the provider."
 msgstr ""
 
-#: src/admin/page-settings/index.js:188
+#: src/admin/page-settings/index.js:192
 msgid "The selected model is not in the current provider model list. You can keep it for now, but it may stop working if the provider has removed it."
 msgstr ""
 
 #. translators: %s: AI model title.
-#: src/admin/page-settings/index.js:200
-msgid "A newer model is available: %s."
+#: src/admin/page-settings/index.js:204
+msgid "A different current model is available for this slot: %s. You can keep the saved model or switch to this one."
 msgstr ""
 
-#: src/admin/page-settings/index.js:213
-msgid "Use newer model"
+#: src/admin/page-settings/index.js:220
+msgid "Use current model"
 msgstr ""
 
 #. translators: %s: AI provider name.
-#: src/admin/page-settings/index.js:231
+#: src/admin/page-settings/index.js:238
 msgid "%s is connected."
 msgstr ""
 
 #. translators: %s: AI provider name.
-#: src/admin/page-settings/index.js:236
+#: src/admin/page-settings/index.js:243
 msgid "%s is not connected yet."
 msgstr ""
 
-#: src/admin/page-settings/index.js:241
+#: src/admin/page-settings/index.js:248
 msgid "API keys are managed by WordPress Connectors and can be shared across plugins."
 msgstr ""
 
-#: src/admin/page-settings/index.js:250
+#: src/admin/page-settings/index.js:257
 msgid "Manage in WordPress Connectors"
 msgstr ""
 
-#: src/admin/page-settings/index.js:264
+#: src/admin/page-settings/index.js:271
 msgid "Save Changes"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgstr ""
 msgid "select the model and connect API key →"
 msgstr ""
 
-#: src/admin/store/settings/actions.js:35
+#: src/admin/store/settings/actions.js:41
 msgid "Something went wrong, please, try again…"
 msgstr ""
 
@@ -435,6 +435,19 @@ msgstr ""
 #. translators: %s - tone.
 #: src/editor/extensions/block-toolbar/index.js:244
 msgid "Translate to %s"
+msgstr ""
+
+#: src/editor/popup/components/ai-response/index.js:97
+msgid "Generating blocks…"
+msgstr ""
+
+#: src/editor/popup/components/ai-response/index.js:99
+msgid "The preview will appear as soon as the first blocks are ready."
+msgstr ""
+
+#. translators: %d: number of generated blocks.
+#: src/editor/popup/components/ai-response/index.js:110
+msgid "%d blocks generated…"
 msgstr ""
 
 #: src/editor/popup/components/footer/index.js:41
