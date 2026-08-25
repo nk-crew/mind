@@ -9,29 +9,30 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-10T11:24:52+00:00\n"
+"POT-Creation-Date: 2026-08-25T22:11:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mind\n"
 
 #. Plugin Name of the plugin
-#: mind.php
+#: mind.php:3
 msgid "AI Mind"
 msgstr ""
 
 #. Plugin URI of the plugin
 #. Author URI of the plugin
-#: mind.php
+#: mind.php:8
+#: mind.php:10
 msgid "https://www.wp-mind.com/"
 msgstr ""
 
 #. Description of the plugin
-#: mind.php
+#: mind.php:4
 msgid "AI Page Builder via WordPress Connectors. Build, design, improve, and rewrite your page sections and blocks."
 msgstr ""
 
 #. Author of the plugin
-#: mind.php
+#: mind.php:9
 msgid "Mind Team"
 msgstr ""
 
@@ -70,6 +71,7 @@ msgstr ""
 
 #. translators: %s: resolved provider or model title.
 #: classes/class-ai-settings.php:171
+#, php-format
 msgid "Default (%s)"
 msgstr ""
 
@@ -101,44 +103,41 @@ msgstr ""
 msgid "The selected AI provider and model are not available in the current WordPress AI provider configuration."
 msgstr ""
 
-#: src/admin/page-settings/index.js:92
+#: src/admin/page-settings/index.js:91
 msgid "Provider"
 msgstr ""
 
-#: src/admin/page-settings/index.js:117
+#: src/admin/page-settings/index.js:116
 msgid "Model"
 msgstr ""
 
-#: src/admin/page-settings/index.js:141
-msgid "Connect an AI provider in WordPress Connectors before Mind can send requests."
-msgstr ""
-
-#: src/admin/page-settings/index.js:150
+#: src/admin/page-settings/index.js:140
 msgid "The selected provider and model are not available. Choose another option or switch back to Default."
 msgstr ""
 
-#: src/admin/page-settings/index.js:168
+#: src/admin/page-settings/index.js:158
 msgid "At least one AI provider is connected."
 msgstr ""
 
-#: src/admin/page-settings/index.js:172
+#: src/admin/page-settings/index.js:162
 msgid "No AI providers are connected yet."
 msgstr ""
 
-#: src/admin/page-settings/index.js:175
+#: src/admin/page-settings/index.js:165
 msgid "Mind works through WordPress Connectors. API keys are managed there and can be shared across plugins."
 msgstr ""
 
-#: src/admin/page-settings/index.js:184
+#: src/admin/page-settings/index.js:174
 msgid "Manage in WordPress Connectors"
 msgstr ""
 
-#: src/admin/page-settings/index.js:198
+#: src/admin/page-settings/index.js:188
 msgid "Save Changes"
 msgstr ""
 
 #. translators: %s - Mind logo.
 #: src/admin/page-welcome/index.js:27
+#, js-format
 msgid "Hello, my name is %s"
 msgstr ""
 
@@ -382,6 +381,7 @@ msgstr ""
 
 #. translators: %s - tone.
 #: src/editor/extensions/block-toolbar/index.js:192
+#, js-format
 msgid "Change tone to %s"
 msgstr ""
 
@@ -391,6 +391,7 @@ msgstr ""
 
 #. translators: %s - tone.
 #: src/editor/extensions/block-toolbar/index.js:244
+#, js-format
 msgid "Translate to %s"
 msgstr ""
 

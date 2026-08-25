@@ -64,7 +64,6 @@ export default function PageSettings() {
 		[aiOptions, providerId]
 	);
 	const hasConnectedProviders = (aiOptions.providers || []).length > 1;
-	const needsProviderConnection = setupState.needsProviderConnection;
 	const needsModelSelection = setupState.needsModelSelection;
 
 	function onProviderChange(event) {
@@ -135,15 +134,6 @@ export default function PageSettings() {
 					</select>
 				</div>
 			</div>
-
-			{needsProviderConnection && (
-				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">
-					{__(
-						'Connect an AI provider in WordPress Connectors before Mind can send requests.',
-						'mind'
-					)}
-				</div>
-			)}
 
 			{needsModelSelection && (
 				<div className="mind-admin-settings-notice mind-admin-settings-notice-warning">

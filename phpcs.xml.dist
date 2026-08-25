@@ -38,12 +38,6 @@
 	-->
 	<ini name="memory_limit" value="256M" />
 
-	<!--
-	Prevent errors caused by WordPress Coding Standards not supporting newer PHP deprecation notices well.
-	See https://github.com/WordPress/WordPress-Coding-Standards/issues/2035
-	-->
-	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED" />
-
 
 	<!--
 	#############################################################################
@@ -75,7 +69,7 @@
 			<property name="allowUnusedParametersBeforeUsed" value="true"/>
 		</properties>
 	</rule>
-	<rule ref="WordPress.CodeAnalysis.EmptyStatement"/>
+	<rule ref="Generic.CodeAnalysis.EmptyPHPStatement"/>
 
 	<!--
 	#############################################################################
@@ -96,7 +90,12 @@
 
 	<!-- Allow arrays short syntax -->
 	<rule ref="WordPress-Extra">
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<!-- The plugin bootstrap file has to keep both the Mind class and the mind() accessor, because its __FILE__ is what the plugin paths and the activation hooks are built from. -->
+	<rule ref="Universal.Files.SeparateFunctionsFromOO">
+		<exclude-pattern>/mind\.php$</exclude-pattern>
 	</rule>
 
 	<!-- Verify that everything in the global namespace is prefixed with a theme specific prefix.
