@@ -110,7 +110,7 @@ class Mind {
 	 */
 	public function init_hook() {
 		// load textdomain.
-		load_plugin_textdomain( 'mind', false, basename( dirname( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'mind', false, basename( __DIR__ ) . '/languages' );
 	}
 
 	/**
