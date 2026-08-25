@@ -13,7 +13,7 @@ import { SwitchTransition, CSSTransition } from 'react-transition-group';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { render, useEffect, useRef } from '@wordpress/element';
+import { createRoot, useEffect, useRef } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -152,5 +152,7 @@ function PageWrapper() {
 }
 
 window.addEventListener('load', () => {
-	render(<PageWrapper />, document.querySelector('.mind-admin-root'));
+	createRoot(document.querySelector('.mind-admin-root')).render(
+		<PageWrapper />
+	);
 });
