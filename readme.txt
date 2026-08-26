@@ -4,7 +4,7 @@ Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 7.0
 Tested up to:      7.1
 Requires PHP:      7.4
-Stable tag:        1.0.0
+Stable tag:        1.0.1
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,11 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 1.0.1 - Aug 26, 2026 =
+
+- added WordPress 7.1 compatibility
+- removed the duplicate warning above the AI provider card on the settings screen
 
 = 1.0.0 - Jun 10, 2026 =
 
