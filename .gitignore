@@ -45,3 +45,4 @@ node_modules
 
 # local planning docs
 .spec/
+.specs/
