@@ -89,6 +89,15 @@ class Mind_AI_Stream {
 			->using_max_tokens( 8192 )
 			->using_temperature( 0.7 );
 
+		// The direct provider requests below skip the builder, so apply core's filter the way the builder does.
+		if ( apply_filters( 'wp_ai_client_prevent_prompt', false, clone $builder ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
+			$this->send_stream_error(
+				'prompt_prevented',
+				__( 'This AI request is blocked by the site configuration.', 'mind' )
+			);
+			return;
+		}
+
 		if ( $this->request_provider_stream( $model, $messages, $registry ) ) {
 			return;
 		}
@@ -315,8 +324,7 @@ class Mind_AI_Stream {
 		$ch = curl_init( $endpoint );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
-		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 30 );
-		curl_setopt( $ch, CURLOPT_TIMEOUT, 0 );
+		$this->set_curl_timeouts( $ch );
 		curl_setopt(
 			$ch,
 			CURLOPT_HTTPHEADER,
@@ -348,6 +356,22 @@ class Mind_AI_Stream {
 		/* phpcs:enable */
 	}
 	/**
+	 * Limit how long a provider request may hold the PHP worker.
+	 *
+	 * @param resource|CurlHandle $ch Curl handle.
+	 *
+	 * @return void
+	 */
+	private function set_curl_timeouts( $ch ) {
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_setopt */
+		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
+		curl_setopt( $ch, CURLOPT_TIMEOUT, 300 );
+		// Abort when the provider sends less than 1 byte per second for 60 seconds.
+		curl_setopt( $ch, CURLOPT_LOW_SPEED_LIMIT, 1 );
+		curl_setopt( $ch, CURLOPT_LOW_SPEED_TIME, 60 );
+		/* phpcs:enable */
+	}
+	/**
 	 * Request Anthropic streaming API.
 	 *
 	 * @param array  $model Connected model data.
@@ -371,8 +395,7 @@ class Mind_AI_Stream {
 		$ch = curl_init( 'https://api.anthropic.com/v1/messages' );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
-		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 30 );
-		curl_setopt( $ch, CURLOPT_TIMEOUT, 0 );
+		$this->set_curl_timeouts( $ch );
 		curl_setopt(
 			$ch,
 			CURLOPT_HTTPHEADER,

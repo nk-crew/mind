@@ -56,11 +56,32 @@ class Mind_Rest extends WP_REST_Controller {
 			$namespace,
 			'/request_ai/',
 			[
-				'methods'             => [ 'GET', 'POST' ],
+				'methods'             => [ 'POST' ],
 				'callback'            => [ $this, 'request_ai' ],
 				'permission_callback' => [ $this, 'request_ai_permission' ],
+				'args'                => [
+					'request'         => $this->get_text_arg_schema( 10000 ),
+					'selected_blocks' => $this->get_text_arg_schema( 200000 ),
+					'page_blocks'     => $this->get_text_arg_schema( 200000 ),
+					'page_context'    => $this->get_text_arg_schema( 10000 ),
+				],
 			]
 		);
+	}
+
+	/**
+	 * Schema for a text request field with a length cap.
+	 *
+	 * @param int $max_length Maximum number of characters.
+	 *
+	 * @return array
+	 */
+	private function get_text_arg_schema( $max_length ) {
+		return [
+			'type'              => 'string',
+			'maxLength'         => $max_length,
+			'validate_callback' => 'rest_validate_request_arg',
+		];
 	}
 
 	/**
