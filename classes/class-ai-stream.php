@@ -56,6 +56,12 @@ class Mind_AI_Stream {
 	 */
 	private const LOW_SPEED_TIME = 120;
 	/**
+	 * Seconds a provider request may take in total. 8192 tokens fit at 10 tokens per second.
+	 *
+	 * @var int
+	 */
+	private const TOTAL_TIME = 900;
+	/**
 	 * Execute the prompt through the WordPress AI Client and preserve the current SSE contract.
 	 *
 	 * @param array $model Connected model data.
@@ -356,7 +362,7 @@ class Mind_AI_Stream {
 			false,
 			array(
 				'method'  => 'POST',
-				'timeout' => self::LOW_SPEED_TIME,
+				'timeout' => self::TOTAL_TIME,
 				'headers' => $headers,
 				'body'    => $payload,
 			),
@@ -384,7 +390,8 @@ class Mind_AI_Stream {
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
 		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
-		// No total limit, a long answer may stream for minutes. Abort only a stalled provider.
+		curl_setopt( $ch, CURLOPT_TIMEOUT, self::TOTAL_TIME );
+		// A long answer may stream for minutes, so a stalled provider is aborted separately.
 		curl_setopt( $ch, CURLOPT_LOW_SPEED_LIMIT, 1 );
 		curl_setopt( $ch, CURLOPT_LOW_SPEED_TIME, self::LOW_SPEED_TIME );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $curl_headers );
