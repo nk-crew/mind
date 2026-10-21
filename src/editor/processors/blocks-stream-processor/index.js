@@ -1,7 +1,12 @@
 import untruncateJson from 'untruncate-json';
 
 import { createBlock } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
+
+// Blocks whose content is output as raw HTML.
+const RAW_HTML_BLOCKS = ['core/html', 'core/freeform'];
 
 export default class BlocksStreamProcessor {
 	constructor(dispatch) {
@@ -227,6 +232,15 @@ export default class BlocksStreamProcessor {
 				: [];
 
 			const attributes = blockData.attributes || {};
+
+			if (
+				RAW_HTML_BLOCKS.includes(blockData.name) &&
+				!select('core/editor')?.canUserUseUnfilteredHTML?.()
+			) {
+				return createBlock('core/paragraph', {
+					content: escapeHTML(String(attributes.content || '')),
+				});
+			}
 
 			return createBlock(blockData.name, attributes, innerBlocks);
 		} catch (error) {
