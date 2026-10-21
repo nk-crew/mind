@@ -385,7 +385,7 @@ class Mind_AI_Stream {
 			$curl_headers[] = $name . ': ' . $value;
 		}
 
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error */
 		$ch = curl_init( $url );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
@@ -413,8 +413,6 @@ class Mind_AI_Stream {
 			$this->send_buffered_chunk();
 			$this->send_stream_done();
 		}
-
-		curl_close( $ch );
 		/* phpcs:enable */
 	}
 	/**
