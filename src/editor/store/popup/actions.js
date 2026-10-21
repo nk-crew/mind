@@ -139,21 +139,20 @@ export function requestAI() {
 				parse: false,
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(
-					errorData.message ||
-						__('Failed to fetch AI response', 'mind')
-				);
-			}
-
 			// Process the stream
 			await streamProcessor.processStream(response.body.getReader());
 		} catch (error) {
+			let message = error?.message;
+
+			// With parse: false, apiFetch throws the Response itself on a non-2xx status.
+			if (error instanceof window.Response) {
+				const errorData = await error.json().catch(() => ({}));
+				message = errorData?.message;
+			}
+
 			dispatch({
 				type: 'REQUEST_AI_ERROR',
-				payload:
-					error.message || __('Failed to fetch AI response', 'mind'),
+				payload: message || __('Failed to fetch AI response', 'mind'),
 			});
 		}
 	};

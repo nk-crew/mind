@@ -50,6 +50,12 @@ class Mind_AI_Stream {
 	 */
 	private const MIN_SEND_INTERVAL = 0.05;
 	/**
+	 * Seconds a provider may send less than 1 byte per second before the request is aborted.
+	 *
+	 * @var int
+	 */
+	private const LOW_SPEED_TIME = 120;
+	/**
 	 * Execute the prompt through the WordPress AI Client and preserve the current SSE contract.
 	 *
 	 * @param array $model Connected model data.
@@ -89,16 +95,7 @@ class Mind_AI_Stream {
 			->using_max_tokens( 8192 )
 			->using_temperature( 0.7 );
 
-		// The direct provider requests below skip the builder, so apply core's filter the way the builder does.
-		if ( apply_filters( 'wp_ai_client_prevent_prompt', false, clone $builder ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
-			$this->send_stream_error(
-				'prompt_prevented',
-				__( 'This AI request is blocked by the site configuration.', 'mind' )
-			);
-			return;
-		}
-
-		if ( $this->request_provider_stream( $model, $messages, $registry ) ) {
+		if ( $this->request_provider_stream( $model, $messages, $registry, $builder ) ) {
 			return;
 		}
 
@@ -136,11 +133,12 @@ class Mind_AI_Stream {
 	 * @param array  $model Connected model data.
 	 * @param array  $messages Prepared prompt messages.
 	 * @param object $registry AI Client provider registry.
+	 * @param object $builder AI Client prompt builder.
 	 *
 	 * @return bool Whether the request was handled.
 	 */
-	private function request_provider_stream( $model, $messages, $registry ) {
-		if ( ! function_exists( 'curl_init' ) ) {
+	private function request_provider_stream( $model, $messages, $registry, $builder ) {
+		if ( ! function_exists( 'curl_init' ) || ! in_array( $model['provider'], array( 'openai', 'anthropic', 'ai_gateway' ), true ) ) {
 			return false;
 		}
 
@@ -148,6 +146,15 @@ class Mind_AI_Stream {
 
 		if ( ! $api_key ) {
 			return false;
+		}
+
+		// The direct requests skip the builder, so apply core's filter the way generate_text() does.
+		if ( apply_filters( 'wp_ai_client_prevent_prompt', false, clone $builder ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
+			$this->send_stream_error(
+				'prompt_prevented',
+				__( 'This AI request is blocked by the site configuration.', 'mind' )
+			);
+			return true;
 		}
 
 		$this->reset_stream_state();
@@ -320,25 +327,73 @@ class Mind_AI_Stream {
 			'messages'    => $messages,
 		);
 
+		$this->request_provider(
+			$endpoint,
+			array(
+				'Content-Type'  => 'application/json',
+				'Authorization' => 'Bearer ' . $api_key,
+			),
+			$body,
+			array( $this, 'process_openai_stream_chunk' )
+		);
+	}
+	/**
+	 * Send a streaming POST request to a provider, unless the WordPress HTTP layer blocks it.
+	 *
+	 * @param string   $url Provider endpoint URL.
+	 * @param array    $headers Request headers, name => value.
+	 * @param array    $body Request body, encoded as JSON.
+	 * @param callable $process_chunk Handler for each received chunk.
+	 *
+	 * @return void
+	 */
+	private function request_provider( $url, $headers, $body, $process_chunk ) {
+		$payload = wp_json_encode( $body );
+
+		// Curl skips WP_Http, so honor its pre_http_request filter (connector approval) and WP_HTTP_BLOCK_EXTERNAL here.
+		$pre = apply_filters(
+			'pre_http_request', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
+			false,
+			array(
+				'method'  => 'POST',
+				'timeout' => self::LOW_SPEED_TIME,
+				'headers' => $headers,
+				'body'    => $payload,
+			),
+			$url
+		);
+
+		if ( is_wp_error( $pre ) ) {
+			$this->send_stream_error( $pre->get_error_code(), $pre->get_error_message() );
+			return;
+		}
+
+		if ( false !== $pre || ( new WP_Http() )->block_request( $url ) ) {
+			$this->send_stream_error( 'request_blocked', __( 'This AI request is blocked by the site configuration.', 'mind' ) );
+			return;
+		}
+
+		$curl_headers = array();
+
+		foreach ( $headers as $name => $value ) {
+			$curl_headers[] = $name . ': ' . $value;
+		}
+
 		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
-		$ch = curl_init( $endpoint );
+		$ch = curl_init( $url );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
-		$this->set_curl_timeouts( $ch );
-		curl_setopt(
-			$ch,
-			CURLOPT_HTTPHEADER,
-			array(
-				'Content-Type: application/json',
-				'Authorization: Bearer ' . $api_key,
-			)
-		);
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
+		// No total limit, a long answer may stream for minutes. Abort only a stalled provider.
+		curl_setopt( $ch, CURLOPT_LOW_SPEED_LIMIT, 1 );
+		curl_setopt( $ch, CURLOPT_LOW_SPEED_TIME, self::LOW_SPEED_TIME );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $curl_headers );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
 		curl_setopt(
 			$ch,
 			CURLOPT_WRITEFUNCTION,
-			function ( $curl, $data ) {
-				$this->process_openai_stream_chunk( $data );
+			function ( $curl, $data ) use ( $process_chunk ) {
+				call_user_func( $process_chunk, $data );
 				return strlen( $data );
 			}
 		);
@@ -353,22 +408,6 @@ class Mind_AI_Stream {
 		}
 
 		curl_close( $ch );
-		/* phpcs:enable */
-	}
-	/**
-	 * Limit how long a provider request may hold the PHP worker.
-	 *
-	 * @param resource|CurlHandle $ch Curl handle.
-	 *
-	 * @return void
-	 */
-	private function set_curl_timeouts( $ch ) {
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_setopt */
-		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
-		curl_setopt( $ch, CURLOPT_TIMEOUT, 300 );
-		// Abort when the provider sends less than 1 byte per second for 60 seconds.
-		curl_setopt( $ch, CURLOPT_LOW_SPEED_LIMIT, 1 );
-		curl_setopt( $ch, CURLOPT_LOW_SPEED_TIME, 60 );
 		/* phpcs:enable */
 	}
 	/**
@@ -391,41 +430,16 @@ class Mind_AI_Stream {
 			'stream'      => true,
 		);
 
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close */
-		$ch = curl_init( 'https://api.anthropic.com/v1/messages' );
-		curl_setopt( $ch, CURLOPT_POST, 1 );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
-		$this->set_curl_timeouts( $ch );
-		curl_setopt(
-			$ch,
-			CURLOPT_HTTPHEADER,
+		$this->request_provider(
+			'https://api.anthropic.com/v1/messages',
 			array(
-				'Content-Type: application/json',
-				'x-api-key: ' . $api_key,
-				'anthropic-version: 2023-06-01',
-			)
+				'Content-Type'      => 'application/json',
+				'x-api-key'         => $api_key,
+				'anthropic-version' => '2023-06-01',
+			),
+			$body,
+			array( $this, 'process_anthropic_stream_chunk' )
 		);
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
-		curl_setopt(
-			$ch,
-			CURLOPT_WRITEFUNCTION,
-			function ( $curl, $data ) {
-				$this->process_anthropic_stream_chunk( $data );
-				return strlen( $data );
-			}
-		);
-
-		curl_exec( $ch );
-
-		if ( curl_errno( $ch ) ) {
-			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
-		} elseif ( ! $this->stream_done ) {
-			$this->send_buffered_chunk();
-			$this->send_stream_done();
-		}
-
-		curl_close( $ch );
-		/* phpcs:enable */
 	}
 	/**
 	 * Convert OpenAI messages format to Anthropic format.

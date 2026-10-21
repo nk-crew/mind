@@ -60,10 +60,10 @@ class Mind_Rest extends WP_REST_Controller {
 				'callback'            => [ $this, 'request_ai' ],
 				'permission_callback' => [ $this, 'request_ai_permission' ],
 				'args'                => [
-					'request'         => $this->get_text_arg_schema( 10000 ),
-					'selected_blocks' => $this->get_text_arg_schema( 200000 ),
-					'page_blocks'     => $this->get_text_arg_schema( 200000 ),
-					'page_context'    => $this->get_text_arg_schema( 10000 ),
+					'request'         => $this->get_text_arg_schema( 50000 ),
+					'selected_blocks' => $this->get_text_arg_schema( 1000000 ),
+					'page_blocks'     => $this->get_text_arg_schema( 1000000 ),
+					'page_context'    => $this->get_text_arg_schema( 20000 ),
 				],
 			]
 		);
