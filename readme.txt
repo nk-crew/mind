@@ -3,8 +3,8 @@ Contributors:      nko
 Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 7.0
 Tested up to:      7.1
-Requires PHP:      7.4
-Stable tag:        1.0.1
+Requires PHP:      8.3
+Stable tag:        1.1.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,14 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 1.1.0 - Oct 22, 2026 =
+
+- requires PHP 8.3 or newer
+- AI requests now follow the site's AI and outgoing HTTP policy, including blocked external requests and Connector approval
+- added time limits to AI requests, so a provider that stops responding no longer keeps the request open
+- added size limits to the prompt and the page content sent to the AI; an oversized request now shows its error in the editor
+- fixed AI output creating raw HTML blocks for users who are not allowed to post unfiltered HTML; that content is now inserted as an escaped paragraph
 
 = 1.0.1 - Aug 26, 2026 =
 
