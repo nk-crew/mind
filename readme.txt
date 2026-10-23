@@ -162,6 +162,7 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 
 = 1.1.0 - Oct 22, 2026 =
 
+- added WordPress 7.2 compatibility
 - requires PHP 8.3 or newer
 - AI requests now follow the site's AI and outgoing HTTP policy, including blocked external requests and Connector approval
 - added time limits to AI requests, so a provider that stops responding no longer keeps the request open
