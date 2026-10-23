@@ -385,7 +385,7 @@ class Mind_AI_Stream {
 			$curl_headers[] = $name . ': ' . $value;
 		}
 
-		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error */
+		/* phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_errno, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_getinfo */
 		$ch = curl_init( $url );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
@@ -396,24 +396,57 @@ class Mind_AI_Stream {
 		curl_setopt( $ch, CURLOPT_LOW_SPEED_TIME, self::LOW_SPEED_TIME );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $curl_headers );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+
+		$error_body = '';
+
 		curl_setopt(
 			$ch,
 			CURLOPT_WRITEFUNCTION,
-			function ( $curl, $data ) use ( $process_chunk ) {
-				call_user_func( $process_chunk, $data );
+			function ( $curl, $data ) use ( $process_chunk, &$error_body ) {
+				// A failed request answers with a plain JSON body instead of SSE, so collect it whole.
+				if ( 200 !== (int) curl_getinfo( $curl, CURLINFO_RESPONSE_CODE ) ) {
+					$error_body .= $data;
+				} else {
+					call_user_func( $process_chunk, $data );
+				}
+
 				return strlen( $data );
 			}
 		);
 
 		curl_exec( $ch );
 
+		// The write callback never runs for an empty body.
+		$status = (int) curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+
 		if ( curl_errno( $ch ) ) {
 			$this->send_stream_error( 'curl_error', curl_error( $ch ) );
+		} elseif ( 200 !== $status ) {
+			$this->send_stream_error( 'provider_http_error', $this->get_provider_error_message( $status, $error_body ) );
 		} elseif ( ! $this->stream_done ) {
 			$this->send_buffered_chunk();
 			$this->send_stream_done();
 		}
 		/* phpcs:enable */
+	}
+	/**
+	 * Get the message from a failed provider response.
+	 *
+	 * @param int    $status HTTP status code.
+	 * @param string $body Response body.
+	 *
+	 * @return string
+	 */
+	private function get_provider_error_message( $status, $body ) {
+		$data = json_decode( $body, true );
+
+		// OpenAI, Anthropic and the AI Gateway all answer { "error": { "message": "..." } }.
+		if ( isset( $data['error']['message'] ) && is_string( $data['error']['message'] ) && '' !== $data['error']['message'] ) {
+			return $data['error']['message'];
+		}
+
+		/* translators: %d: HTTP status code. */
+		return sprintf( __( 'The AI provider returned an error (HTTP %d).', 'mind' ), $status );
 	}
 	/**
 	 * Request Anthropic streaming API.
