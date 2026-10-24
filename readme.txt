@@ -160,14 +160,14 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 
 == Changelog ==
 
-= 1.1.0 - Oct 22, 2026 =
+= 1.1.0 - Oct 24, 2026 =
 
 - added WordPress 7.2 compatibility
 - requires PHP 8.3 or newer
-- AI requests now follow the site's AI and outgoing HTTP policy, including blocked external requests and Connector approval
-- added time limits to AI requests, so a provider that stops responding no longer keeps the request open
-- added size limits to the prompt and the page content sent to the AI; an oversized request now shows its error in the editor
-- fixed AI output creating raw HTML blocks for users who are not allowed to post unfiltered HTML; that content is now inserted as an escaped paragraph
+- AI requests now follow the site's settings for AI and outgoing requests
+- added a time limit to AI requests, so a provider that stops responding no longer leaves the editor waiting
+- added size limits to the prompt and the page content sent to the AI; an oversized request shows an error in the editor
+- security fix: AI output could insert raw HTML for users who are not allowed to post it; that content is now inserted as text
 - fixed an invalid AI provider key or a provider error showing an empty answer; the editor now shows the provider's message
 
 = 1.0.1 - Aug 26, 2026 =
