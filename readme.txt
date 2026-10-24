@@ -2,9 +2,9 @@
 Contributors:      nko
 Tags:              ai, gpt, ai page builder, ai editor, copilot
 Requires at least: 7.0
-Tested up to:      7.1
-Requires PHP:      7.4
-Stable tag:        1.0.1
+Tested up to:      7.2
+Requires PHP:      8.3
+Stable tag:        1.1.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,16 @@ Select the section you want to enhance, click the Mind button in the toolbar, an
 4. Paragraph toolbar button
 
 == Changelog ==
+
+= 1.1.0 - Oct 24, 2026 =
+
+- added WordPress 7.2 compatibility
+- requires PHP 8.3 or newer
+- AI requests now follow the site's settings for AI and outgoing requests
+- added a time limit to AI requests, so a provider that stops responding no longer leaves the editor waiting
+- added size limits to the prompt and the page content sent to the AI; an oversized request shows an error in the editor
+- security fix: AI output could insert raw HTML for users who are not allowed to post it; that content is now inserted as text
+- fixed an invalid AI provider key or a provider error showing an empty answer; the editor now shows the provider's message
 
 = 1.0.1 - Aug 26, 2026 =
 
