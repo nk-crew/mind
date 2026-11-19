@@ -51,11 +51,11 @@ export default function NotConnectedScreen() {
 			? __(
 					'Connect an AI provider in WordPress Connectors before using Mind.',
 					'mind'
-			  )
+				)
 			: __(
 					'Mind is not ready yet. Ask an administrator to connect an AI provider in WordPress Connectors.',
 					'mind'
-			  );
+				);
 		actionURL = connectorsPageURL;
 		actionLabel = __('Open Connectors', 'mind');
 	} else if (showMindSettings) {
@@ -63,11 +63,11 @@ export default function NotConnectedScreen() {
 			? __(
 					'Choose a valid provider and model in Mind settings, or switch back to Default.',
 					'mind'
-			  )
+				)
 			: __(
 					'Mind is not ready yet. Ask an administrator to configure a valid provider and model in Mind settings.',
 					'mind'
-			  );
+				);
 		actionURL = mindSettingsPageURL;
 		actionLabel = __('Open Mind settings', 'mind');
 	}

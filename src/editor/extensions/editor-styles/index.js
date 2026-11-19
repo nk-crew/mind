@@ -14,9 +14,9 @@ import EditorStyles from '../../components/editor-styles';
 /**
  * Add new blocks highlight to see what exactly added by the AI.
  *
- * @param {Function} OriginalComponent Original component.
+ * @param {import('react').ComponentType} OriginalComponent Original component.
  *
- * @return {Function} Wrapped component.
+ * @return {import('react').ComponentType} Wrapped component.
  */
 const withMindAIEditorStyles = createHigherOrderComponent(
 	(OriginalComponent) => {

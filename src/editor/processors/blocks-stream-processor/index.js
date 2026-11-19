@@ -41,7 +41,9 @@ export default class BlocksStreamProcessor {
 		try {
 			while (true) {
 				const { value, done } = await reader.read();
-				if (done) break;
+				if (done) {
+					break;
+				}
 
 				await this.processChunk(value);
 			}
@@ -66,7 +68,9 @@ export default class BlocksStreamProcessor {
 		this.sseBuffer = lines.pop() || '';
 
 		for (const line of lines) {
-			if (!line.startsWith('data: ')) continue;
+			if (!line.startsWith('data: ')) {
+				continue;
+			}
 
 			try {
 				const dataContent = line.slice(6);
@@ -101,12 +105,12 @@ export default class BlocksStreamProcessor {
 					return;
 				}
 
-				if (!data.content) continue;
+				if (!data.content) {
+					continue;
+				}
 
 				await this.processContent(data.content);
-			} catch (e) {
-				// console.error('Error processing line:', e);
-			}
+			} catch {}
 		}
 	}
 
@@ -171,7 +175,7 @@ export default class BlocksStreamProcessor {
 					await this.dispatchBlocks(transformedBlocks, false);
 				}
 			}
-		} catch (e) {
+		} catch {
 			// Expected error for incomplete JSON
 		}
 	}
@@ -192,7 +196,7 @@ export default class BlocksStreamProcessor {
 				await this.dispatchBlocks(transformedBlocks, isFinal);
 				return true;
 			}
-		} catch (e) {
+		} catch {
 			if (!isFinal) {
 				await this.tryParseIncomplete(jsonContent);
 			}
@@ -222,7 +226,9 @@ export default class BlocksStreamProcessor {
 	}
 
 	transformToBlock(blockData) {
-		if (!blockData?.name) return null;
+		if (!blockData?.name) {
+			return null;
+		}
 
 		try {
 			const innerBlocks = Array.isArray(blockData.innerBlocks)
@@ -243,8 +249,7 @@ export default class BlocksStreamProcessor {
 			}
 
 			return createBlock(blockData.name, attributes, innerBlocks);
-		} catch (error) {
-			// console.log('Error transforming block:', error);
+		} catch {
 			return null;
 		}
 	}

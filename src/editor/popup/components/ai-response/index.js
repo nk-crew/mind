@@ -29,7 +29,7 @@ function RenderPreview({ response, active }) {
 	return <div {...previewProps} />;
 }
 
-const AIResponse = memo(
+const MemoizedAIResponse = memo(
 	function AIResponse({ response, loading }) {
 		const [activePreview, setActivePreview] = useState(1);
 		const [preview1Data, setPreview1Data] = useState([]);
@@ -111,4 +111,4 @@ const AIResponse = memo(
 	}
 );
 
-export default AIResponse;
+export default MemoizedAIResponse;
