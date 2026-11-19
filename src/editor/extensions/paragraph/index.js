@@ -25,9 +25,9 @@ setLocaleData(
  * Listen for `space` inside an empty paragraph block.
  * And open the Mind Popup.
  *
- * @param {Function} OriginalComponent Original component.
+ * @param {import('react').ComponentType} OriginalComponent Original component.
  *
- * @return {Function} Wrapped component.
+ * @return {import('react').ComponentType} Wrapped component.
  */
 const withMindAI = createHigherOrderComponent((OriginalComponent) => {
 	function MindParagraphAI(props) {

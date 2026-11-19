@@ -47,7 +47,7 @@ export default function Input(props) {
 					name: __('Blocks', 'mind'),
 					tooltip: __('Provide selected blocks context', 'mind'),
 					value: 'selected-blocks',
-			  }
+				}
 			: false,
 	];
 	const editableContexts = !loading && !response?.length;
