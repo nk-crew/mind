@@ -32,7 +32,9 @@ export default class TextStreamProcessor {
 
 			while (true) {
 				const { value, done } = await reader.read();
-				if (done) break;
+				if (done) {
+					break;
+				}
 
 				await this.processChunk(value);
 			}
@@ -84,7 +86,9 @@ export default class TextStreamProcessor {
 	}
 
 	async startQueueProcessor() {
-		if (this.isProcessing) return;
+		if (this.isProcessing) {
+			return;
+		}
 
 		this.isProcessing = true;
 		while (this.updateQueue.length > 0) {

@@ -272,7 +272,7 @@ function Toolbar() {
  * Override the default edit UI to include a new block inspector control for
  * assigning the custom attribute if needed.
  *
- * @param {Function} BlockEdit Original component.
+ * @param {import('react').ComponentType} BlockEdit Original component.
  *
  * @return {string} Wrapped component.
  */

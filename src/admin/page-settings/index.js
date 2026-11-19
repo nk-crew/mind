@@ -11,7 +11,7 @@ import clsx from 'clsx';
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { isEqual } from 'lodash';
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -158,7 +158,7 @@ export default function PageSettings() {
 							? __(
 									'At least one AI provider is connected.',
 									'mind'
-							  )
+								)
 							: __('No AI providers are connected yet.', 'mind')}
 					</div>
 					<div className="mind-admin-settings-card-description">
